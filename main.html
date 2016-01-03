@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html ng-app="Sticklet">
+    <head>
+        <title>Sticklet</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <!-- css -->
+        <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+        <link type="text/css" rel="stylesheet" href="css/sticklet.css"/>
+    </head>
+
+    <body>
+        <div id="topbar"></div>
+
+        <div class="container-fluid">
+            <div clas="row">
+                <div id="sidebar" class="col-sm-3" ng-controller="MenuCtrl">
+                    <div ng-include="'templates/menu.html'"></div>
+                </div>
+        
+                <div id="content-area" class="col-sm-9">
+                    <div ng-view></div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+    <!-- libraries -->
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-animate/angular-animate.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+    <!-- sticklet code -->
+    <script type="text/javascript" src="js/sticklet.js"></script>
+    <script type="text/javascript" src="js/sticklet.controllers.js"></script>
+    <script type="text/javascript" src="js/sticklet.services.js"></script>
+    <script type="text/javascript" src="js/sticklet.directives.js"></script>
+    <script type="text/javascript" src="js/sticklet.filters.js"></script>
+</html>

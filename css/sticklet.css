@@ -1,0 +1,65 @@
+/* general */
+html,body {
+    overflow: hidden;
+    font-size: 12px;
+    height: 100%;
+    width: 100%;
+}
+
+/* helper classes */
+.pre-wrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.no-wrap-text  {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.full-height {
+    height: 100%;
+}
+ul.no-list-style {
+    list-style: none;
+}
+
+/* notes view */
+#notes-list {
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background: #333;
+}
+    #notes-list .note {
+        padding: 10px;
+        margin: 10px;
+        background: #CCC;
+        overflow-y: hidden;
+        display: inline-block;
+    }
+        #notes-list.stacked .note {
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+        }
+        #notes-list.tiled .note {
+            width: 29.9%;
+            height: 250px;
+        }
+/*         #notes-list .note:hover { */
+/*             overflow-y: auto; */
+/*         } */
+        #notes-list .note .header {}
+            #notes-list .note .header.container-fluid > .row > [class*='col-sm-'] {
+                padding: 0;
+            }
+            #notes-list .note .updated {}
+            #notes-list .note .title {
+                font-weight: bold;
+            }
+            #notes-list .note .options {
+                float: right;
+            }
+                #notes-list .note .options i {
+                    cursor: pointer;
+                }

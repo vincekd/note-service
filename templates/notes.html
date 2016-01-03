@@ -1,0 +1,26 @@
+<div id="notes-list" ng-class="{'stacked': display === 'stacked', 'tiled': display === 'tiled'}">
+    <div ng-repeat="note in notes | SortNotes:sortBy" class="note">
+        <div class="header clearfix container-fluid">
+            <div class="row">
+                <div class="updated col-sm-1">
+                    <i class="glyphicon glyphicon-time" uib-tooltip="{{note.updated | date:'short'}}"></i>
+                </div>
+                <div class="title col-sm-10 no-wrap-text">
+                    <span ng-bind="note.title"></span>
+                </div>
+                <div class="options" class="col-sm-1">
+                    <span uib-dropdown uib-keyboard-nav dropdown-append-to-body>
+                        <i class="glyphicon glyphicon-chevron-down" uib-dropdown-toggle></i>
+                        <ul class="uib-dropdown-menu dropdown-menu-right">
+                            <li><a href="javascript:;">Color</a></li>
+                            <li><a href="javascript:;">Delete</a></li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        </div>
+<!--         <div class="content" ng-bind-html="renderHtml | note.content"></div> -->
+        <div class="content" ng-bind="note.content"></div>
+        <div class="tags"></div>
+    </div>
+</div>
