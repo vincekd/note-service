@@ -51,7 +51,8 @@ Sticklet
         return {
             "restrict": "E",
             "scope": {
-                "onChange": "&"
+                "onChange": "&",
+                "note": "="
             },
             "templateUrl": "templates/color-choices.html",
             "link": function($scope, $element, $attrs) {
@@ -61,6 +62,12 @@ Sticklet
                 $scope.colorClick = function($event, color) {
                     console.log("color clicked", color);
                     $scope.onChange(color);
+                };
+                $scope.mouseEnter = function($event, color) {
+                    $scope.onChange(color);
+                };
+                $scope.mouseLeave = function($event, color) {
+                    
                 };
             }
         };

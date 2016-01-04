@@ -10,9 +10,12 @@ Sticklet
             return (reverse ? _.reverse(sorted) : sorted);
         };
     }])
-    .filter("NotEmpty", [function() {
-        return function(obj) {
-            return (!obj || (_.isArray(obj) && !obj.length) || (_.isObject(obj) && !Object.keys(obj).length)); 
+    .filter("CancelEvent", [function() {
+        return function($event) {
+            console.log("canceling event", $event);
+            $event.stopPropagation();
+            $event.preventDefault();
+            return false;
         };
     }])
 ;

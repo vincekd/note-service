@@ -7,15 +7,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.sticklet.core.model.base.BaseModel
 
 @Document
-class Note extends BaseModel {
+class Tag extends BaseModel {
     @JsonIgnore
     @DBRef
     public User user
-    
-    public String title
-    public String content
-    public String color
 
-    @DBRef
-    public List<Tag> tags = []
+    public String name
 }

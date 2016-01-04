@@ -1,5 +1,6 @@
 (function() { "use strict";
     var Sticklet = angular.module("Sticklet", ["ngRoute", "ui.bootstrap", "perfect_scrollbar"]);
+
     Sticklet.config(["$routeProvider", "$locationProvider", "$provide", function($routeProvider, $locationProvider, $provide) {
         $locationProvider.hashPrefix("!");
         $routeProvider.when("/notes", {

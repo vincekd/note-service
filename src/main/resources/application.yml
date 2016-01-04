@@ -1,0 +1,60 @@
+spring:
+  profiles: default
+  data:
+    mongodb:
+      #auditing: true
+      databaseName: sticklet
+      host: 127.0.0.1
+      port: 27017
+      username: 
+      password:
+  jackson:
+    serialization:
+      indent_output: true
+spring-data-releasetrain:
+  version: Gosling-BUILD-SNAPSHOT
+logging: 
+  level:
+    org.springframework: WARN
+    org.springframework.beans: INFO
+    org.hibernate: INFO
+    org.egr.authorware: DEBUG
+server:
+  port: 9000
+  contextPath: 
+directory:
+  upload: ./data/uploads
+login:
+  enabled: false
+---
+
+spring:
+  profiles: qa
+  data:
+    mongodb:
+      databaseName: sticklet_qa
+      host: 127.0.0.1
+      port: 27017
+      username: 
+      password:
+server:
+  port: 9003
+  contextPath: /
+login:
+  enabled: true
+---
+
+spring:
+  profiles: live
+  data:
+    mongodb:
+      databaseName: sticklet_live
+      host: 127.0.0.1
+      port: 27017
+      username: 
+      password:
+server:
+  port: 9004
+  contextPath: /
+login:
+  enabled: true

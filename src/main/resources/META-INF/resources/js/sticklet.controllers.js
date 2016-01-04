@@ -11,6 +11,12 @@ Sticklet
         $scope.filters;
         $scope.notes = [];
 
+        $scope.createNote = function() {
+            NoteServ.create().then(function(note) {
+                $scope.notes.push(note);
+            });
+        };
+
         NoteServ.getNotes().then(function(notes) {
             $scope.notes = notes;
         });
@@ -26,6 +32,9 @@ Sticklet
         };
         $scope.editNote = function() {
             console.log("edit note:", $scope.note);
+        };
+        $scope.deleteNote = function() {
+            NoteServ.remove($scope.note);
         };
     }])
     .controller("NoteCtrl", ["$scope", function($scope) {
