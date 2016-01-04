@@ -1,7 +1,7 @@
 (function($) { "use strict";
 
-var Sticklet = angular.module("Sticklet"),
-    colors = ["#F7977A", "#C5E3BF", "#c1F0F6", "#FFF79A", "#FDC68A", "#D8BFD8"];
+var Sticklet = angular.module("Sticklet");
+var colors = ["#F7977A", "#C5E3BF", "#C1F0F6", "#FFF79A", "#FDC68A", "#D8BFD8"];
 
 Sticklet
     .service("HTTP", ["$http", "$q", function($http, $q) {
