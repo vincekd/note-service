@@ -1,0 +1,10 @@
+/build/
+/bin/
+.settings
+.classpath
+.project
+.gradle
+bin
+build
+target
+.springBeans

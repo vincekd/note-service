@@ -1,0 +1,98 @@
+buildscript {
+    ext {
+        springBootVersion = '1.2.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+version += ((!hasProperty("snapshot")) ? "" : "-SNAPSHOT")
+
+apply {
+    plugin 'groovy'
+    plugin 'eclipse-wtp'
+    plugin 'idea'
+    plugin 'spring-boot'
+    plugin 'java'
+}
+
+jar {
+    enabled = true
+    baseName = 'sticklet'
+    version =  version
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+sourceSets {
+    main {
+        groovy {
+            srcDir "src/main/groovy"
+        }
+        resources {
+            srcDir "src/main/resources"
+        }
+    }
+    test {
+        groovy {
+            srcDir "src/test/groovy"
+        }
+        resources {
+            srcDir "src/test/resources"
+        }
+    }
+}
+
+configurations {
+    providedRuntime
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile('org.springframework.data:spring-data-mongodb:1.7.0.RELEASE')
+
+    //Security
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile('org.springframework.security:spring-security-web:3.2.4.RELEASE')
+    compile('org.springframework.security:spring-security-core:3.2.4.RELEASE')
+    compile('org.springframework.security:spring-security-config:3.2.4.RELEASE')
+
+    compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile("org.springframework.boot:spring-boot-starter-data-rest")
+    compile("org.springframework:spring-messaging")
+    compile("org.codehaus.groovy:groovy")
+
+    compile('javax.mail:mail:1.4.7')
+
+    compile("org.reflections:reflections:0.9.9")
+
+    //compile("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
+    //compile('net.sf.opencsv:opencsv:2.3')
+
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+eclipse {
+    classpath {
+        containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+        containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
+}
