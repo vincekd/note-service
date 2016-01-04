@@ -1,4 +1,4 @@
-(function($, _, angular, undefined) {
+(function($) { "use strict";
 
 var Sticklet = angular.module("Sticklet");
 Sticklet
@@ -10,4 +10,10 @@ Sticklet
             return (reverse ? _.reverse(sorted) : sorted);
         };
     }])
-}(jQuery, _, angular));
+    .filter("NotEmpty", [function() {
+        return function(obj) {
+            return (!obj || (_.isArray(obj) && !obj.length) || (_.isObject(obj) && !Object.keys(obj).length)); 
+        };
+    }])
+;
+}(jQuery));

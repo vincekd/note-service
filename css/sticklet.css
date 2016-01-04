@@ -22,44 +22,107 @@ html,body {
 ul.no-list-style {
     list-style: none;
 }
+.scrollbar {
+/*     white-space: pre-line; */
+    height: 100%;
+    overflow-y: hidden;
+    position: relative;
+}
+.relative-div {
+    position: relative;
+}
+.pointer {
+    cursor: pointer;
+}
+.container-fluid > .row.no-row-padding > [class*='col-sm-'] {
+    padding: 0;
+}
+
+/* menu */
+#menu {
+    height: 50px;
+    padding-top: 9px;
+}
+
+/* hover over notes */
+#notes-display-options {
+    display: none;
+    position: absolute;
+    right: 15px;
+    top: 7px;
+}
+
+/* color choices */
+.color-choices {
+    display: block;
+    width: 120px;
+    margin: auto;
+}
+    .color-choices .color-choice {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        margin: 0;
+        border: 1px solid transparent;
+    }
+        .color-choices .color-choice:hover {
+            border-color: #000;
+        }
 
 /* notes view */
 #notes-list {
     width: 100%;
-    margin-top: 20px;
     margin-bottom: 20px;
     background: #333;
+    overflow-y: auto;
+/*     padding-top: 20px; */
 }
+    #notes-list .notes {
+        margin-top: 20px;
+    }
     #notes-list .note {
-        padding: 10px;
         margin: 10px;
+        padding: 0px;
+        padding-top: 7px;
+        padding-left: 7px;
         background: #CCC;
         overflow-y: hidden;
-        display: inline-block;
+        height: 250px;
     }
         #notes-list.stacked .note {
-            width: 100%;
-            max-width: 600px;
-            height: 200px;
+            max-width: 100%;
+            width: 1000px;
+            margin: 10px auto 10px auto;
         }
         #notes-list.tiled .note {
-            width: 29.9%;
-            height: 250px;
+            width: 32%;
+            min-width: 250px;
+            display: inline-block;
         }
-/*         #notes-list .note:hover { */
-/*             overflow-y: auto; */
-/*         } */
-        #notes-list .note .header {}
-            #notes-list .note .header.container-fluid > .row > [class*='col-sm-'] {
-                padding: 0;
-            }
+        #notes-list .note .header {
+            height: 20px;
+        }
             #notes-list .note .updated {}
+                #notes-list .note .updated i {
+                    cursor: default;
+                }
             #notes-list .note .title {
                 font-weight: bold;
+                text-align: center;
             }
             #notes-list .note .options {
                 float: right;
             }
-                #notes-list .note .options i {
+                #notes-list .note .options .dropdown {
                     cursor: pointer;
+                    margin-right: 10px;
                 }
+        #notes-list .note .content {
+            height: 190px;
+            padding-bottom: 10px;
+            background: rgba(186, 199, 225, 1.0);
+        }
+        #notes-list .note .tags {
+            height: 30px;
+        }

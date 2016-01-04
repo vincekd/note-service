@@ -1,1 +1,30 @@
-test
+<div ng-controller="TopBarCtrl" class="top-bar">
+    <div class="container-fluid">
+        <div class="row no-row-padding">
+            <div class="col-sm-3">
+                <div class="btn-group" uib-dropdown="">
+                  <button type="button" class="btn" uib-dropdown-toggle="">
+                    <span>Tags</span>
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
+                    <li role="menuitem"><a href="#">Action</a></li>
+                    <li role="menuitem"><a href="#">Another action</a></li>
+                    <li role="menuitem"><a href="#">Something else here</a></li>
+                    <li class="divider"></li>
+                    <li role="menuitem"><a href="#">Separated link</a></li>
+                  </ul>
+                </div>
+                <div class="current-tags"></div>
+            </div>
+        
+            <div class="col-sm-4">
+                <input type="text" placeholder="Search" class="input"/>
+            </div>
+
+            <div class="col-sm-2">
+                logout
+            </div>
+        </div>
+    </div>
+</div>

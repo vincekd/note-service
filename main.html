@@ -7,24 +7,10 @@
         <!-- css -->
         <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
         <link type="text/css" rel="stylesheet" href="css/sticklet.css"/>
+        <link rel="stylesheet" href="bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
     </head>
 
-    <body>
-        <div id="topbar"></div>
-
-        <div class="container-fluid">
-            <div clas="row">
-                <div id="sidebar" class="col-sm-3" ng-controller="MenuCtrl">
-                    <div ng-include="'templates/menu.html'"></div>
-                </div>
-        
-                <div id="content-area" class="col-sm-9">
-                    <div ng-view></div>
-                </div>
-            </div>
-        </div>
-
-    </body>
+    <body ng-view></body>
 
     <!-- libraries -->
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -35,6 +21,9 @@
     <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
     <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js"></script>
+    <script src="bower_components/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min.js"></script>
+    <script src="bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js"></script>
 
     <!-- sticklet code -->
     <script type="text/javascript" src="js/sticklet.js"></script>

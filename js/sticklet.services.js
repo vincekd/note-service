@@ -1,11 +1,13 @@
-(function($, _, angular, undefined) {
+(function($) { "use strict";
 
-var Sticklet = angular.module("Sticklet");
+var Sticklet = angular.module("Sticklet"),
+    colors = ["#F7977A", "#C5E3BF", "#c1F0F6", "#FFF79A", "#FDC68A", "#D8BFD8"];
 
 Sticklet
     .service("HTTP", ["$http", "$q", function($http, $q) {
         //TODO: remove
         //create fake data
+        var tag = {"id": 1, "name": "Tag 1"};
         var fakeNotes = [];
         var d = Date.now();
         for (var i = 0; i < 50; i++) {
@@ -14,6 +16,7 @@ Sticklet
                 "created": (d - (1000 * 60 * 60 * i)),
                 "updated": (d - (1000 * 60 * i)),
                 "title": "Title " + i,
+                "tags": (i % 6 ? [tag] : []),
                 "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue " +
                     "ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet " +
                     "vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. " +
@@ -45,6 +48,8 @@ Sticklet
                 var d = $q.defer();
                 if (url === "/notes") {
                     d.resolve(fakeNotes);
+                } else if (url === "/colors") {
+                    d.resolve(colors);
                 }
                 return d.promise;
 
@@ -53,14 +58,37 @@ Sticklet
 //                });
             },
             "post": function(url, data) {
-                return $http.post(getRealUrl(url), data);
+                //return $http.post(getRealUrl(url), data);
             },
             "put": function(url, data) {
-                return $http.put(getRealUrl(url), data);
+                //return $http.put(getRealUrl(url), data);
             },
-            "dele": function(url, data) {
-                return $http["delete"](getRealUrl(url), data);
+            "remove": function(url, data) {
+                //return $http["delete"](getRealUrl(url), data);
             }
         };
-    }]);
-}(jQuery, _, angular));
+    }])
+    .service("NoteServ", ["HTTP", function(HTTP) {
+        return {
+            "getNotes": function() {
+                return HTTP.get("/notes");
+            },
+            "getColors": function() {
+                return HTTP.get("/colors");
+            },
+            "save": function(note) {
+                return HTTP.put("/note/" + note.id, note);
+            },
+            "remove": function(note) {
+                return HTTP.remove("/note/" + note.id);
+            },
+            "refresh": function(note) {
+                return HTTP.get("/note/" + note.id);
+            },
+            "create": function() {
+                return HTTP.post("/note");
+            }
+        };
+    }])
+;
+}(jQuery));

@@ -1,26 +1,59 @@
-<div id="notes-list" ng-class="{'stacked': display === 'stacked', 'tiled': display === 'tiled'}">
-    <div ng-repeat="note in notes | SortNotes:sortBy" class="note">
-        <div class="header clearfix container-fluid">
-            <div class="row">
-                <div class="updated col-sm-1">
-                    <i class="glyphicon glyphicon-time" uib-tooltip="{{note.updated | date:'short'}}"></i>
+<div>
+    <div id="menu"><div ng-include="'templates/menu.html'"></div></div>
+
+    <div size-notes-area="" class="relative-div" id="notes" show-hide-timer="" time="3" element="#notes-display-options">
+        <div id="notes-list" class="{{opts.display}} full-height">
+            <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20">
+                <div class="notes">
+                    <div ng-repeat="note in notes | SortNotes:opts.sortBy" ng-controller="NoteListNoteCtrl"
+                        class="note" ng-style="{'background': note.color}">
+                        <div class="header clearfix container-fluid">
+                            <div class="row no-row-padding">
+                                <div class="updated col-sm-{{opts.display === 'tiled' ? 2 : 1}}">
+                                    <i ng-if="opts.display === 'tiled'" class="glyphicon glyphicon-time" uib-tooltip="{{note.updated | date:'short'}}" 
+                                    <i class="glyphicon glyphicon-time" uib-tooltip="{{note.updated | date:'short'}}" 
+                                        tooltip-placement="right" tooltip-append-to-body="true"></i>
+                                    <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | date:'short'"></span>
+                                </div>
+                                <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 10}} no-wrap-text">
+                                    <span ng-bind="note.title"></span>
+                                </div>
+                                <div class="options col-sm-1">
+                                    <span class="pull-right" uib-dropdown="" uib-keyboard-nav="" >
+                                        <i class="glyphicon glyphicon-chevron-down" uib-dropdown-toggle=""></i>
+                                        <ul class="uib-dropdown-menu dropdown-menu-right">
+                                            <li>
+                                                <color-choices on-change="changeColor(color)"></color-choices>
+                                            </li>
+                                            <li><a href="javascript:;">Delete</a></li>
+                                        </ul>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content pointer" ng-dblclick="editNote(note)">
+                            <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                                <div ng-bind="note.content"></div>
+                            </perfect-scrollbar>
+                        </div>
+                        <div class="tags"><tags /></div>
+                    </div>
                 </div>
-                <div class="title col-sm-10 no-wrap-text">
-                    <span ng-bind="note.title"></span>
-                </div>
-                <div class="options" class="col-sm-1">
-                    <span uib-dropdown uib-keyboard-nav dropdown-append-to-body>
-                        <i class="glyphicon glyphicon-chevron-down" uib-dropdown-toggle></i>
-                        <ul class="uib-dropdown-menu dropdown-menu-right">
-                            <li><a href="javascript:;">Color</a></li>
-                            <li><a href="javascript:;">Delete</a></li>
-                        </ul>
-                    </span>
+            </perfect-scrollbar>
+            <div id="notes-display-options">
+                <div class="btn-group">
+                    <button class="btn" type="button" ng-click="opts.display = 'tiled'">
+                        <i class="glyphicon glyphicon-th"></i>
+                    </button>
+                    <button class="btn" type="button" ng-click="opts.display = 'stacked'">
+                        <i class="glyphicon glyphicon-th-list"></i>
+                    </button>
                 </div>
             </div>
         </div>
-<!--         <div class="content" ng-bind-html="renderHtml | note.content"></div> -->
-        <div class="content" ng-bind="note.content"></div>
-        <div class="tags"></div>
+
+        <div ng-if="note" id="note-display" class="full-height" ng-controller="NoteCtrl">
+            <div ng-include="'templates/note.html'"></div>
+        </div>
     </div>
 </div>
