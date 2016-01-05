@@ -1,5 +1,5 @@
 (function() { "use strict";
-    var Sticklet = angular.module("Sticklet", ["ngRoute", "ui.bootstrap", "perfect_scrollbar"]);
+    var Sticklet = angular.module("Sticklet", ["ngRoute", "ui.bootstrap", "perfect_scrollbar", "ui.tinymce"]);
 
     Sticklet.config(["$routeProvider", "$locationProvider", "$provide", function($routeProvider, $locationProvider, $provide) {
         $locationProvider.hashPrefix("!");
@@ -14,8 +14,22 @@
                 return "/notes";
             }
         });
+
+        $provide.value("tinymceOpts", {
+            //theme: "advanced",
+            content_css: "css/tinymce.css",
+            plugins: "paste code autoresize",
+            toolbar: "undo redo | bold italic underline | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | code removeformat",
+            browser_spellcheck: true,
+            menubar: false,
+            statusbar: false,
+            //width: "100%",
+            resize: false,
+            toolbar_item_size: "small",
+            nowrap: false
+        });
     }]);
-    
+
     _.mixin({
         "reverse": function(arr) {
             if (!_.isArray(arr)) {

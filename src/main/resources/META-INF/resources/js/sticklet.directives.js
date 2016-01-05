@@ -1,6 +1,10 @@
 (function($) { "use strict";
 
-var Sticklet = angular.module("Sticklet");
+var Sticklet = angular.module("Sticklet"),
+    keyCodes = {
+        "ESCAPE": 27,
+        "ENTER": 13
+    };
 Sticklet
     .directive("sizeNotesArea", [function() {
         return {
@@ -56,19 +60,74 @@ Sticklet
             },
             "templateUrl": "templates/color-choices.html",
             "link": function($scope, $element, $attrs) {
+                var originalColor = $scope.note.color;
                 colors.then(function(c) {
                     $scope.colors = c;
                 });
                 $scope.colorClick = function($event, color) {
-                    console.log("color clicked", color);
-                    $scope.onChange(color);
+                    $scope.note.color = originalColor = color;
+                    $scope.onChange({color: color});
                 };
                 $scope.mouseEnter = function($event, color) {
-                    $scope.onChange(color);
+                    $scope.note.color = color;
                 };
                 $scope.mouseLeave = function($event, color) {
-                    
+                    $scope.note.color = originalColor;
                 };
+            }
+        };
+    }])
+    .directive("editableArea", ["tinymceOpts", function(tinymceOpts) {
+        return {
+            "restrict": "E",
+            "scope": {
+                "model": "=",
+                "update": "&onUpdate",
+                "close": "&onClose",
+                "type": "@",
+                "prop": "@",
+                "global": "@"
+            },
+            "templateUrl": "templates/editable-area.html",
+            "link": function($scope, $element, $attrs) {
+                $scope.global = $scope.global === "true"
+                $scope.cur = {
+                    "value": $scope.model[$scope.prop]
+                };
+                var close = function() {
+                        update();
+                        try {
+                            tinymce.remove(thisEditor);
+                            editor.destroy();
+                        } catch (e) {}
+                        $scope.close();
+                    },
+                    update = function() {
+                        $scope.model[$scope.prop] = $scope.cur.value;
+                        $scope.update();
+                    },
+                    thisEditor;
+
+                $scope.tinymceOptions = _.extend({}, tinymceOpts, {
+                    "init_instance_callback": function(editor) {
+                        thisEditor = editor;
+                        if (!$scope.global) { 
+                            editor.on("keyup keydown click", function(ev) {
+                                if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
+                                    ev.preventDefault();
+                                    ev.stopPropagation();
+                                    if (ev.type === "keyup") {
+                                        close();
+                                    }
+                                    return false;
+                                }
+                            });
+                            editor.on("blur", function(event) {
+                                close();
+                            });
+                        }
+                    }
+                });
             }
         };
     }])

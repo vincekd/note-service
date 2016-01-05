@@ -1,26 +1,17 @@
-<div id="notes-list" ng-class="{'stacked': display === 'stacked', 'tiled': display === 'tiled'}">
-    <div ng-repeat="note in notes | SortNotes:sortBy" class="note">
-        <div class="header clearfix container-fluid">
-            <div class="row">
-                <div class="updated col-sm-1">
-                    <i class="glyphicon glyphicon-time" uib-tooltip="{{note.updated | date:'short'}}"></i>
-                </div>
-                <div class="title col-sm-10 no-wrap-text">
-                    <span ng-bind="note.title"></span>
-                </div>
-                <div class="options" class="col-sm-1">
-                    <span uib-dropdown uib-keyboard-nav dropdown-append-to-body>
-                        <i class="glyphicon glyphicon-chevron-down" uib-dropdown-toggle></i>
-                        <ul class="uib-dropdown-menu dropdown-menu-right">
-                            <li><a href="javascript:;">Color</a></li>
-                            <li><a href="javascript:;">Delete</a></li>
-                        </ul>
-                    </span>
-                </div>
+<div class="full-height">
+    <div class="container-fluid">
+        <div class="row no-row-padding">
+            <div class="col-sm-9">
+                <editable-area model="current.editing" prop="title" type="input" on-update="globalUpdate()" on-close="globalClose()" global="true"></editable-area>
+            </div>
+            <div class="col-sm-3">
+                <button type="button" ng-click="closeGlobal()" class="btn">Save</button>
             </div>
         </div>
-<!--         <div class="content" ng-bind-html="renderHtml | note.content"></div> -->
-        <div class="content" ng-bind="note.content"></div>
-        <div class="tags"></div>
+    </div>
+    <div>
+        <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">   
+            <editable-area model="current.editing" prop="content" type="textarea" on-update="globalUpdate()" on-close="globalClose()" global="true"></editable-area>
+        </perfect-scrollbar>
     </div>
 </div>

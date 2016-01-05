@@ -5,7 +5,9 @@ html,body {
     height: 100%;
     width: 100%;
 }
-
+a[href]:hover {
+    text-decoration: none;
+}
 /* helper classes */
 .pre-wrap {
     white-space: pre-wrap;
@@ -69,14 +71,21 @@ ul.no-list-style {
         .color-choices .color-choice:hover {
             border-color: #000;
         }
+        .color-choices .color-choice a {
+            display: block;
+        }
 
 /* notes view */
-#notes-list {
-    width: 100%;
-    margin-bottom: 20px;
+#notes {
     background: #333;
+}
+    #note-display {
+        background: #CCC;
+        padding: 10px;
+    }
+#notes-list {
+    margin-bottom: 20px;
     overflow-y: auto;
-/*     padding-top: 20px; */
 }
     #notes-list .notes {
         margin-top: 20px;
@@ -85,7 +94,7 @@ ul.no-list-style {
         margin: 10px;
         padding: 0px;
         padding-top: 7px;
-        padding-left: 7px;
+/*         padding-left: 7px; */
         background: #CCC;
         overflow-y: hidden;
         height: 250px;
@@ -103,7 +112,9 @@ ul.no-list-style {
         #notes-list .note .header {
             height: 20px;
         }
-            #notes-list .note .updated {}
+            #notes-list .note .updated {
+                padding-left: 10px;
+            }
                 #notes-list .note .updated i {
                     cursor: default;
                 }
@@ -121,8 +132,11 @@ ul.no-list-style {
         #notes-list .note .content {
             height: 190px;
             padding-bottom: 10px;
-            background: rgba(186, 199, 225, 1.0);
+            /* background: rgba(186, 199, 225, 1.0); */
         }
+            #notes-list .note .content .not-editing-text {
+                padding: 0px 10px 0px 10px;
+            }
         #notes-list .note .tags {
             height: 30px;
         }

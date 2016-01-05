@@ -6,12 +6,17 @@ Sticklet
     .controller("NotesCtrl", ["$scope", "HTTP", "NoteServ", function($scope, HTTP, NoteServ) {
         $scope.opts = {
             display: "stacked",
-            sortBy: "updated"
+            sortBy: "updated",
+            globalEdit: true
         };
-        $scope.filters;
+        $scope.current = {
+            editing: null,
+            filters: null
+        };
         $scope.notes = [];
 
         $scope.createNote = function() {
+            //TODO: replace with websocket callbacks
             NoteServ.create().then(function(note) {
                 $scope.notes.push(note);
             });
@@ -25,16 +30,22 @@ Sticklet
         
     }])
     .controller("NoteListNoteCtrl", ["$scope", "NoteServ", function($scope, NoteServ) {
-        $scope.changeColor = function($event, color) {
+        $scope.editing = false;
+        $scope.changeColor = function(color) {
             $scope.note.color = color;
-            console.log($scope.note.color, "to", color);
             NoteServ.save($scope.note);
         };
         $scope.editNote = function() {
-            console.log("edit note:", $scope.note);
+            $scope.current.editing = $scope.note;
         };
         $scope.deleteNote = function() {
             NoteServ.remove($scope.note);
+        };
+        $scope.updateContent = function() {
+            NoteServ.save($scope.note);
+        };
+        $scope.closeEditor = function() {
+            $scope.current.editing = null;
         };
     }])
     .controller("NoteCtrl", ["$scope", function($scope) {

@@ -2,6 +2,11 @@
 
 var Sticklet = angular.module("Sticklet");
 Sticklet
+    .filter("FilterNotes", [function() {
+        return function(notes, filters) {
+            return notes;
+        };
+    }])
     .filter("SortNotes", [function() {
         return function(notes, sortBy, reverse) {
             var sorted = _.sortBy(notes, function(n) {
@@ -16,6 +21,14 @@ Sticklet
             $event.stopPropagation();
             $event.preventDefault();
             return false;
+        };
+    }])
+    .filter("Html", ["$sce", function($sce) {
+        return function(text) {
+            if (!text || typeof text === "string") {
+                return $sce.trustAsHtml(text || "");
+            }
+            return $sce.trustAsHtml(text.toString());
         };
     }])
 ;
