@@ -1,5 +1,5 @@
 <div>
-    <div id="menu"><div ng-include="'templates/menu.html'"></div></div>
+    <div id="menu"><div class="full-height" ng-include="'templates/menu.html'"></div></div>
 
     <div size-notes-area="" class="relative-div container-fluid" id="notes" show-hide-timer="" time="3" element="#notes-display-options">
         <div class="row full-height no-row-padding">
@@ -8,7 +8,7 @@
             <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20">
                 <div class="notes">
                     <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy" ng-controller="NoteListNoteCtrl"
-                        class="note" ng-style="{'background': note.color}">
+                        class="note" ng-style="{'background': note.color}" ng-class="{'editing': current.editing === note}">
                         <div class="header clearfix container-fluid">
                             <div class="row no-row-padding">
                                 <div class="updated col-sm-{{opts.display === 'tiled' ? 2 : 1}}">
@@ -17,6 +17,10 @@
                                     <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | date:'short'"></span>
                                 </div>
                                 <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 10}} no-wrap-text">
+<!--                                     <div ng-if="!opts.globalEdit && current.editing === note"> -->
+<!--                                         <editable-area model="note" prop="title" on-update="updateContent()" on-close="closeEditor()" type="input" /> -->
+<!--                                     </div> -->
+<!--                                     <span class="not-editing-text" ng-if="opts.globalEdit || current.editing !== note" ng-bind="note.title"></span> -->
                                     <span ng-bind="note.title"></span>
                                 </div>
                                 <div class="options col-sm-1">
@@ -26,6 +30,7 @@
                                             <li>
                                                 <color-choices on-change="changeColor(color)" note="note"></color-choices>
                                             </li>
+                                            <li class="divider"></li>
                                             <li><a href="javascript:;" ng-click="deleteNote()">Delete</a></li>
                                         </ul>
                                     </div>
@@ -42,7 +47,7 @@
                                 </div>
                             </perfect-scrollbar>
                         </div>
-                        <div class="tags"><tags /></div>
+                        <div class="tags"><tags note="note" /></div>
                     </div>
                 </div>
             </perfect-scrollbar>

@@ -1,6 +1,25 @@
-<div ng-repeat="tag in tags">
-    <span class="tag clearfix">
-        <span ng-bind="tag.name"></span>
-        <i class="pull-right glyphicon glyphicon-remove"></i>
-    </span>
+<span class="tag tag-label" ng-repeat="tag in note.tags">
+    <span ng-bind="tag.name" class="name"></span>
+    <a class="pull-right close" href="javascript:;" ng-click="removeTag(tag)">&times;</a>
+</span>
+<div class="btn-group" uib-dropdown="" auto-close="outsideClick" 
+    uib-keyboard-nav="" on-toggle="tagsOpened()" dropdown-append-to-body="" is-open="opts.isOpen">
+    <button type="button" class="btn" uib-dropdown-toggle="">
+        <span>+ Tag</span>
+        <span class="caret"></span>
+    </button>
+    <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
+        <li>
+            <input type="text" ng-model="opts.search" placeholder="Search" />
+        </li>
+        <li ng-repeat="t in (filteredTags = (userTags | FilterTags:opts.search | orderBy:'name'))">
+            <a href="javascript:;" ng-bind="t.name" ng-click="addTag(t)"></a>
+        </li>
+        <li ng-if="(filteredTags | Empty) && !(opts.search | Empty)">
+            <a href="javascript:;" ng-click="createAndAddTag()">
+                <span>Create and Add:</span>
+                <span ng-bind="opts.search"></span>
+            </a>
+        </li>
+    </ul>
 </div>

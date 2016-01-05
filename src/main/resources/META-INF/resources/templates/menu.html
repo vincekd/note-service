@@ -1,31 +1,53 @@
 <div ng-controller="TopBarCtrl" class="top-bar">
-    <div class="container-fluid">
-        <div class="row no-row-padding">
-            <div class="col-sm-3">
-                <div class="btn-group" uib-dropdown="">
-                  <button type="button" class="btn" uib-dropdown-toggle="">
-                    <span>Tags</span>
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
-                    <li role="menuitem"><a href="#">Action</a></li>
-                    <li role="menuitem"><a href="#">Another action</a></li>
-                    <li role="menuitem"><a href="#">Something else here</a></li>
-                    <li class="divider"></li>
-                    <li role="menuitem"><a href="#">Separated link</a></li>
+    <div class="container-fluid row-full-height">
+        <div class="row no-row-center-padding">
+
+            <div class="col-sm-1">
+                <div class="btn-group" uib-dropdown="" uib-keyboard-nav="" 
+                    on-toggle="filterOpened()" dropdown-append-to-body="" is-open="opts.isOpen">
+                    <button type="button" class="btn" uib-dropdown-toggle="">
+                        <span>Filters</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
+                        <li><color-choices on-change="filterColor(color)"></color-choices></li>
+                        <li class="divider"></li>
+                        <li ng-repeat="tag in tags">
+                            <a href="javascript:;" ng-click="filterTag(tag)" ng-bind="tag.name"></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="javascript:;" ng-click="resetFilters()">Clear filters</a></li>
                   </ul>
                 </div>
-                <div class="current-tags"></div>
+                <button class="btn" ng-click="resetFilters()"
+                    ng-if="(!(current.filters.colors | Empty) || !(current.filters.tags | Empty) || !(current.filters.search | Empty))"
+                    uib-tooltip="Clear filters" tooltip-placement="right" tooltip-append-to-body="true">
+                    <span class="close">&times;</span>
+                </button>
+            </div>
+            
+            <div class="col-sm-5">
+                <div class="current-filters">
+                    <span class="tag-label" ng-repeat="color in current.filters.colors" ng-style="{'background': color}">
+                        <span class="name" ng-bind="color"></span>
+                        <a class="pull-right close" href="javascript:;" ng-click="removeColorFilter(color)">&times;</a>
+                    </span>
+                    <span class="tag-label" ng-repeat="tag in current.filters.tags">
+                        <span ng-bind="tag.name" class="name"></span>
+                        <a class="pull-right close" href="javascript:;" ng-click="removeTagFilter(tag)">&times;</a>
+                    </span>
+                </div>
             </div>
         
             <div class="col-sm-4">
-                <input type="text" placeholder="Search" class="input"/>
+                <input type="text" placeholder="Search" class="input" ng-model="current.filters.search"/>
                 <button class="btn" ng-click="createNote()">+ Create</button>
             </div>
 
-            <div class="col-sm-2">
-                logout
+            <div class="col-sm-2 text-right">
+                <a href="javascript:;" ng-click="logout()">logout</a>
             </div>
+
         </div>
     </div>
 </div>

@@ -22,11 +22,50 @@ Sticklet
             }
         };
     }])
-    .directive("tags", [function() {
+    .directive("tags", ["TagServ", function(TagServ) {
         return {
             "restrict": "E",
+            "scope": {
+                "note": "="
+            },
             "templateUrl": "templates/tags.html",
-            "link": function($scope, $element, $attrs) {}
+            "link": function($scope, $element, $attrs) {
+                $scope.opts = {
+                    "isOpen": false,
+                    "search": ""
+                };
+                $scope.userTags = [];
+                $scope.tagsOpened = function() {
+                    if ($scope.opts.isOpen) {
+                        $scope.opts.search = "";
+                        TagServ.getTags().then(function(tags) {
+                            $scope.userTags = tags.filter(function(tag) {
+                                return _.every($scope.note.tags, function(t) {
+                                    return tag.id !== t.id;
+                                });
+                            });
+                        });
+                    }
+                };
+
+                $scope.addTag = function(tag) {
+                    TagServ.tag($scope.note, tag);
+                    close();
+                };
+                $scope.createAndAddTag = function() {
+                    TagServ.create({name: $scope.opts.search}).then(function(tag) {
+                        $scope.addTag(tag);
+                    });
+                    close();
+                };
+                $scope.removeTag = function(tag) {
+                    TagServ.untag($scope.note, tag);
+                };
+                function close() {
+                    $scope.opts.search = "";
+                    $scope.opts.isOpen = false;
+                }
+            }
         };
     }])
     .directive("showHideTimer", ["$timeout", function($timeout) {
@@ -60,20 +99,26 @@ Sticklet
             },
             "templateUrl": "templates/color-choices.html",
             "link": function($scope, $element, $attrs) {
-                var originalColor = $scope.note.color;
                 colors.then(function(c) {
                     $scope.colors = c;
                 });
-                $scope.colorClick = function($event, color) {
-                    $scope.note.color = originalColor = color;
-                    $scope.onChange({color: color});
-                };
-                $scope.mouseEnter = function($event, color) {
-                    $scope.note.color = color;
-                };
-                $scope.mouseLeave = function($event, color) {
-                    $scope.note.color = originalColor;
-                };
+                if ($scope.note) {
+                    var originalColor = $scope.note.color;
+                    $scope.colorClick = function($event, color) {
+                        $scope.note.color = originalColor = color;
+                        $scope.onChange({color: color});
+                    };
+                    $scope.mouseEnter = function($event, color) {
+                        $scope.note.color = color;
+                    };
+                    $scope.mouseLeave = function($event, color) {
+                        $scope.note.color = originalColor;
+                    };
+                } else {
+                    $scope.colorClick = function($event, color) {
+                        $scope.onChange({color: color});
+                    };
+                }
             }
         };
     }])

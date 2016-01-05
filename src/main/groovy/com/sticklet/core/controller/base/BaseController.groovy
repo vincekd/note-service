@@ -8,19 +8,23 @@ import org.springframework.beans.factory.annotation.Autowired
 import com.sticklet.core.model.User
 import com.sticklet.core.service.ResponseStatusService
 import com.sticklet.core.service.UserService
+import com.sticklet.core.service.WebsocketService
 
 abstract class BaseController {
-
     protected final Logger logger = LoggerFactory.getLogger(this.class)
 
-    @Autowired UserService userServ
-    @Autowired ResponseStatusService statusServ
+    @Autowired 
+    protected UserService userServ
+    @Autowired 
+    protected ResponseStatusService statusServ
+    @Autowired
+    protected WebsocketService socketServ
 
-    public User curUser() {
+    protected User curUser() {
         userServ.getUserFromPrincipal()
     }
 
-    public String emptyJson() {
+    protected String emptyJson() {
         "{}"
     }
 }

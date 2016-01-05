@@ -30,6 +30,12 @@
         });
     }]);
 
+    Sticklet.run(["STOMP", function(STOMP) {
+        $(function() {
+            STOMP.connect();
+        });
+    }]);
+
     _.mixin({
         "reverse": function(arr) {
             if (!_.isArray(arr)) {

@@ -5,16 +5,30 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import com.sticklet.core.exception.NotAuthorizedException
 import com.sticklet.core.model.Note
+import com.sticklet.core.model.Tag
 import com.sticklet.core.model.User
 import com.sticklet.core.repository.NoteRepo
 
 @Service
 class NoteService {
-
     @Autowired NoteRepo noteRepo
     @Autowired ResponseStatusService statusServ
+
+    public Note untagNote(Note note, Tag tag) {
+        note.tags = note.tags.findAll {
+            it.id != tag.id
+        }
+        noteRepo.save(note)
+    }
+
+    public Note tagNote(Note note, Tag tag) {
+        if (!note.tags.any { it.id == tag.id }) {
+            note.tags << tag
+            note = noteRepo.save(note)
+        }
+        note
+    }
 
     public List<Note> getNotesByUser(User user) {
         noteRepo.findAllByUser(user)

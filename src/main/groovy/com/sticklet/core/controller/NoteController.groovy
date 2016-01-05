@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.ResponseBody
 
 import com.sticklet.AppConfig
+import com.sticklet.core.constant.SocketTopics
 import com.sticklet.core.controller.base.BaseController
 import com.sticklet.core.model.Note
 import com.sticklet.core.model.User
@@ -19,7 +20,7 @@ import com.sticklet.core.service.NoteService
 @Controller
 class NoteController extends BaseController {
     @Autowired NoteService noteServ
-    
+
     @RequestMapping(value="/colors", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getColors(HttpServletResponse resp) {
         AppConfig.colors
@@ -40,14 +41,22 @@ class NoteController extends BaseController {
     @RequestMapping(value="/note", method=RequestMethod.POST, produces="application/json")
     public @ResponseBody def createNote(HttpServletResponse resp) {
         User user = curUser()
-        noteServ.createNote(user)
+        Note note = noteServ.createNote(user)
+        if (note) {
+            socketServ.sendToUser(user, SocketTopics.NOTE_CREATE, note)
+            return note
+        }
+        emptyJson()
     }
 
     @RequestMapping(value="/note/{noteID}", method=RequestMethod.PUT, produces="application/json")
     public @ResponseBody def updateNote(@PathVariable("noteID") String noteID, @RequestBody Map params, HttpServletResponse resp) {
         User user = curUser()
         Note note = noteServ.getNote(noteID, user, resp)
-        noteServ.updateNote(note, params)
+        if (note) {
+            note = noteServ.updateNote(note, params)
+            socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
+        }
         emptyJson()
     }
 
@@ -55,7 +64,10 @@ class NoteController extends BaseController {
     public @ResponseBody def deleteNote(@PathVariable("noteID") String noteID, HttpServletResponse resp) {
         User user = curUser()
         Note note = noteServ.getNote(noteID, user, resp)
-        noteServ.deleteNote(note)
+        if (note) {
+            noteServ.deleteNote(note)
+            socketServ.sendToUser(user, SocketTopics.NOTE_DELETE, note.id)
+        }
         emptyJson()
     }
 }
