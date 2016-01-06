@@ -61,9 +61,7 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
         String text = lessEngine.compile(colors.collect {
             ".color${++i} { background: ${it}; }"
         }.join(" "))
-        logger.debug "colors: $text"
-        URL url = this.class.classLoader.getResource("META-INF/resources/less")
-        File lessDir = new File(url.toURI())
+        File lessDir = FileSystemUtil.getResourceFile("META-INF/resources/less")
         File cssDir = new File(lessDir.canonicalPath + "/css/")
         File file = new File(cssDir.canonicalPath + File.separator + "note-colors.css")
         file.text = text

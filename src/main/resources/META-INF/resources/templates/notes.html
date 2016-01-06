@@ -1,7 +1,7 @@
 <div class="full-height">
     <div id="menu"><div class="full-height" ng-include="'templates/menu.html'"></div></div>
 
-    <div class="container-fluid" id="notes" show-hide-timer="" time="3" element="#notes-display-options">
+    <div class="container-fluid" id="notes" show-hide-timer="" time="3" element="#notes-options">
 
         <div class="row full-height no-row-padding">
             <div id="notes-list" class="{{opts.display}} full-height col-sm-12">
@@ -18,7 +18,7 @@
                                             tooltip-placement="right" tooltip-append-to-body="true"></i>
                                         <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | DispDate"></span>
                                     </div>
-                                    <div class="title col-sm-{{opts.display === 'tiled' ? 10 : 9}} no-wrap-text">
+                                    <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 8}} no-wrap-text">
                                         <a ng-if="current.title !== note" href="javascript:;" ng-bind="note.title" 
                                             ng-dblclick="editTitle()"></a>
                                         <div ng-if="current.title === note">
@@ -26,9 +26,9 @@
                                                 on-close="closeEditor()" type="input" />
                                         </div>
                                     </div>
-                                    <div class="options col-sm-1">
+                                    <div class="options col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
                                         <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" >
-                                            <i class="glyphicon glyphicon-chevron-down" uib-dropdown-toggle=""></i>
+                                            <a href="javascript:;" class="caret large-caret" uib-dropdown-toggle=""></a>
                                             <ul class="uib-dropdown-menu dropdown-menu-right">
                                                 <li>
                                                     <color-choices on-change="changeColor(color)" note="note"></color-choices>
@@ -56,8 +56,11 @@
                         </div>
                     </div>
                 </perfect-scrollbar>
-                <div id="notes-display-options" ng-if="!current.editing">
-                    <div class="btn-group">
+                <div id="notes-options" ng-if="!current.editing">
+                    <div id="create-note">
+                        <button class="btn" ng-click="createNote()">+ Create Note</button>
+                    </div>
+                    <div class="btn-group" id="notes-display-options">
                         <button class="btn" type="button" ng-click="opts.display = 'tiled'">
                             <i class="glyphicon glyphicon-th"></i>
                         </button>

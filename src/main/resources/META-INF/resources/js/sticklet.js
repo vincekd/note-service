@@ -8,16 +8,17 @@
         Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
                          function($routeProvider, $locationProvider, $provide) {
             $locationProvider.hashPrefix("!");
-            $routeProvider.when("/notes", {
-                redirectTo: "/notes/-/-/-"
-            }).when("/notes/:colorFilters/:tagFilters/:search", {
-                templateUrl: "templates/notes.html",
-                controller: "NotesCtrl"
+            $routeProvider.when("/notes/:colorFilters/:tagFilters/:search", {
+                "templateUrl": "templates/notes.html",
+                "controller": "NotesCtrl"
             }).when("/note/:noteID", {
-                templateUrl: "templates/note.html",
-                controller: "NoteCtrl"
+                "templateUrl": "templates/note.html",
+                "controller": "NoteCtrl"
+            }).when("/settings", {
+                "templateUrl": "templates/settings.html",
+                "controller": "SettingsCtrl"
             }).otherwise({
-                redirectTo: "/notes/-/-/-"
+                "redirectTo": "/notes/-/-/-"
             });
 
             $provide.value("tinymceOpts", {
@@ -69,9 +70,9 @@
             });
         }]);
     }
-    
+
     function getIsMobile() {
-        
+        return false;
     }
 
     _.mixin({

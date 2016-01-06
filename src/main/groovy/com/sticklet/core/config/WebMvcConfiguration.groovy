@@ -4,31 +4,31 @@ import javax.servlet.MultipartConfigElement
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.ObjectMapper
 
 @Configuration
+//@EnableWebMvc
+//@ComponentScan
 class WebMvcConfiguration extends WebMvcConfigurationSupport {
     private static final Logger logger = LoggerFactory.getLogger(WebMvcConfiguration.class)
 
     private static final String[] CLASSPATH_RESOURCE_LOCATIONS = [
         "classpath:/META-INF/resources/", "classpath:/resources/",
         "classpath:/static/", "classpath:/public/" ]
-
-//    @Autowired
-//    ObjectMapper objectMapper
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -51,8 +51,18 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/login").setViewName("login")
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE)
-        registry.addViewController("/").setViewName("redirect:/index.html")
+        registry.addViewController("/").setViewName("forward:/index.html")
     }
+
+//    @Bean
+//    public WebMvcConfigurerAdapter forwardToIndex() {
+//        return new WebMvcConfigurerAdapter() {
+//            @Override
+//            public void addViewControllers(ViewControllerRegistry registry) {
+//                registry.addViewController("/").setViewName("forward:/index.html")
+//            }
+//        }
+//    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

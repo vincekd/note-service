@@ -1,16 +1,37 @@
 /* variables */
-@dark-background: #333;
-@light-background: #CCC;
+@dark-background: #464646;
+@light-background: #D4D4D4;
+@lightest-background: #EEE;
 @button-background:  #F3F3F3;
+
+@font-size: 12px;
+@small-font: .8rem;
+@large-font: 1.2rem;
+@default-font-color: #333;
 @font-color: #6E6E6E;
+@light-font-color: #7B7B7B;
+@bold-weight: 600;
 
 @default-padding: 4px 8px;
 
-@default-border: solid 1px #DCDCDC;
+@default-border: solid 1px @border-color;
 @border-radius: 3px;
+@border-hover-color: #888;
+@border-color: #AAA;
 
-@menu-height: 50px;
+@menu-height: 40px;
+@menu-padding: 7px 0px;
 @note-menu-height: 70px;
+
+@note-top-padding: 0;
+@note-bottom-padding: 0px;
+@note-height: 250px;
+@note-header-height: 25px;
+@note-content-height: 190px - (@note-top-padding + @note-bottom-padding);
+@note-tags-height: 35px;
+@note-header-border: 1px solid @border-color;
+
+@box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 
 /* helper classes */
 .pre-wrap {
@@ -31,6 +52,12 @@ ul.no-list-style {
 .scrollbar {
     height: 100%;
     overflow-y: hidden;
+    position: relative;
+}
+.scrollbar-x {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
     position: relative;
 }
 .relative-div {
@@ -63,12 +90,44 @@ ul.no-list-style {
 /* general */
 html,body {
     overflow: hidden;
-    font: bold 12px Helvetica, Arial, sans-serif;
+    font: normal @font-size Helvetica, Arial, sans-serif;
     .full-height;
     width: 100%;
+    color: @default-font-color;
 }
-a[href]:hover {
-    text-decoration: none;
+a {
+    color: @font-color;
+    weight: @bold-weight;
+    &[href]:hover {
+        text-decoration: none;
+    }
+}
+.caret.large-caret {
+    border-top-width: 6px;
+    border-right-width: 6px;
+    border-left-width: 6px;
+}
+ul.dropdown-menu {
+    background: @lightest-background;
+    font-size: 1rem;
+    margin: 0px;
+    border: @default-border;
+    border-radius: @border-radius;
+    box-shadow: @box-shadow;
+    .divider {
+        background-color: #AEAEAE;
+        margin: 5px 3px;
+    }
+    > li > a {
+        font-weight: @bold-weight;
+        padding: @default-padding;
+        //text-align: center;
+        &:hover {
+            background: @light-background;
+            padding: @default-padding;
+            //box-shadow: @box-shadow;
+        }
+    }
 }
 .btn {
     font-size: 1rem;
@@ -86,8 +145,8 @@ a[href]:hover {
     outline: none !important;
     &:hover {
         color: #333;
-        border-color: #888;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+        border-color: @border-hover-color;
+        box-shadow: @box-shadow;
     }
     &:active {
         color: #000000;
@@ -101,40 +160,65 @@ a[href]:hover {
     padding: 4px;
     border: @default-border;
     border-radius: @border-radius;
-    margin-right: 10px;
+    margin-right: 5px;
     position: relative;
     display: inline-block;
     clear: both;
-    font-size: .8rem;
+    font-size: @small-font;
+    background: @lightest-background;
     .name {
         padding: @default-padding;
     }
     .close {
-        font-size: 1.2rem;
+        font-size: @large-font;
     }
 }
 .stklt-input {
     width: 100%;
     padding: @default-padding;
     font-weight: 400;
+    border: @default-border;
+    &:hover {
+        border-color: @border-hover-color; 
+    }
+    &:focus {
+        outline: none;
+    }
 }
 
 /* menu */
 #menu {
     height: @menu-height;
+    background: @light-background;
     .top-bar {
         height: 100%;
-        padding: 10px 0px;
+        padding: @menu-padding;
+        .current-filters {
+            padding: 0px 10px;
+        }
     }
-    .current-filters {}
 }
 
 /* hover over notes */
-#notes-display-options {
+#notes-options {
     display: none;
     position: absolute;
-    right: 15px;
-    top: 7px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 1px;
+    #create-note,
+    #notes-display-options {
+        display: inline-block;
+        position: absolute;
+        top: 7px;
+    }
+    #create-note {
+        left: 15px;
+    }
+    #notes-display-options {
+        right: 15px;
+    }
 }
 
 /* color choices */
@@ -150,7 +234,7 @@ a[href]:hover {
         margin: 0;
         border: @default-border;
         border-color: transparent;
-        :hover {
+        &:hover {
             border: @default-border;
         }
         a {
@@ -172,13 +256,16 @@ a[href]:hover {
             .note {
                 margin: 10px;
                 padding: 0px;
-                padding-top: 7px;
+                padding-top: @note-top-padding;
+                padding-bottom: @note-bottom-padding;
                 background: @light-background;
                 overflow-y: hidden;
-                height: 250px;
+                height: @note-height;
                 transition: ease .300s;
                 .header {
-                    height: 25px;
+                    height: @note-header-height;
+                    padding-top: 7px;
+                    border-bottom: @note-header-border;
                     .updated {
                         padding-left: 10px;
                         i {
@@ -198,19 +285,29 @@ a[href]:hover {
                     }
                 }
                 .content {
-                    height: 185px;
-                    /* padding-bottom: 10px; */
-                    /* background: rgba(186, 199, 225, 1.0); */
+                    height: @note-content-height;
+                    padding-top: 10px;
                     .not-editing-text {
                         padding: 0px 10px 0px 10px;
                     }
                 }
                 .tags {
-                    height: 33px;
+                    height: @note-tags-height;
                     padding-top: 2px;
+                    .no-wrap-text;
                     tags {
                         display: block;
-                        padding: 0px 10px;
+                        //padding: 0px 10px;
+                        height: 100%;
+                        .tag {
+                            white-space: normal;
+                            &:first-child {
+                                margin-left: 10px;
+                            }
+                        }
+                        .tags-dropdown-toggle {
+                            margin-right: 10px;
+                        }
                     }
                 }
             }
@@ -225,6 +322,12 @@ a[href]:hover {
             min-width: 250px;
             display: inline-block;
         }
+    }
+}
+ul.tags-dropdown {
+    .tag-search-create {
+        color: @light-font-color;
+        font-weight: 400;
     }
 }
 

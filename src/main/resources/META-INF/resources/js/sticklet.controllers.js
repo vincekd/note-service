@@ -8,7 +8,7 @@ Sticklet
         var topicAdd = ".NotesCtrl";
         $scope.opts = {
             "display": "stacked",
-            "sortBy": "updated"
+            "sortBy": "created"
         };
         $scope.current = {
             "editing": null,
@@ -185,5 +185,9 @@ Sticklet
         $scope.$on("$destroy", function() {
             STOMP.deregister(_globals.noteUpdateTopic + topicAdd);
         });
-    }]);
+    }])
+    .controller("SettingsCtrl", ["$scope", function($scope) {
+        
+    }])
+;
 }(jQuery));
