@@ -3,11 +3,18 @@
     <head>
         <title>Sticklet</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <!-- css -->
+        <!-- library css -->
         <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="css/sticklet.css" />
         <link rel="stylesheet" href="bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
+
+        <!-- sticklet css -->
+<!--         <link type="text/css" rel="stylesheet" href="css/sticklet.css" media="screen  and (min-width: 40.5em)" /> -->
+<!--         <link type="text/css" rel="stylesheet" href="css/sticklet.css" /> -->
+<!--         <link rel="stylesheet" type="text/css" href="css/sticklet.mobile.css" media="screen, handheld" /> -->
+        <link type="text/css" rel="stylesheet" href="less/css/sticklet.css" />
+<!--         <link type="text/css" rel="stylesheet" href="less/css/note-colors.css" /> -->
     </head>
 
     <body ng-view></body>

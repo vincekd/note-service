@@ -1,0 +1,251 @@
+/* variables */
+@dark-background: #333;
+@light-background: #CCC;
+@button-background:  #F3F3F3;
+@font-color: #6E6E6E;
+
+@default-padding: 4px 8px;
+
+@default-border: solid 1px #DCDCDC;
+@border-radius: 3px;
+
+@menu-height: 50px;
+@note-menu-height: 70px;
+
+/* helper classes */
+.pre-wrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.no-wrap-text  {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.full-height {
+    height: 100%;
+}
+ul.no-list-style {
+    list-style: none;
+}
+.scrollbar {
+    height: 100%;
+    overflow-y: hidden;
+    position: relative;
+}
+.relative-div {
+    position: relative;
+}
+.pointer {
+    cursor: pointer;
+}
+.container-fluid > .row.no-row-padding > [class*='col-sm-'] {
+    padding: 0px;
+}
+.container-fluid > .row.no-row-center-padding {
+    > [class*='col-sm-']:not(:first-child):not(:last-child) {
+        padding: 0px;
+    }
+    > [class*='col-sm-']:first-child {
+        padding-right: 0px;
+    }
+    > [class*='col-sm-']:last-child {
+        padding-left: 0px;
+    }
+}
+
+.container-fluid.row-full-height,
+.container-fluid.row-full-height > .row,
+.container-fluid.row-full-height > .row > [class*='col-sm-'] {
+    .full-height;
+}
+
+/* general */
+html,body {
+    overflow: hidden;
+    font: bold 12px Helvetica, Arial, sans-serif;
+    .full-height;
+    width: 100%;
+}
+a[href]:hover {
+    text-decoration: none;
+}
+.btn {
+    font-size: 1rem;
+    padding: @default-padding;
+    color: @font-color;
+    text-decoration: none;
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 1px 0 #ffffff;
+    background: @button-background;
+    border: @default-border;
+    border-radius: @border-radius;
+    transition: border-color .218s;
+    cursor: pointer;
+    outline: none !important;
+    &:hover {
+        color: #333;
+        border-color: #888;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    }
+    &:active {
+        color: #000000;
+        border-color: #444444;
+    }
+    &:focus {
+        outline: none;
+    }
+}
+.tag-label {
+    padding: 4px;
+    border: @default-border;
+    border-radius: @border-radius;
+    margin-right: 10px;
+    position: relative;
+    display: inline-block;
+    clear: both;
+    font-size: .8rem;
+    .name {
+        padding: @default-padding;
+    }
+    .close {
+        font-size: 1.2rem;
+    }
+}
+.stklt-input {
+    width: 100%;
+    padding: @default-padding;
+    font-weight: 400;
+}
+
+/* menu */
+#menu {
+    height: @menu-height;
+    .top-bar {
+        height: 100%;
+        padding: 10px 0px;
+    }
+    .current-filters {}
+}
+
+/* hover over notes */
+#notes-display-options {
+    display: none;
+    position: absolute;
+    right: 15px;
+    top: 7px;
+}
+
+/* color choices */
+.color-choices {
+    display: block;
+    width: 120px;
+    margin: auto;
+    .color-choice {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        margin: 0;
+        border: @default-border;
+        border-color: transparent;
+        :hover {
+            border: @default-border;
+        }
+        a {
+            display: block;
+        }
+    }
+}
+
+/* notes view */
+#notes {
+    background: @dark-background;
+    height: ~"calc(100% - @{menu-height}px)";
+    position: relative;
+    #notes-list {
+        margin-bottom: 20px;
+        overflow-y: auto;
+        .notes {
+            margin-top: 20px;
+            .note {
+                margin: 10px;
+                padding: 0px;
+                padding-top: 7px;
+                background: @light-background;
+                overflow-y: hidden;
+                height: 250px;
+                transition: ease .300s;
+                .header {
+                    height: 25px;
+                    .updated {
+                        padding-left: 10px;
+                        i {
+                            cursor: default;
+                        }
+                    }
+                    .title {
+                        font-weight: bold;
+                        text-align: center;
+                    }
+                    .options {
+                        float: right;
+                        .dropdown {
+                            cursor: pointer;
+                            margin-right: 10px;
+                        }
+                    }
+                }
+                .content {
+                    height: 185px;
+                    /* padding-bottom: 10px; */
+                    /* background: rgba(186, 199, 225, 1.0); */
+                    .not-editing-text {
+                        padding: 0px 10px 0px 10px;
+                    }
+                }
+                .tags {
+                    height: 33px;
+                    padding-top: 2px;
+                    tags {
+                        display: block;
+                        padding: 0px 10px;
+                    }
+                }
+            }
+        }
+        &.stacked .note {
+            max-width: 100%;
+            width: 1000px;
+            margin: 10px auto 10px auto;
+        }
+        &.tiled .note {
+            width: 32%;
+            min-width: 250px;
+            display: inline-block;
+        }
+    }
+}
+
+/* note view */
+#note {
+    height: 100%;
+    width: 100%;
+    background: @dark-background;
+    #note-container {
+        max-width: 900px;
+        margin: auto;
+        background: @light-background;
+        height: 100%;
+        padding: 10px;
+        padding-bottom: 0px;
+        #note-controls {
+            height: @note-menu-height;
+        }
+        #note-content {
+            height: ~"calc(100% - @{note-menu-height}px)";
+            position: relative;
+        }
+    }
+}

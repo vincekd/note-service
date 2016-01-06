@@ -100,8 +100,8 @@ ul.no-list-style {
         padding-left: 0px;
     }
 .container-fluid.row-full-height,
-.container-fluid.row-full-height > . row,
-.container-fluid.row-full-height > . row > [class*='col-sm-'] {
+.container-fluid.row-full-height > .row,
+.container-fluid.row-full-height > .row > [class*='col-sm-'] {
     height: 100%
 }
 

@@ -5,7 +5,8 @@
     } else {
         Sticklet = angular.module("Sticklet", ["ngRoute", "ui.bootstrap", "perfect_scrollbar", "ui.tinymce"]);
 
-        Sticklet.config(["$routeProvider", "$locationProvider", "$provide", function($routeProvider, $locationProvider, $provide) {
+        Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
+                         function($routeProvider, $locationProvider, $provide) {
             $locationProvider.hashPrefix("!");
             $routeProvider.when("/notes", {
                 redirectTo: "/notes/-/-/-"
@@ -22,7 +23,8 @@
             $provide.value("tinymceOpts", {
                 content_css: "css/tinymce.css",
                 plugins: "paste code autoresize",
-                toolbar: "undo redo | bold italic underline | bullist numlist outdent indent | alignleft aligncenter alignright | code removeformat",
+                toolbar: ("undo redo | bold italic underline | bullist numlist outdent indent " + 
+                    "| alignleft aligncenter alignright | code removeformat"),
                 browser_spellcheck: true,
                 menubar: false,
                 statusbar: false,
@@ -30,6 +32,9 @@
                 toolbar_item_size: "small",
                 nowrap: false
             });
+
+            var isMobile = getIsMobile();
+
             $provide.value("_globals", {
                 get noteUpdateTopic() {
                     return "/noteUpdated";
@@ -51,6 +56,9 @@
                 },
                 get autoSaveInterval() {
                     return 750; //milliseconds
+                },
+                get mobile() {
+                    return isMobile;
                 }
             });
         }]);
@@ -60,6 +68,10 @@
                 STOMP.connect();
             });
         }]);
+    }
+    
+    function getIsMobile() {
+        
     }
 
     _.mixin({

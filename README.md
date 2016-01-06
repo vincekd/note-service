@@ -1,4 +1,3 @@
-# note-service
 <h1>note service</h1>
 
 <p>a simple note service.</p>
