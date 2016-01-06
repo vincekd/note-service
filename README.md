@@ -11,12 +11,10 @@
 </ul>
 <h2>TODO:</h2>
 <ol>
-  <li>hash storage: active filters, active note, etc.</li>
-  <li>model created/updated fail</li>
-  <li>edit titles</li>
-  <li>get users working</li>
-  <li>styling (tinymce, general)</li>
-  <li>fix large editing area</li>
   <li>offline storage of notes</li>
+  <li>Mobile interface</li>
+  <li>hash storage: active filters, active note, etc.</li>
+  <li>styling (tinymce, general css, large editing area, topbar, colors)</li>
   <li>upload to googleapps for testing</li>
+  <li>get users working with google</li>
 </ol>

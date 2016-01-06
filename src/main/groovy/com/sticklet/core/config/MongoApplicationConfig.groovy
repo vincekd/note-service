@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration
+import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.convert.CustomConversions
 import org.springframework.data.mongodb.core.convert.DbRefResolver
@@ -20,7 +21,7 @@ import com.mongodb.Mongo
 import com.mongodb.MongoClient
 
 @Configuration
-//@EnableMongoAuditing
+@EnableMongoAuditing
 class MongoApplicationConfig extends AbstractMongoConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(MongoApplicationConfig.class)
     public static DbRefResolver refResolver
@@ -44,6 +45,11 @@ class MongoApplicationConfig extends AbstractMongoConfiguration {
         return dbName;
     }
 
+    @Override
+    protected String getMappingBasePackage() {
+        "com.sticklet"
+    }
+
     @Bean
     @Override
     public CustomConversions customConversions() {
@@ -58,12 +64,12 @@ class MongoApplicationConfig extends AbstractMongoConfiguration {
         refResolver = dbRefResolver
 
         List<Converter<?, ?>> converterList = new ArrayList<Converter<?, ?>>()
-//        converterList.addAll(readClasses.collect { Class c ->
-//            def newC = c.newInstance()
-//            newC.dbRefResolver = dbRefResolver
-//            newC
-//        })
-//        converterList.addAll(writeClasses.collect { Class c -> c.newInstance() })
+        //        converterList.addAll(readClasses.collect { Class c ->
+        //            def newC = c.newInstance()
+        //            newC.dbRefResolver = dbRefResolver
+        //            newC
+        //        })
+        //        converterList.addAll(writeClasses.collect { Class c -> c.newInstance() })
 
         return new CustomConversions(converterList)
     }

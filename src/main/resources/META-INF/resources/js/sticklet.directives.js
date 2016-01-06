@@ -6,22 +6,6 @@ var Sticklet = angular.module("Sticklet"),
         "ENTER": 13
     };
 Sticklet
-    .directive("sizeNotesArea", [function() {
-        return {
-            "restrict": "A",
-            "link": function($scope, $element, $attrs) {
-                var $w = $(window);
-                var resize = function() {
-                    var height = ($w.height() - $("#menu").outerHeight());
-                    $element.height(height);
-                };
-                resize();
-                $w.on("resize", function() {
-                    resize();
-                });
-            }
-        };
-    }])
     .directive("tags", ["TagServ", function(TagServ) {
         return {
             "restrict": "E",
@@ -130,12 +114,10 @@ Sticklet
                 "update": "&onUpdate",
                 "close": "&onClose",
                 "type": "@",
-                "prop": "@",
-                "global": "@"
+                "prop": "@"
             },
             "templateUrl": "templates/editable-area.html",
             "link": function($scope, $element, $attrs) {
-                $scope.global = $scope.global === "true"
                 $scope.cur = {
                     "value": $scope.model[$scope.prop]
                 };
@@ -153,17 +135,15 @@ Sticklet
                     },
                     thisEditor;
 
-                $scope.tinymceOptions = _.extend({}, tinymceOpts, {
-                    "init_instance_callback": function(editor) {
-                        thisEditor = editor;
-                        if (!$scope.global) { 
-                            editor.on("keyup keydown click", function(ev) {
+                if ($scope.type === "textarea") {
+                    $scope.tinymceOptions = _.extend({}, tinymceOpts, {
+                        "init_instance_callback": function(editor) {
+                            thisEditor = editor;
+                            editor.on("keydown", function(ev) {
                                 if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
                                     ev.preventDefault();
                                     ev.stopPropagation();
-                                    if (ev.type === "keyup") {
-                                        close();
-                                    }
+                                    close();
                                     return false;
                                 }
                             });
@@ -171,8 +151,23 @@ Sticklet
                                 close();
                             });
                         }
-                    }
-                });
+                    });
+                } else {
+                    $element.on("keydown", "input", function(ev) {
+                        if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            $scope.$apply(function() {
+                                close();
+                            });
+                            return false;
+                        }
+                    }).on("blur", "input", function(event) {
+                        $scope.$apply(function() {
+                            close();
+                        });
+                    });
+                }
             }
         };
     }])

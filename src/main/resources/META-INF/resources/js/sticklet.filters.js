@@ -52,5 +52,10 @@ Sticklet
             });
         };
     }])
+    .filter("DispDate", ["$filter", function($filter) {
+        return function(date) {
+            return $filter("date")(date, "short");
+        };
+    }])
 ;
 }(jQuery));

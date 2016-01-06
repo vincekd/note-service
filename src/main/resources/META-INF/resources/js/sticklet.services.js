@@ -146,7 +146,7 @@ Sticklet
                 return colors;
             },
             "save": function(note) {
-                return HTTP.put("/note/" + note.id, note);
+                return HTTP.put("/note/" + note.id, _.omit(note, ["tags"]));
             },
             "remove": function(note) {
                 return HTTP.remove("/note/" + note.id);
@@ -163,19 +163,20 @@ Sticklet
             }
         };
     }])
-    .service("TagServ", ["HTTP", "STOMP", function(HTTP, STOMP) {
+    .service("TagServ", ["HTTP", "STOMP", "_globals", function(HTTP, STOMP, _globals) {
         var tags = HTTP.get("/tags").then(function(resp) {
             return resp.data;
-        });
+        }), 
+            topicAdd = ".TagServ";
 
-        //get tags in sync
-        STOMP.register("/tagCreated", function(tag) {
+        //keep tags in sync
+        STOMP.register(_globals.tagCreateTopic + topicAdd, function(tag) {
             tags = tags.then(function(data) {
                 data.push(tag);
                 return data;
             });
         });
-        STOMP.register("/tagDeleted", function(tagID) {
+        STOMP.register(_globals.tagCreateTopic + topicAdd, function(tagID) {
             tags = tags.then(function(data) {
                 data = data.filter(function(tag) {
                     return tag.id !== tagID;

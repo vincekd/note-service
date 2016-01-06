@@ -1,18 +1,33 @@
-<div class="full-height">
-    <div class="container-fluid">
-        <div class="row no-row-padding">
-            <div class="col-sm-9">
-                <editable-area model="current.editing" prop="title" type="input" on-update="globalUpdate()" on-close="globalClose()" global="true"></editable-area>
+<div id="note">
+    <div id="note-container" ng-style="{'background': note.color}">
+        <div class="full-height">
+            <div id="note-controls">
+                <div class="container-fluid row-full-height">
+                    <div class="row no-row-padding">
+                        <div class="col-sm-4">
+                            <span ng-bind="note.created | DispDate"></span>
+                            <span ng-bind="note.updated | DispDate"></span>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="stklt-input" ng-model="note.title" ng-change="update()"/>
+                        </div>
+                        <div class="col-sm-4">
+                            <a class="close" href="#!/notes">&times;</a>
+                        </div>
+                    </div>
+                    <div class="row no-row-padding">
+                        <div class="col-sm-12 tags">
+                            <tags note="note"></tags>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-sm-3">
-                <button type="button" ng-click="closeGlobal()" class="btn">Save</button>
+    
+            <div id="note-content">
+                <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                    <textarea ng-model="note.content" ui-tinymce="tinymceOptions" ng-change="update()"></textarea>   
+                </perfect-scrollbar>
             </div>
-            <a class="close" href="javascript:;" ng-click="closeGlobal()">&times;</a>
         </div>
-    </div>
-    <div>
-        <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">   
-            <editable-area model="current.editing" prop="content" type="textarea" on-update="globalUpdate()" on-close="globalClose()" global="true"></editable-area>
-        </perfect-scrollbar>
     </div>
 </div>

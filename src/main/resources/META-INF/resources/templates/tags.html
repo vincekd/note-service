@@ -10,7 +10,7 @@
     </button>
     <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
         <li>
-            <input type="text" ng-model="opts.search" placeholder="Search" />
+            <input type="text" ng-model="opts.search" placeholder="Search" class="stklt-input"/>
         </li>
         <li ng-repeat="t in (filteredTags = (userTags | FilterTags:opts.search | orderBy:'name'))">
             <a href="javascript:;" ng-bind="t.name" ng-click="addTag(t)"></a>

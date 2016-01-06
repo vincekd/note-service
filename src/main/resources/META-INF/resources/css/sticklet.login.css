@@ -1,0 +1,67 @@
+.contentView {
+    background: url(../images/frameboards-bg.png) repeat fixed;
+}
+    .contentView .wrapper {
+        padding: 35px 0;
+    }
+        .contentView form {
+            padding: 50px;
+            height: 100%;
+        }
+            .contentView form.active {
+                background: #F2F0E8;
+                border: 1px solid #FFF;
+                border-radius: 4px;
+                color: #E7E5DC;
+            }
+                .contentView form.active .btn {
+                    background: #EDF2FC;
+                    border: 1px solid #ADBCD6;
+                    color: #ADBCD6;
+                    font-size: 14px;
+                    padding: 8px 15px;
+                    font-weight: bold;
+                }
+            .contentView form:not(.active) {
+                color: #D3D1C9;
+            }
+                .contentView form:not(.active) .btn {
+                    background: transparent;
+                    border: 1px solid #B5B3AE;
+                    color: #B5B3AE;
+                    font-size: 14px;
+                    padding: 8px 15px;
+                    font-weight: bold;
+                }
+                .contentView form:not(.active) .form-control {
+                    border: 1px solid #B5B3AE;
+                    background: transparent;
+                }
+        .contentView .header {
+            font-size: 75px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .contentView .form-group {
+            margin-bottom: 20px;
+        }
+            .contentView .form-group .control-label {
+                padding-left: 15px;
+                color: #A5A5A4;
+            }
+        .contentView .checkbox {
+            margin-bottom: 20px;
+        }
+            .contentView .checkbox label {
+                font-weight: 400;
+                color: #A5A5A4;
+            }
+                .contentView .checkbox label input {
+                    margin-top: 2px;
+                }
+    .contentView .ng-valid {
+        border-color: #0F0;
+    }
+    .contentView .loginError {
+        color: #555;
+    }

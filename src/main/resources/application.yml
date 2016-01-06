@@ -2,7 +2,7 @@ spring:
   profiles: default
   data:
     mongodb:
-      #auditing: true
+      auditing: true
       databaseName: sticklet
       host: 127.0.0.1
       port: 27017
@@ -10,7 +10,7 @@ spring:
       password:
   jackson:
     serialization:
-      indent_output: true
+      indent_output: false
 spring-data-releasetrain:
   version: Gosling-BUILD-SNAPSHOT
 logging: 
@@ -25,7 +25,7 @@ server:
 directory:
   upload: ./data/uploads
 login:
-  enabled: false
+  enabled: true
 ---
 
 spring:

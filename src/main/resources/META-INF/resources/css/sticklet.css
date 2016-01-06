@@ -52,6 +52,11 @@ a[href]:hover {
     .tag-label .close {
         font-size: 1.2rem;
     }
+.stklt-input {
+    width: 100%;
+    padding: 4px 8px;
+    font-weight: 400;
+}
 
 /* helper classes */
 .pre-wrap {
@@ -145,11 +150,9 @@ ul.no-list-style {
 /* notes view */
 #notes {
     background: #333;
+    height: calc(100% - 50px);
+    position: relative;
 }
-    #note-display {
-        background: #CCC;
-        padding: 10px;
-    }
 #notes-list {
     margin-bottom: 20px;
     overflow-y: auto;
@@ -161,10 +164,10 @@ ul.no-list-style {
         margin: 10px;
         padding: 0px;
         padding-top: 7px;
-/*         padding-left: 7px; */
         background: #CCC;
         overflow-y: hidden;
         height: 250px;
+        transition: ease .300s;
     }
         #notes-list.stacked .note {
             max-width: 100%;
@@ -177,7 +180,7 @@ ul.no-list-style {
             display: inline-block;
         }
         #notes-list .note .header {
-            height: 20px;
+            height: 25px;
         }
             #notes-list .note .updated {
                 padding-left: 10px;
@@ -197,7 +200,7 @@ ul.no-list-style {
                     margin-right: 10px;
                 }
         #notes-list .note .content {
-            height: 190px;
+            height: 185px;
             /* padding-bottom: 10px; */
             /* background: rgba(186, 199, 225, 1.0); */
         }
@@ -212,19 +215,25 @@ ul.no-list-style {
                 display: block;
                 padding: 0px 10px;
             }
-/*                 #notes-list .note .tags tags .tag { */
-/*                     padding: 4px; */
-/*                     border: 1px solid #000; */
-/*                     border-radius: 3px; */
-/*                     margin-right: 10px; */
-/*                     position: relative; */
-/*                     display: inline-block; */
-/*                     clear: both; */
-/*                     font-size: .8rem; */
-/*                 } */
-/*                     #notes-list .note .tags tags .tag .name { */
-/*                         padding: 3px 8px; */
-/*                     } */
-/*                     #notes-list .note .tags tags .tag .close { */
-/*                         font-size: 1.2rem; */
-/*                     } */
+
+/* note view */
+#note {
+    height: 100%;
+    width: 100%;
+    background: #333;
+}
+    #note-container {
+        max-width: 900px;
+        margin: auto;
+        background: #CCC;
+        height: 100%;
+        padding: 10px;
+        padding-bottom: 0px;
+    }
+    #note #note-controls {
+        height: 70px;
+    }
+    #note #note-content {
+        height: calc(100% - 70px);
+        position: relative;
+    }

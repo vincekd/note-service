@@ -1,71 +1,73 @@
-<div>
+<div class="full-height">
     <div id="menu"><div class="full-height" ng-include="'templates/menu.html'"></div></div>
 
-    <div size-notes-area="" class="relative-div container-fluid" id="notes" show-hide-timer="" time="3" element="#notes-display-options">
+    <div class="container-fluid" id="notes" show-hide-timer="" time="3" element="#notes-display-options">
+
         <div class="row full-height no-row-padding">
-        <div id="notes-list" class="{{opts.display}} full-height" 
-            ng-class="{'col-sm-6': opts.globalEdit && current.editing, 'col-sm-12': !opts.globalEdit || !current.editing}">
-            <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20">
-                <div class="notes">
-                    <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy" ng-controller="NoteListNoteCtrl"
-                        class="note" ng-style="{'background': note.color}" ng-class="{'editing': current.editing === note}">
-                        <div class="header clearfix container-fluid">
-                            <div class="row no-row-padding">
-                                <div class="updated col-sm-{{opts.display === 'tiled' ? 2 : 1}}">
-                                    <i ng-if="opts.display === 'tiled'" class="glyphicon glyphicon-time" uib-tooltip="{{note.updated | date:'short'}}" 
-                                        tooltip-placement="right" tooltip-append-to-body="true"></i>
-                                    <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | date:'short'"></span>
-                                </div>
-                                <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 10}} no-wrap-text">
-<!--                                     <div ng-if="!opts.globalEdit && current.editing === note"> -->
-<!--                                         <editable-area model="note" prop="title" on-update="updateContent()" on-close="closeEditor()" type="input" /> -->
-<!--                                     </div> -->
-<!--                                     <span class="not-editing-text" ng-if="opts.globalEdit || current.editing !== note" ng-bind="note.title"></span> -->
-                                    <span ng-bind="note.title"></span>
-                                </div>
-                                <div class="options col-sm-1">
-                                    <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" >
-                                        <i class="glyphicon glyphicon-chevron-down" uib-dropdown-toggle=""></i>
-                                        <ul class="uib-dropdown-menu dropdown-menu-right">
-                                            <li>
-                                                <color-choices on-change="changeColor(color)" note="note"></color-choices>
-                                            </li>
-                                            <li class="divider"></li>
-                                            <li><a href="javascript:;" ng-click="deleteNote()">Delete</a></li>
-                                        </ul>
+            <div id="notes-list" class="{{opts.display}} full-height col-sm-12">
+                <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20">
+                    <div class="notes">
+                        <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy" 
+                            ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
+                            ng-class="{'editing': current.editing === note}">
+                            <div class="header clearfix container-fluid">
+                                <div class="row no-row-padding">
+                                    <div class="updated col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
+                                        <i ng-if="opts.display === 'tiled'" class="glyphicon glyphicon-time" 
+                                            uib-tooltip="{{note.updated | DispDate}}" 
+                                            tooltip-placement="right" tooltip-append-to-body="true"></i>
+                                        <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | DispDate"></span>
+                                    </div>
+                                    <div class="title col-sm-{{opts.display === 'tiled' ? 10 : 9}} no-wrap-text">
+                                        <a ng-if="current.title !== note" href="javascript:;" ng-bind="note.title" 
+                                            ng-dblclick="editTitle()"></a>
+                                        <div ng-if="current.title === note">
+                                            <editable-area model="note" prop="title" on-update="updateTitle()" 
+                                                on-close="closeEditor()" type="input" />
+                                        </div>
+                                    </div>
+                                    <div class="options col-sm-1">
+                                        <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" >
+                                            <i class="glyphicon glyphicon-chevron-down" uib-dropdown-toggle=""></i>
+                                            <ul class="uib-dropdown-menu dropdown-menu-right">
+                                                <li>
+                                                    <color-choices on-change="changeColor(color)" note="note"></color-choices>
+                                                </li>
+                                                <li class="divider"></li>
+                                                <li><a ng-href="#!/note/{{note.id}}">Edit</a></li>
+                                                <li><a href="javascript:;" ng-click="deleteNote()">Delete</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="content pointer" ng-dblclick="editNote(note)">
-                            <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
-                                <div>
-                                    <div ng-if="!opts.globalEdit && current.editing === note">
-                                        <editable-area model="note" prop="content" on-update="updateContent()" on-close="closeEditor()" type="textarea" />
+                            <div class="content pointer" ng-dblclick="editNote(note)">
+                                <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                                    <div>
+                                        <div ng-if="current.editing === note">
+                                            <editable-area model="note" prop="content" on-update="updateContent()" 
+                                                on-close="closeEditor()" type="textarea" />
+                                        </div>
+                                        <div class="not-editing-text" ng-if="current.editing !== note" ng-bind-html="note.content | Html"></div>
                                     </div>
-                                    <div class="not-editing-text" ng-if="opts.globalEdit || current.editing !== note" ng-bind-html="note.content | Html"></div>
-                                </div>
-                            </perfect-scrollbar>
+                                </perfect-scrollbar>
+                            </div>
+                            <div class="tags"><tags note="note" /></div>
                         </div>
-                        <div class="tags"><tags note="note" /></div>
                     </div>
-                </div>
-            </perfect-scrollbar>
-            <div id="notes-display-options" ng-if="!current.editing || !opts.globalEdit">
-                <div class="btn-group">
-                    <button class="btn" type="button" ng-click="opts.display = 'tiled'">
-                        <i class="glyphicon glyphicon-th"></i>
-                    </button>
-                    <button class="btn" type="button" ng-click="opts.display = 'stacked'">
-                        <i class="glyphicon glyphicon-th-list"></i>
-                    </button>
+                </perfect-scrollbar>
+                <div id="notes-display-options" ng-if="!current.editing">
+                    <div class="btn-group">
+                        <button class="btn" type="button" ng-click="opts.display = 'tiled'">
+                            <i class="glyphicon glyphicon-th"></i>
+                        </button>
+                        <button class="btn" type="button" ng-click="opts.display = 'stacked'">
+                            <i class="glyphicon glyphicon-th-list"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div ng-if="current.editing && opts.globalEdit" id="note-display" class="full-height col-sm-6" ng-controller="NoteCtrl">
-            <div ng-include="'templates/note.html'" class="full-height"></div>
-        </div>
-    </div>
     </div>
 </div>
