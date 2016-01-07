@@ -42,15 +42,14 @@
                                 </div>
                             </div>
                             <div class="content pointer" ng-dblclick="editNote(note)">
-                                <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
-                                    <div>
-                                        <div ng-if="current.editing === note">
-                                            <editable-area model="note" prop="content" on-update="updateContent()" 
-                                                on-close="closeEditor()" type="textarea" />
-                                        </div>
-                                        <div class="not-editing-text" ng-if="current.editing !== note" ng-bind-html="note.content | Html"></div>
-                                    </div>
-                                </perfect-scrollbar>
+                                <div ng-if="current.editing === note">
+                                    <editable-area model="note" prop="content" on-update="updateContent()" on-close="closeEditor()" type="textarea" />
+                                </div>
+                                <div ng-if="current.editing !== note" class="full-height">
+                                    <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                                        <div class="not-editing-text" ng-bind-html="note.content | Html"></div>
+                                    </perfect-scrollbar>
+                                </div>
                             </div>
                             <div class="tags"><tags note="note" /></div>
                         </div>

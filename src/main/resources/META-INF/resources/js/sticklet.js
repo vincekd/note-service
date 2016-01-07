@@ -22,8 +22,10 @@
             });
 
             $provide.value("tinymceOpts", {
-                content_css: "css/tinymce.css",
-                plugins: "paste code autoresize",
+                //theme: "",
+                //content_css: "css/tinymce.css",
+                //plugins: "code autoresize",
+                plugins: "code",
                 toolbar: ("undo redo | bold italic underline | bullist numlist outdent indent " + 
                     "| alignleft aligncenter alignright | code removeformat"),
                 browser_spellcheck: true,

@@ -106,7 +106,7 @@ Sticklet
             }
         };
     }])
-    .directive("editableArea", ["tinymceOpts", function(tinymceOpts) {
+    .directive("editableArea", ["tinymceOpts", "$timeout", function(tinymceOpts, $timeout) {
         return {
             "restrict": "E",
             "scope": {
@@ -122,16 +122,20 @@ Sticklet
                     "value": $scope.model[$scope.prop]
                 };
                 var close = function() {
-                        update();
-                        try {
-                            tinymce.remove(thisEditor);
-                            editor.destroy();
-                        } catch (e) {}
-                        $scope.close();
+                        $scope.$apply(function() {
+                            update();
+                            try {
+                                tinymce.remove(thisEditor);
+                                editor.destroy();
+                            } catch (e) {}
+                            $scope.close();
+                        });
                     },
                     update = function() {
-                        $scope.model[$scope.prop] = $scope.cur.value;
-                        $scope.update();
+                        if ($scope.model[$scope.prop] !== $scope.cur.value) {
+                            $scope.model[$scope.prop] = $scope.cur.value;
+                            $scope.update();
+                        }
                     },
                     thisEditor;
 
@@ -140,6 +144,7 @@ Sticklet
                         "init_instance_callback": function(editor) {
                             thisEditor = editor;
                             editor.on("keydown", function(ev) {
+                                //TODO: still adding extra line
                                 if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
                                     ev.preventDefault();
                                     ev.stopPropagation();
@@ -147,9 +152,13 @@ Sticklet
                                     return false;
                                 }
                             });
-                            editor.on("blur", function(event) {
+                            editor.on("blur", function(ev) {
                                 close();
                             });
+                            
+                            $timeout(function() {
+                                thisEditor.focus();
+                            }, 500);
                         }
                     });
                 } else {
@@ -167,6 +176,9 @@ Sticklet
                             close();
                         });
                     });
+                    $timeout(function() {
+                        $element.find("input").focus();
+                    }, 500);
                 }
             }
         };

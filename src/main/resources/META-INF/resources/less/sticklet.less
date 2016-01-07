@@ -19,6 +19,7 @@
 @border-hover-color: #888;
 @border-color: #AAA;
 
+
 @menu-height: 40px;
 @menu-padding: 7px 0px;
 @note-menu-height: 70px;
@@ -30,8 +31,11 @@
 @note-content-height: 190px - (@note-top-padding + @note-bottom-padding);
 @note-tags-height: 35px;
 @note-header-border: 1px solid @border-color;
+//@note-content-padding-top: 10px;
 
 @box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+
+@mce-panel-height: 28px;
 
 /* helper classes */
 .pre-wrap {
@@ -127,6 +131,9 @@ ul.dropdown-menu {
             padding: @default-padding;
             //box-shadow: @box-shadow;
         }
+        &:focus {
+            outline: none;
+        }
     }
 }
 .btn {
@@ -136,7 +143,7 @@ ul.dropdown-menu {
     text-decoration: none;
     position: relative;
     display: inline-block;
-    text-shadow: 0 1px 0 #ffffff;
+    //text-shadow: 0 1px 0 #CCC;
     background: @button-background;
     border: @default-border;
     border-radius: @border-radius;
@@ -190,6 +197,7 @@ ul.dropdown-menu {
 #menu {
     height: @menu-height;
     background: @light-background;
+    border-bottom: @default-border;
     .top-bar {
         height: 100%;
         padding: @menu-padding;
@@ -286,9 +294,9 @@ ul.dropdown-menu {
                 }
                 .content {
                     height: @note-content-height;
-                    padding-top: 10px;
+                    //padding-top: @note-content-padding-top;
                     .not-editing-text {
-                        padding: 0px 10px 0px 10px;
+                        padding: 10px 10px 0px 10px;
                     }
                 }
                 .tags {
@@ -337,18 +345,41 @@ ul.tags-dropdown {
     width: 100%;
     background: @dark-background;
     #note-container {
-        max-width: 900px;
-        margin: auto;
+        //max-width: 900px;
+        //margin: auto;
         background: @light-background;
         height: 100%;
-        padding: 10px;
-        padding-bottom: 0px;
+        //padding: 10px;
+        //padding-bottom: 0px;
         #note-controls {
-            height: @note-menu-height;
+            //height: @note-menu-height;
         }
         #note-content {
-            height: ~"calc(100% - @{note-menu-height}px)";
-            position: relative;
+            //height: ~"calc(100% - @{note-menu-height}px)";
+            //position: relative;
         }
+    }
+}
+
+/* tinymce */
+.mce-tinymce {
+    color: @default-font-color;
+    .mce-panel {
+        background: @lightest-background;
+        height: @mce-panel-height;
+        padding: 0px;
+    }
+    .mce-widget.mce-btn {
+        background: @lightest-background;
+        button {
+            padding: 2px 4px;
+            i.mce-ico {
+                font-size: 12px;
+                line-height: 14px;
+            }
+        }
+    }
+    iframe {
+        height: ~"calc(@{note-content-height}px - @{mce-panel-height}px)" !important;
     }
 }

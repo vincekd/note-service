@@ -1,33 +1,43 @@
-<div id="note">
-    <div id="note-container" ng-style="{'background': note.color}">
-        <div class="full-height">
-            <div id="note-controls">
-                <div class="container-fluid row-full-height">
-                    <div class="row no-row-padding">
-                        <div class="col-sm-4">
-                            <span ng-bind="note.created | DispDate"></span>
-                            <span ng-bind="note.updated | DispDate"></span>
+<div id="note" class="container-fluid">
+    <div class="row full-height">
+        <div class="col-sm-3"></div>
+        <div id="note-container" class="col-sm-6" ng-style="{'background': note.color}">
+            <div class="full-height">
+                <div id="note-controls">
+                    <div class="container-fluid row-full-height">
+                        <div class="row no-row-padding">
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Created:</span>
+                                    <span ng-bind="note.created | DispDate"></span>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">Updated:</span>
+                                    <span ng-bind="note.updated | DispDate"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" class="stklt-input" ng-model="note.title" ng-change="update()"/>
+                            </div>
+                            <div class="col-sm-4">
+                                <a class="close" href="#!/notes">&times;</a>
+                            </div>
                         </div>
-                        <div class="col-sm-4">
-                            <input type="text" class="stklt-input" ng-model="note.title" ng-change="update()"/>
-                        </div>
-                        <div class="col-sm-4">
-                            <a class="close" href="#!/notes">&times;</a>
-                        </div>
-                    </div>
-                    <div class="row no-row-padding">
-                        <div class="col-sm-12 tags">
-                            <tags note="note"></tags>
+                        <div class="row no-row-padding">
+                            <div class="col-sm-12 tags">
+                                <tags note="note"></tags>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
     
-            <div id="note-content">
-                <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
-                    <textarea ng-model="note.content" ui-tinymce="tinymceOptions" ng-change="update()"></textarea>   
-                </perfect-scrollbar>
+                <div id="note-content">
+                    <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                        <textarea ng-model="note.content" ui-tinymce="tinymceOptions" ng-change="update()"></textarea>   
+                    </perfect-scrollbar>
+                </div>
             </div>
         </div>
+        <div class="col-sm-3"></div>
     </div>
 </div>
