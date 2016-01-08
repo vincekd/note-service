@@ -8,7 +8,8 @@
         Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
                          function($routeProvider, $locationProvider, $provide) {
             $locationProvider.hashPrefix("!");
-            $routeProvider.when("/notes/:colorFilters/:tagFilters/:search", {
+            //$routeProvider.when("/notes/:colorFilters/:tagFilters/:search", {
+            $routeProvider.when("/notes", {
                 "templateUrl": "templates/notes.html",
                 "controller": "NotesCtrl"
             }).when("/note/:noteID", {
@@ -17,8 +18,12 @@
             }).when("/settings", {
                 "templateUrl": "templates/settings.html",
                 "controller": "SettingsCtrl"
+            }).when("/tags", {
+                "templateUrl": "templates/tags-admin.html",
+                "controller": "TagsAdminCtrl"
             }).otherwise({
-                "redirectTo": "/notes/-/-/-"
+                //"redirectTo": "/notes/-/-/-"
+                "redirectTo": "/notes"
             });
 
             $provide.value("tinymceOpts", {
@@ -33,7 +38,8 @@
                 nowrap: false
             });
 
-            var isMobile = getIsMobile();
+            var online = getOnline(),
+                isMobile = getIsMobile();
 
             $provide.value("_globals", {
                 get noteUpdateTopic() {
@@ -62,6 +68,14 @@
                 },
                 get mobile() {
                     return isMobile;
+                },
+                get online() {
+                    return online;
+                },
+                setOnline: function(onl) {
+                    if (onl !== online) {
+                        online = onl;
+                    }
                 }
             });
         }]);
@@ -76,6 +90,9 @@
     function getIsMobile() {
         return false;
     }
+    function getOnline() {
+        return navigator.onLine;
+    }
 
     _.mixin({
         "reverse": function(arr) {
@@ -87,6 +104,9 @@
                 newArr.push(arr[i]);
             }
             return newArr;
+        },
+        "toInt": function(n) {
+            return parseInt(n, 10);
         },
         "val": function(context, name, value) {
             var create = (typeof value !== "undefined"),

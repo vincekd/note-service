@@ -62,7 +62,7 @@ Sticklet
                     $timeout.cancel(timer);
                     timer = $timeout(function() {
                         $el.hide();
-                    }, (parseInt($attrs.time, 10) || 6) * 1000);
+                    }, _.toInt($attrs.time || 6) * 1000);
                 }, 200, {leading: true}))
                 .on("mouseleave", function() {
                     $element.find($attrs.element).hide();
@@ -204,6 +204,15 @@ Sticklet
                 }], function(height) {
                     balanceHeights(height[0], height[1]);
                 });
+            }
+        };
+    }])
+    .directive("notifications", ["Notify", function(Notify) {
+        return {
+            "restrict": "E",
+            "templateUrl": "/templates/notifications.html",
+            "link": function($scope, $element, $attrs) {
+                
             }
         };
     }])

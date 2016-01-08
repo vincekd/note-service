@@ -3,19 +3,14 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "_globals", function($scope, UserServ, _globals) {
+    .controller("PageCtrl", ["$scope", "UserServ", "_globals", "ServiceWorker",
+                             function($scope, UserServ, _globals, ServiceWorker) {
         $scope.maxTitleLength = _globals.maxTitleLength;
         $scope.user;
-        UserServ.getUser().then(function(u) {
-            $scope.user = u;
-        });
-    }])
-    .controller("NotesCtrl", ["$scope", "HTTP", "NoteServ", "STOMP", "_globals",
-                              function($scope, HTTP, NoteServ, STOMP, _globals) {
-        var topicAdd = ".NotesCtrl";
         $scope.opts = {
             "display": "stacked",
-            "sortBy": "created"
+            "sortBy": "created",
+            "order": "ASC"
         };
         $scope.current = {
             "editing": null,
@@ -26,6 +21,17 @@ Sticklet
                 "search": ""
             }
         };
+        UserServ.getUser().then(function(u) {
+            $scope.user = u;
+            if (u) {
+                $scope.opts.display = $scope.user.prefs.display;
+                $scope.opts.sortBy = $scope.user.prefs.sortBy;
+            }
+        });
+    }])
+    .controller("NotesCtrl", ["$scope", "HTTP", "NoteServ", "STOMP", "_globals",
+                              function($scope, HTTP, NoteServ, STOMP, _globals) {
+        var topicAdd = ".NotesCtrl";
         $scope.notes = [];
 
         $scope.createNote = function() {
@@ -44,15 +50,6 @@ Sticklet
                 return n.id === id;
             });
         }
-
-        var uw = $scope.$watch('user', function(u) {
-            if (u) {
-                uw();
-                $scope.opts.display = $scope.user.prefs.display;
-                $scope.opts.sortBy = $scope.user.prefs.sortBy;
-                uw = null;
-            }
-        });
 
         //websocket callbacks
         STOMP.register(_globals.noteCreateTopic + topicAdd, function(note) {
@@ -225,8 +222,37 @@ Sticklet
             STOMP.deregister(_globals.noteUpdateTopic + topicAdd);
         });
     }])
+    .controller("SortCtrl", ["$scope", function($scope) {
+        $scope.updateSort = function(val) {
+            $scope.opts.sortBy = val;
+        };
+        $scope.updateOrder = function(val) {
+            $scope.opts.order = val;
+        };
+    }])
     .controller("SettingsCtrl", ["$scope", function($scope) {
         
+    }])
+    .controller("TagsAdminCtrl", ["$scope", function($scope) {
+        
+    }])
+    .controller("NotificationsCtrl", ["$scope", "Notify", function($scope, Notify) {
+        $scope.notifications = [];
+        $scope.networkActiveRequests = [];
+        $scope.closeNotification = function(notification) {
+            Notify.remove(notification);
+        };
+
+        $scope.$watch(function() {
+            return Notify.get();
+        }, function(n) {
+            $scope.notifications = n;
+        });
+        $scope.$watch(function() {
+            return Notify.getNet();
+        }, function(n) {
+            $scope.networkActiveRequests = n;
+        });
     }])
 ;
 }(jQuery));

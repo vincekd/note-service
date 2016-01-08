@@ -21,6 +21,7 @@ Sticklet
     }])
     .filter("SortNotes", [function() {
         return function(notes, sortBy, reverse) {
+            reverse = (reverse === "DESC" || reverse === true);
             var sorted = _.sortBy(notes, function(n) {
                 return n[sortBy];
             });

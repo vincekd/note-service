@@ -19,6 +19,9 @@
     <body>
         <div class="full-height" ng-controller="PageCtrl">
             <div class="full-height" ng-view></div>
+            <div id="notifications" ng-controller="NotificationsCtrl" ng-hide="(notifications | Empty) && (networkActiveRequests | Empty)">
+                <notifications></notifications>
+            </div>
         </div>
     </body>
 

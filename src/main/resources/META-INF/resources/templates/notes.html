@@ -1,13 +1,14 @@
 <div class="full-height">
     <div id="menu"><div class="full-height" ng-include="'templates/menu.html'"></div></div>
 
-    <div class="container-fluid" id="notes" show-hide-timer="" time="3" element="#notes-options">
+<!--     <div class="container-fluid" id="notes" show-hide-timer="" time="8" element="#notes-options"> -->
+    <div class="container-fluid" id="notes">
 
         <div class="row full-height no-row-padding">
             <div id="notes-list" class="{{opts.display}} full-height col-sm-12">
                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20">
                     <div class="notes">
-                        <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy" 
+                        <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order" 
                             ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
                             ng-class="{'editing': (current.editing === note || current.title === note)}">
                             <div class="header clearfix container-fluid">
@@ -59,13 +60,46 @@
                     <div id="create-note">
                         <button class="btn" ng-click="createNote()">+ Create Note</button>
                     </div>
-                    <div class="btn-group" id="notes-display-options">
-                        <button class="btn" type="button" ng-click="opts.display = 'tiled'">
-                            <i class="glyphicon glyphicon-th"></i>
-                        </button>
-                        <button class="btn" type="button" ng-click="opts.display = 'stacked'">
-                            <i class="glyphicon glyphicon-th-list"></i>
-                        </button>
+                    <div class="" id="notes-display-options">
+                        <div id="notes-sort" ng-controller="SortCtrl">
+                            <div class="" uib-dropdown="" uib-keyboard-nav="" >
+                                <button type="button" class="btn" uib-dropdown-toggle="">
+                                    <span>Sort</span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="uib-dropdown-menu dropdown-menu-right">
+                                    <li><a href="javascript:;" ng-click="updateSort('created')">Created</a></li>
+                                    <li><a href="javascript:;" ng-click="updateSort('updated')">Updated</a></li>
+                                    <li><a href="javascript:;" ng-click="updateSort('title')">Title</a></li>
+                                    <li><a href="javascript:;" ng-click="updateSort('color')">Color</a></li>
+                                    <li class="divider"></li>
+                                    <li class="text-center">
+                                        <span class="btn-group">
+                                            <button class="btn" type="button"
+                                                ng-click="updateOrder('ASC')" 
+                                                ng-class="{active: opts.order === 'ASC'}">ASC</button>
+                                            <button class="btn" type="button"
+                                                ng-click="updateOrder('DESC')"  
+                                                ng-class="{active: opts.order === 'DESC'}">DESC</button>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+<!--                             <button class="btn" type="button" ng-class="{active: opts.display === 'titles'}" -->
+<!--                                 ng-click="opts.display = 'titles'"> -->
+<!--                                 <i class="glyphicon glyphicon-menu-hamburger"></i> -->
+<!--                             </button> -->
+                            <button class="btn" type="button" ng-class="{active: opts.display === 'tiled'}" 
+                                ng-click="opts.display = 'tiled'">
+                                <i class="glyphicon glyphicon-th"></i>
+                            </button>
+                            <button class="btn" type="button" ng-class="{active: opts.display === 'stacked'}" 
+                                ng-click="opts.display = 'stacked'">
+                                <i class="glyphicon glyphicon-th-list"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -9,8 +9,10 @@ import org.springframework.boot.autoconfigure.web.ErrorController
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+import com.sticklet.core.controller.base.BaseController
+
 @RestController
-public class IndexErrorController implements ErrorController{
+public class IndexErrorController extends BaseController implements ErrorController {
     private static final Logger logger = LoggerFactory.getLogger(IndexErrorController.class)
     private static final String PATH = "/error"
 
@@ -24,6 +26,11 @@ public class IndexErrorController implements ErrorController{
     public String error(HttpServletRequest req, HttpServletResponse resp) {
         resp.sendRedirect("/404.html")
         ""
+    }
+
+    @RequestMapping(value="/ping")
+    public String ping(HttpServletRequest req, HttpServletResponse resp) {
+        emptyJson()
     }
 
     @Override

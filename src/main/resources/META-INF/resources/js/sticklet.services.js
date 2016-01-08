@@ -3,28 +3,68 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .service("HTTP", ["$http", "$q", function($http, $q) {
+    .service("Notify", [function() {
+        var notifications = [],
+            networkActiveRequests = [];
+        return {
+            "get": function() {
+                return notifications;
+            },
+            "add": function(msg, perm) {
+                var n = {"text": msg, "removable": !perm};
+                notifications.push(n);
+                return n;
+            },
+            "remove": function(notification) {
+                notifications = _.without(notifications, notification);
+            },
+            "getNet": function() {
+                return networkActiveRequests;
+            },
+            "networkActiveRequest": function() {
+                var n = {};
+                networkActiveRequests.push(n);
+                return n;
+            },
+            "removeNetworkActiveRequest": function(n) {
+                networkActiveRequests = _.without(networkActiveRequests, n);
+            }
+        };
+    }])
+    .service("HTTP", ["$http", "Notify", function($http, Notify) {
         function getRealUrl(url) {
-            //if (/^\//.test(url)) {
-            //    return "www.sticklet.com" + url;
-            //}
+            if (/^[^\/]/.test(url)) {
+                return "/" + url;
+            }
             return url;
         }
         return {
             "getRealUrl": getRealUrl,
             "get": function(url, data) {
+                var n = Notify.networkActiveRequest();
                 return $http.get(getRealUrl(url), {
                     params: data
+                }).finally(function() {
+                    Notify.removeNetworkActiveRequest(n);
                 });
             },
             "post": function(url, data) {
-                return $http.post(getRealUrl(url), data);
+                var n = Notify.networkActiveRequest();
+                return $http.post(getRealUrl(url), data).finally(function() {
+                    Notify.removeNetworkActiveRequest(n);
+                });
             },
             "put": function(url, data) {
-                return $http.put(getRealUrl(url), data);
+                var n = Notify.networkActiveRequest();
+                return $http.put(getRealUrl(url), data).finally(function() {
+                    Notify.removeNetworkActiveRequest(n);
+                });
             },
             "remove": function(url, data) {
-                return $http["delete"](getRealUrl(url), data);
+                var n = Notify.networkActiveRequest();
+                return $http["delete"](getRealUrl(url), data).finally(function() {
+                    Notify.removeNetworkActiveRequest(n);
+                });
             }
         };
     }])
@@ -73,17 +113,25 @@ Sticklet
                 if (!connected) {
                     socket = new SockJS(HTTP.getRealUrl("/registerSocket"));
                     stompClient = Stomp.over(socket);
+
+                    stompClient.heartbeat.outgoing = 20000;
+                    stompClient.heartbeat.ingoing = 20000;
+
                     //disable the crazy console output
                     stompClient.debug = function() {};
+
                     stompClient.connect({}, function(frame) {
+                        console.log("websocket connected");
                         connected = true;
                         initialRegisterAll();
                     });
                 }
             },
-            "disconnect": function() {
-                stompClient.disconnect();
-                connected = false;
+            "disconnect": function(fn) {
+                stompClient.disconnect(function() {
+                    connected = false;
+                    _.isFunction(fn) && fn.call(null);
+                });
             },
             "deregister": function(topic) {
                 var realTopic, namespace;
@@ -131,6 +179,91 @@ Sticklet
             }
         };
     }])
+    .service("ServiceWorker", ["HTTP", "STOMP", "NoteServ", "$route", "_globals", "$rootScope", "$timeout", "Notify",
+                               function(HTTP, STOMP, NoteServ, $route, _globals, $rootScope, $timeout, Notify) {
+        var ServiceWorker;
+        if ('serviceWorker' in navigator) {
+            ServiceWorker = {
+                "message": function(message) {
+                    send(message);
+                },
+                "onMessage": function(name, callback) {
+                    if (_.isFunction(callback)) {
+                        msgHandlers[name] = callback
+                    }
+                }
+            };
+            navigator.serviceWorker.addEventListener("message", function(e) {
+                _.each(msgHandlers, function(fn) {
+                    fn.call(null, e);
+                });
+            });
+        } else {
+            ServiceWorker = {
+                "message": function(message) {},
+                "onMessage": function(name, callback) {}
+            };
+        }
+        var msgHandlers = {},
+            attempts = 0,
+            delay = 3000,
+            timer,
+            notification;
+
+        function send(message) {
+            navigator.serviceWorker.controller.postMessage(message);
+        }
+        function setOnline(online) {
+            if (!online || !_globals.online) {
+                var orig = _globals.online;
+                _globals.setOnline(online);
+                ping(online);
+                if (online !== orig) {
+                    Notify.remove(notification);
+                    if (!online) {
+                        notification = Notify.add("Cannot connect to sticklet.com...", true);
+                    }
+                    $rootScope.$apply();
+                }
+            }
+        }
+        function ping(online) {
+            if (online) {
+                $timeout.cancel(timer);
+                timer = null;
+                attempts = 0;
+                //reconnect websocket
+                STOMP.disconnect(function() {
+                    STOMP.connect();
+                });
+                //save all edited notes
+                NoteServ.saveFailedNotes();
+                //reload scopes
+                $route.reload();
+            } else if (!timer) {
+                timer = $timeout(function() {
+                    console.log("pinging server, attempt: " attempts + 1);
+                    timer = null;
+                    HTTP.get("/ping");
+                }, (delay * attempts));
+                attempts++;
+            }
+        }
+
+        //server worker online settings
+        ServiceWorker.onMessage("ServiceWorker", function(m) {
+            if (m.data === "online") {
+                setOnline(true);
+            } else if (m.data === "offline") {
+                setOnline(false);
+            } else {
+                console.log("unidentified ServiceWorker message", m.data);
+            }
+        });
+
+        return ServiceWorker;
+    }])
+    //TODO: delete!!!!!
     .service("TinyMCEServ", ["HTTP", function(HTTP) {
         var ccUrl = "/bower_components/tinymce-dist/skins/lightgray/content.min.css";
         var contentCSS = HTTP.get(ccUrl).then(function(resp) {
@@ -154,7 +287,7 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "StorageServ", function(HTTP, STOMP, StorageServ) {
+    .service("NoteServ", ["HTTP", "STOMP", "Storage", function(HTTP, STOMP, Storage) {
         var notes = HTTP.get("/notes").then(function(resp) {
             return resp.data;
         }), colors = HTTP.get("/colors").then(function(resp) {
@@ -188,6 +321,9 @@ Sticklet
                 return HTTP.post("/note").then(function(resp) {
                     return resp.data;
                 });
+            },
+            "saveFailedNotes": function() {
+                console.log("save failed notes");
             }
         };
     }])
@@ -233,24 +369,34 @@ Sticklet
             }
         };
     }])
-    .service("StorageServ", [function() {
+    .service("Storage", [function() {
         var storage = window.localStorage,
             name = "sticklet",
-            obj = {},
-            ss;
+            obj = get();
 
-        ss = {
-            "set": function(path, o) {
-                _.val(obj, path, o);
-                storage.setItem(name, obj);
-                return ss;
+        function get() {
+            return JSON.parse(storage.getItem(name) || "{}");
+        }
+        function set() {
+            storage.setItem(name, JSON.stringify(obj));
+        }
+
+        return {
+            "set": function(path, val) {
+                //pass object of key/value pairs
+                if (_.isObject(path)) {
+                    _.each(path, function(v, k) {
+                        _.val(obj, k, v);
+                    });
+                } else {
+                    _.val(obj, path, val);
+                }
+                set();
             },
             "get": function(path) {
                 return _.val(obj, path);
             }
         };
-
-        return ss;
     }])
 ;
 }(jQuery));
