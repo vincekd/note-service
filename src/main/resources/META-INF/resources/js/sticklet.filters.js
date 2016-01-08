@@ -53,8 +53,11 @@ Sticklet
         };
     }])
     .filter("DispDate", ["$filter", function($filter) {
-        return function(date) {
-            return $filter("date")(date, "short");
+        var short = "MM/dd/yy h:mma",
+            long = "MMM d, yyyy h:mm a"
+        return function(date, l) {
+            //return $filter("date")(date, "short");
+            return $filter("date")(date, l ? long : short);
         };
     }])
 ;

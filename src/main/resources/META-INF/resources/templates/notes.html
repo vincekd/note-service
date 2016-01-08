@@ -9,7 +9,7 @@
                     <div class="notes">
                         <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy" 
                             ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
-                            ng-class="{'editing': current.editing === note}">
+                            ng-class="{'editing': (current.editing === note || current.title === note)}">
                             <div class="header clearfix container-fluid">
                                 <div class="row no-row-padding">
                                     <div class="updated col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
@@ -22,7 +22,7 @@
                                         <a ng-if="current.title !== note" href="javascript:;" ng-bind="note.title" 
                                             ng-dblclick="editTitle()"></a>
                                         <div ng-if="current.title === note">
-                                            <editable-area model="note" prop="title" on-update="updateTitle()" 
+                                            <editable-area model="note" prop="title" on-update="updateNote()" 
                                                 on-close="closeEditor()" type="input" />
                                         </div>
                                     </div>
@@ -43,7 +43,7 @@
                             </div>
                             <div class="content pointer" ng-dblclick="editNote(note)">
                                 <div ng-if="current.editing === note">
-                                    <editable-area model="note" prop="content" on-update="updateContent()" on-close="closeEditor()" type="textarea" />
+                                    <editable-area model="note" prop="content" on-update="updateNote()" on-close="closeEditor()" type="textarea" />
                                 </div>
                                 <div ng-if="current.editing !== note" class="full-height">
                                     <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">

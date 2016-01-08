@@ -16,12 +16,15 @@ import org.springframework.data.mongodb.core.convert.DbRefResolver
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 import com.mongodb.Mongo
 import com.mongodb.MongoClient
+import com.sticklet.core.repository.base.BaseRepoFactoryBean
 
 @Configuration
 @EnableMongoAuditing
+//@EnableMongoRepositories(repositoryFactoryBeanClass=BaseRepoFactoryBean.class)
 class MongoApplicationConfig extends AbstractMongoConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(MongoApplicationConfig.class)
     public static DbRefResolver refResolver
@@ -42,7 +45,7 @@ class MongoApplicationConfig extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return dbName;
+        return dbName
     }
 
     @Override
@@ -82,10 +85,14 @@ class MongoApplicationConfig extends AbstractMongoConfiguration {
     @Bean
     public MappingMongoConverter mongoConverter() throws Exception {
         MongoMappingContext mappingContext = new MongoMappingContext()
+
         DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory())
+
         MappingMongoConverter mongoConverter = new MappingMongoConverter(dbRefResolver, mappingContext)
+
         mongoConverter.setCustomConversions(customConversions())
-        return mongoConverter
+
+        mongoConverter
     }
 
     @Bean

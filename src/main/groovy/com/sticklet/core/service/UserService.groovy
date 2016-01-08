@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service
 
 import com.sticklet.core.constant.Roles
 import com.sticklet.core.model.User
+import com.sticklet.core.model.UserPreferences
+import com.sticklet.core.repository.UserPreferencesRepo
 import com.sticklet.core.repository.UserRepo
 
 @Service
@@ -26,6 +28,8 @@ class UserService {
 
     @Autowired
     private UserRepo repo
+    @Autowired
+    private UserPreferencesRepo userPrefsRepo
 
     public org.springframework.security.core.userdetails.User getPrincipal() {
         SecurityContext securityContext = SecurityContextHolder.getContext()
@@ -47,7 +51,15 @@ class UserService {
         }
     }
 
-    boolean usernameIsFree(String username) {
+    public User createUser(Map<String, Object> opts) {
+        User user = new User(opts)
+        if (!user.prefs) {
+            user.prefs = userPrefsRepo.save(new UserPreferences())
+        }
+        repo.save(user)
+    }
+
+    public boolean usernameIsFree(String username) {
         return (repo.findByUsername(username) == null)
     }
 

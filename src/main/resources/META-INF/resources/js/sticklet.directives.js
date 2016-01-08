@@ -106,7 +106,8 @@ Sticklet
             }
         };
     }])
-    .directive("editableArea", ["tinymceOpts", "$timeout", function(tinymceOpts, $timeout) {
+    .directive("editableArea", ["tinymceOpts", "$timeout", "TinyMCEServ", 
+                                function(tinymceOpts, $timeout, TinyMCEServ) {
         return {
             "restrict": "E",
             "scope": {
@@ -143,6 +144,9 @@ Sticklet
                     $scope.tinymceOptions = _.extend({}, tinymceOpts, {
                         "init_instance_callback": function(editor) {
                             thisEditor = editor;
+                            editor.on("load", function() {
+                                TinyMCEServ.loadContentCSS(thisEditor.iframeElement);
+                            });
                             editor.on("keydown", function(ev) {
                                 //TODO: still adding extra line
                                 if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
@@ -155,7 +159,7 @@ Sticklet
                             editor.on("blur", function(ev) {
                                 close();
                             });
-                            
+
                             $timeout(function() {
                                 thisEditor.focus();
                             }, 500);
@@ -166,20 +170,40 @@ Sticklet
                         if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
                             ev.preventDefault();
                             ev.stopPropagation();
-                            $scope.$apply(function() {
-                                close();
-                            });
+                            close();
                             return false;
                         }
                     }).on("blur", "input", function(event) {
-                        $scope.$apply(function() {
-                            close();
-                        });
+                        close();
                     });
                     $timeout(function() {
                         $element.find("input").focus();
                     }, 500);
                 }
+            }
+        };
+    }])
+    .directive("balanceHeights", ["$rootScope", function($rootScope) {
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                var $pref = $element.find("> " + $attrs.prefer); //.height("auto");
+                function balanceHeights(height, prefHeight) {
+                    var $children = $element.children().not($pref);
+                    if ($children.length > 0) {
+                        $children.height(Math.floor((height - prefHeight) / $children.length) + "px");
+                    }
+                    $rootScope.$broadcast("note-content-resize");
+                }
+
+                $scope.$watchGroup([function() {
+                    //also watch other elements?
+                    return $element.height();
+                }, function() {
+                    return $pref.outerHeight();
+                }], function(height) {
+                    balanceHeights(height[0], height[1]);
+                });
             }
         };
     }])

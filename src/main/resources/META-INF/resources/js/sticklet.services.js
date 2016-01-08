@@ -131,7 +131,30 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", function(HTTP, STOMP) {
+    .service("TinyMCEServ", ["HTTP", function(HTTP) {
+        var ccUrl = "/bower_components/tinymce-dist/skins/lightgray/content.min.css";
+        var contentCSS = HTTP.get(ccUrl).then(function(resp) {
+            return resp.data;
+        })
+        return {
+            "loadContentCSS": function(iframe) {
+                contentCSS.then(function(css) {
+                    $(iframe.contentDocument).find("head").append("<style>" + css + "</style>");
+                });
+            }
+        };
+    }])
+    .service("UserServ", ["HTTP", "STOMP", function(HTTP, STOMP) {
+        var user = HTTP.get("/user").then(function(resp) {
+            return resp.data;
+        });
+        return {
+            "getUser": function() {
+                return user;
+            }
+        };
+    }])
+    .service("NoteServ", ["HTTP", "STOMP", "StorageServ", function(HTTP, STOMP, StorageServ) {
         var notes = HTTP.get("/notes").then(function(resp) {
             return resp.data;
         }), colors = HTTP.get("/colors").then(function(resp) {
@@ -146,7 +169,12 @@ Sticklet
                 return colors;
             },
             "save": function(note) {
-                return HTTP.put("/note/" + note.id, _.omit(note, ["tags"]));
+                return HTTP.put("/note/" + note.id, _.omit(note, ["tags"])).catch(function(resp) {
+                    if (resp.status === 408) {
+                        //TODO: //record
+                        console.log("failed to save note with service worker", resp.statusText);
+                    }
+                });
             },
             "remove": function(note) {
                 return HTTP.remove("/note/" + note.id);
@@ -204,6 +232,25 @@ Sticklet
                 return HTTP.remove("/untag/" + note.id + "/" + tag.id);
             }
         };
+    }])
+    .service("StorageServ", [function() {
+        var storage = window.localStorage,
+            name = "sticklet",
+            obj = {},
+            ss;
+
+        ss = {
+            "set": function(path, o) {
+                _.val(obj, path, o);
+                storage.setItem(name, obj);
+                return ss;
+            },
+            "get": function(path) {
+                return _.val(obj, path);
+            }
+        };
+
+        return ss;
     }])
 ;
 }(jQuery));

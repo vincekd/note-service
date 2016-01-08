@@ -1,10 +1,10 @@
 package com.sticklet.core.repository
 
-import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
 
 import com.sticklet.core.model.User
+import com.sticklet.core.repository.base.BaseRepo
 
-public interface UserRepo extends PagingAndSortingRepository<User, String> {
+public interface UserRepo extends BaseRepo<User, String> {
     public User findByUsername(@Param("username") String username)
 }

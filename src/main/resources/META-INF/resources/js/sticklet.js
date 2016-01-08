@@ -22,9 +22,6 @@
             });
 
             $provide.value("tinymceOpts", {
-                //theme: "",
-                //content_css: "css/tinymce.css",
-                //plugins: "code autoresize",
                 plugins: "code",
                 toolbar: ("undo redo | bold italic underline | bullist numlist outdent indent " + 
                     "| alignleft aligncenter alignright | code removeformat"),
@@ -60,6 +57,9 @@
                 get autoSaveInterval() {
                     return 750; //milliseconds
                 },
+                get maxTitleLength() {
+                    return 100;
+                },
                 get mobile() {
                     return isMobile;
                 }
@@ -87,6 +87,29 @@
                 newArr.push(arr[i]);
             }
             return newArr;
+        },
+        "val": function(context, name, value) {
+            var create = (typeof value !== "undefined"),
+                regex = /\[([^\]])\]$/,
+                namespaces = name.split("."),
+                last = namespaces.pop();
+
+            for (var i = 0; i < namespaces.length; i++) {
+                var ns = namespaces[i];
+                if (_.has(context, ns) && context[ns]) {
+                    context = context[ns];
+                } else if (create) {
+                    context = context[ns] = {};
+                }
+                return void(0);
+            }
+
+            if (create) {
+                context[last] = value;
+                return context;
+            }
+
+            return ((context !== null && typeof context !== "undefined") ? context[last] : void(0));
         }
     });
 }());

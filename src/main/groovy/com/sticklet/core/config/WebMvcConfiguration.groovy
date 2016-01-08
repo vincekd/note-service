@@ -33,36 +33,37 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         if (!registry.hasMappingForPattern("/webjars/**")) {
-            registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+            registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/")
         }
         if (!registry.hasMappingForPattern("/**")) {
-            registry.addResourceHandler("/**").addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS);
+            registry.addResourceHandler("/**").addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS)
         }
     }
 
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         //configurer.mediaTypes(["TEXT_CACHE_MANIFEST", ""])
-        MediaType type = new MediaType("text", "cache-manifest")
-        configurer.mediaType("appcache", type)
+        //        MediaType type = new MediaType("text", "cache-manifest")
+        //        configurer.mediaType("appcache", type)
     }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/login").setViewName("login")
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE)
-        registry.addViewController("/").setViewName("forward:/index.html")
+        //registry.addViewController("/").setViewName("forward:/index.html")
+        //registry.addViewController("/error").setViewName("forward:/404.html")
     }
 
-//    @Bean
-//    public WebMvcConfigurerAdapter forwardToIndex() {
-//        return new WebMvcConfigurerAdapter() {
-//            @Override
-//            public void addViewControllers(ViewControllerRegistry registry) {
-//                registry.addViewController("/").setViewName("forward:/index.html")
-//            }
-//        }
-//    }
+    //    @Bean
+    //    public WebMvcConfigurerAdapter forwardToIndex() {
+    //        return new WebMvcConfigurerAdapter() {
+    //            @Override
+    //            public void addViewControllers(ViewControllerRegistry registry) {
+    //                registry.addViewController("/").setViewName("forward:/index.html")
+    //            }
+    //        }
+    //    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

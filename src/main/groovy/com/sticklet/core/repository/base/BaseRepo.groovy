@@ -1,5 +1,9 @@
 package com.sticklet.core.repository.base
 
-class BaseRepo {
-    
+import org.springframework.data.repository.NoRepositoryBean
+import org.springframework.data.repository.PagingAndSortingRepository
+
+@NoRepositoryBean
+interface BaseRepo<T, ID extends Serializable> extends PagingAndSortingRepository<T, ID> {
+
 }

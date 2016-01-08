@@ -3,6 +3,13 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
+    .controller("PageCtrl", ["$scope", "UserServ", "_globals", function($scope, UserServ, _globals) {
+        $scope.maxTitleLength = _globals.maxTitleLength;
+        $scope.user;
+        UserServ.getUser().then(function(u) {
+            $scope.user = u;
+        });
+    }])
     .controller("NotesCtrl", ["$scope", "HTTP", "NoteServ", "STOMP", "_globals",
                               function($scope, HTTP, NoteServ, STOMP, _globals) {
         var topicAdd = ".NotesCtrl";
@@ -31,11 +38,21 @@ Sticklet
         $scope.resetFilters = function() {
             $scope.current.filters = {"colors": [], "tags": [], "search": ""};
         };
+
         function getNote(id) {
             return _.find($scope.notes, function(n) {
                 return n.id === id;
             });
         }
+
+        var uw = $scope.$watch('user', function(u) {
+            if (u) {
+                uw();
+                $scope.opts.display = $scope.user.prefs.display;
+                $scope.opts.sortBy = $scope.user.prefs.sortBy;
+                uw = null;
+            }
+        });
 
         //websocket callbacks
         STOMP.register(_globals.noteCreateTopic + topicAdd, function(note) {
@@ -125,7 +142,7 @@ Sticklet
         $scope.deleteNote = function() {
             NoteServ.remove($scope.note);
         };
-        $scope.updateContent = function() {
+        $scope.updateNote = function() {
             NoteServ.save($scope.note);
         };
         $scope.addTag = function(tag) {
@@ -139,22 +156,32 @@ Sticklet
         };
     }])
     .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", 
-                             "tinymceOpts", "STOMP", "_globals",
+                             "tinymceOpts", "STOMP", "_globals", "TinyMCEServ",
                              function($scope, $routeParams, NoteServ, TagServ, 
-                                     tinymceOpts, STOMP, _globals) {
+                                     tinymceOpts, STOMP, _globals, TinyMCEServ) {
+
         var thisEditor,
             topicAdd = ".NoteCtrl";
 
+        $scope.cur = {"content": "", "title": ""};
         $scope.note = null;
         $scope.tinymceOptions = _.extend({}, tinymceOpts, {
             "autoresize": false,
             "init_instance_callback": function(editor) {
                 thisEditor = editor;
+                editor.on("load", function() {
+                    resizeIframe();
+                    TinyMCEServ.loadContentCSS(thisEditor.iframeElement)
+                });
             }
         });
+
         $scope.update = _.throttle(function() {
-            console.log("model updated", $scope.note);
-            NoteServ.save($scope.note);
+            if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
+                $scope.note.title = $scope.cur.title;
+                $scope.note.content = $scope.cur.content;
+                NoteServ.save($scope.note);
+            }
         }, _globals.autoSaveInterval, {trailing: true});
 
         STOMP.register(_globals.noteUpdateTopic + topicAdd, function(note) {
@@ -173,14 +200,26 @@ Sticklet
                 if (!$scope.note) {
                     //redirect back
                     location.hash = ("!/notes");
+                } else {
+                    $scope.cur.title = $scope.note.title;
+                    $scope.cur.content = $scope.note.content;
                 }
             });
+        }
+        function resizeIframe() {
+            if (thisEditor) {
+                var $iframe = $(thisEditor.iframeElement);
+                $iframe.height(($(window).height() - $iframe.offset().top) + "px");
+            }
         }
 
         $scope.$watch(function() {
             return $routeParams.noteID;
         }, function() {
             loadNote();
+        });
+        $scope.$on("note-content-resize", function() {
+            resizeIframe();
         });
         $scope.$on("$destroy", function() {
             STOMP.deregister(_globals.noteUpdateTopic + topicAdd);

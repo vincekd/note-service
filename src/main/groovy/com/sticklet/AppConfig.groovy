@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 import com.asual.lesscss.LessEngine
 import com.sticklet.core.constant.Roles
 import com.sticklet.core.model.User
-import com.sticklet.core.repository.UserRepo
+import com.sticklet.core.service.UserService
 import com.sticklet.core.util.FileSystemUtil
 
 @Component
@@ -21,7 +21,7 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
     private final LessEngine lessEngine = new LessEngine()
 
     @Autowired
-    private UserRepo userRepo
+    private UserService userServ
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -48,11 +48,10 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     private void loadDefaultUsers() {
-        User admin = userRepo.findByUsername("admin")
-        if (!admin) {
+        if (userServ.usernameIsFree("admin")) {
             logger.debug "Saving the admin user"
-            admin = new User([username: "admin", password: "admin", role: Roles.ADMIN, "email": "admin@sticklet.com"])
-            userRepo.save(admin)
+            userServ.createUser([username: "admin", password: "admin",
+                role: Roles.ADMIN, "email": "admin@sticklet.com"])
         }
     }
 
@@ -69,7 +68,7 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
 
     private void compileLessCss() {
         File lessDir = FileSystemUtil.getResourceFile("META-INF/resources/less")
-        File cssDir = new File(lessDir.canonicalPath + "/css/")
+        File cssDir = FileSystemUtil.getResourceFile("META-INF/resources/less/css")
         cssDir.mkdir()
         if (lessDir.exists()) {
             lessDir.listFiles().each { File it ->

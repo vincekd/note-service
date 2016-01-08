@@ -118,6 +118,9 @@ ul.dropdown-menu {
     border: @default-border;
     border-radius: @border-radius;
     box-shadow: @box-shadow;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
     .divider {
         background-color: #AEAEAE;
         margin: 5px 3px;
@@ -168,6 +171,9 @@ ul.dropdown-menu {
     border: @default-border;
     border-radius: @border-radius;
     margin-right: 5px;
+    //&:last-child {
+    //    margin-right: 0px;
+    //}
     position: relative;
     display: inline-block;
     clear: both;
@@ -191,6 +197,11 @@ ul.dropdown-menu {
     &:focus {
         outline: none;
     }
+}
+.stklt-label {
+    padding: @default-padding;
+    margin-bottom: 0px;
+    color: @font-color;
 }
 
 /* menu */
@@ -270,6 +281,9 @@ ul.dropdown-menu {
                 overflow-y: hidden;
                 height: @note-height;
                 transition: ease .300s;
+                &.editing .header .title {
+                    margin-top: -7px;
+                }
                 .header {
                     height: @note-header-height;
                     padding-top: 7px;
@@ -314,7 +328,7 @@ ul.dropdown-menu {
                             }
                         }
                         .tags-dropdown-toggle {
-                            margin-right: 10px;
+                            margin: 0px 10px;
                         }
                     }
                 }
@@ -352,11 +366,16 @@ ul.tags-dropdown {
         //padding: 10px;
         //padding-bottom: 0px;
         #note-controls {
-            //height: @note-menu-height;
+            padding-top: 10px;
+            #note-info {
+                
+            }
+            #note-tags {
+                padding: 10px 0px;
+            }
         }
         #note-content {
-            //height: ~"calc(100% - @{note-menu-height}px)";
-            //position: relative;
+            position: relative;
         }
     }
 }
@@ -379,7 +398,10 @@ ul.tags-dropdown {
             }
         }
     }
-    iframe {
-        height: ~"calc(@{note-content-height}px - @{mce-panel-height}px)" !important;
-    }
+}
+#notes .mce-tinymce iframe {
+    height: ~"calc(@{note-content-height}px - @{mce-panel-height}px)" !important;
+}
+#note .mce-tinymce iframe {
+    //height: ~"calc(100% - @{mce-panel-height}px)" !important;
 }

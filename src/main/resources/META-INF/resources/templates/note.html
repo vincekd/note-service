@@ -2,28 +2,33 @@
     <div class="row full-height">
         <div class="col-sm-3"></div>
         <div id="note-container" class="col-sm-6" ng-style="{'background': note.color}">
-            <div class="full-height">
+
+            <div class="full-height" balance-heights="" prefer="#note-controls">
+
                 <div id="note-controls">
                     <div class="container-fluid row-full-height">
-                        <div class="row no-row-padding">
+
+                        <div class="row no-row-padding" id="note-info">
                             <div class="col-sm-4">
-                                <div class="input-group">
-                                    <span class="input-group-addon">Created:</span>
-                                    <span ng-bind="note.created | DispDate"></span>
+                                <div>
+                                    <label class="stklt-label">Created:</label>
+                                    <span ng-bind="note.created | DispDate:true"></span>
                                 </div>
-                                <div class="input-group">
-                                    <span class="input-group-addon">Updated:</span>
-                                    <span ng-bind="note.updated | DispDate"></span>
+                                <div>
+                                    <label class="stklt-label">Updated:</label>
+                                    <span ng-bind="note.updated | DispDate:true"></span>
                                 </div>
                             </div>
-                            <div class="col-sm-4">
-                                <input type="text" class="stklt-input" ng-model="note.title" ng-change="update()"/>
+                            <div class="col-sm-7">
+                                <input type="text" class="stklt-input" ng-model="cur.title" 
+                                    ng-change="update()" maxlength="{{maxTitleLength}}"/>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-1">
                                 <a class="close" href="#!/notes">&times;</a>
                             </div>
                         </div>
-                        <div class="row no-row-padding">
+
+                        <div class="row no-row-padding" id="note-tags">
                             <div class="col-sm-12 tags">
                                 <tags note="note"></tags>
                             </div>
@@ -33,9 +38,10 @@
     
                 <div id="note-content">
                     <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
-                        <textarea ng-model="note.content" ui-tinymce="tinymceOptions" ng-change="update()"></textarea>   
+                        <textarea ng-model="cur.content" ui-tinymce="tinymceOptions" ng-change="update()"></textarea>   
                     </perfect-scrollbar>
                 </div>
+
             </div>
         </div>
         <div class="col-sm-3"></div>
