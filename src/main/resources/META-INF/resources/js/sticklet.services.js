@@ -242,7 +242,7 @@ Sticklet
                 $route.reload();
             } else if (!timer) {
                 timer = $timeout(function() {
-                    console.log("pinging server, attempt: " attempts + 1);
+                    console.log("pinging server, attempt: ", attempts + 1);
                     timer = null;
                     HTTP.get("/ping");
                 }, (delay * attempts));
