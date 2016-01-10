@@ -3,39 +3,26 @@
     if (location.pathname === "/login.html") {
         Sticklet = angular.module("Sticklet", []);
     } else {
-        Sticklet = angular.module("Sticklet", ["ngRoute", "ui.bootstrap", "perfect_scrollbar", "ui.tinymce"]);
+        Sticklet = angular.module("Sticklet", ["ngRoute", "ui.bootstrap", "perfect_scrollbar", "wysihtml"]);
 
         Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
                          function($routeProvider, $locationProvider, $provide) {
+
             $locationProvider.hashPrefix("!");
-            //$routeProvider.when("/notes/:colorFilters/:tagFilters/:search", {
             $routeProvider.when("/notes", {
-                "templateUrl": "templates/notes.html",
+                "templateUrl": "/templates/notes.html",
                 "controller": "NotesCtrl"
             }).when("/note/:noteID", {
-                "templateUrl": "templates/note.html",
+                "templateUrl": "/templates/note.html",
                 "controller": "NoteCtrl"
             }).when("/settings", {
-                "templateUrl": "templates/settings.html",
+                "templateUrl": "/templates/settings.html",
                 "controller": "SettingsCtrl"
             }).when("/tags", {
-                "templateUrl": "templates/tags-admin.html",
+                "templateUrl": "/templates/tags-admin.html",
                 "controller": "TagsAdminCtrl"
             }).otherwise({
-                //"redirectTo": "/notes/-/-/-"
                 "redirectTo": "/notes"
-            });
-
-            $provide.value("tinymceOpts", {
-                plugins: "code",
-                toolbar: ("undo redo | bold italic underline | bullist numlist outdent indent " + 
-                    "| alignleft aligncenter alignright | code removeformat"),
-                browser_spellcheck: true,
-                menubar: false,
-                statusbar: false,
-                resize: false,
-                toolbar_item_size: "small",
-                nowrap: false
             });
 
             var online = getOnline(),
@@ -61,7 +48,7 @@
                     return "/tagDeleted";
                 },
                 get autoSaveInterval() {
-                    return 750; //milliseconds
+                    return 1500; //milliseconds
                 },
                 get maxTitleLength() {
                     return 100;

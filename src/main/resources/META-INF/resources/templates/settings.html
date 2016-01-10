@@ -1,1 +1,70 @@
-settings
+<div id="settings">
+    <div class="container-fluid row-full-height">
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6" id="content-area">
+                <div class="stklt-header" id="header">
+                    <span ng-bind-template="{{user.username}}'s Settings"></span>
+                </div>
+                <div id="settings-editor">
+                    <form class="">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control stklt-input" id="name" 
+                                placeholder="Name" ng-model="mockUser.name"/>
+                        </div>
+                        <!-- <div class="form-group">
+                            <label for="email-address">Email address</label>
+                            <input type="email" class="form-control stklt-input" id="email-address" 
+                                placeholder="Email" ng-model="mockUser.email"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control stklt-input" id="password" 
+                                placeholder="Password" ng-model="mockUser.password" />
+                            <input type="password" class="form-control stklt-input" id="password2" 
+                                placeholder="Password Again" ng-model="mockUser.password2" />
+                        </div> -->
+                        <div class="form-group">
+                            <label>Display Notes:</label>
+                            <div class="btn-group">
+                                <button type="button" class="btn" ng-class="{active: mockUser.prefs.display === 'tiled'}"
+                                    ng-click="mockUser.prefs.display = 'tiled'">
+                                    <span>Tiled</span>
+                                    <i class="oi oi-grid-three-up"></i>
+                                </button>
+                                <button type="button" class="btn" ng-class="{active: mockUser.prefs.display === 'stacked'}"
+                                    ng-click="mockUser.prefs.display = 'stacked'">
+                                    <span>Stacked</span>
+                                    <i class="oi oi-list"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sort-notes">Sort Notes:</label>
+                            <select id="sort-notes" ng-model="mockUser.prefs.sortBy">
+                                <option value="opt" ng-bind="opt" ng-repeat="opt in sortOptions track by $index" 
+                                    ng-selected="opt === mockUser.prefs.sortBy"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sort-notes">Order Notes:</label>
+                            <button type="button" class="btn" ng-class="{active: mockUser.prefs.order === 'ASC'}"
+                                ng-click="mockUser.prefs.order = 'ASC'">
+                               <span>ASC</span>
+                            </button>
+                            <button type="button" class="btn" ng-class="{active: user.prefs.order === 'DESC'}"
+                                ng-click="mockUser.prefs.order = 'DESC'">
+                                <span>DESC</span>
+                            </button>
+                        </div>
+                        <button type="button" class="btn" ng-click="saveSettings()">Save</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <a class="close" href="#!/notes">&times;</a>
+            </div>
+        </div>
+    </div>
+</div>

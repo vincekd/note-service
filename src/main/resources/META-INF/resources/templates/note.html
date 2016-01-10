@@ -36,9 +36,10 @@
                     </div>
                 </div>
     
-                <div id="note-content">
+                <div id="note-content" ng-if="note">
                     <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
-                        <textarea ng-model="cur.content" ui-tinymce="tinymceOptions" ng-change="update()"></textarea>   
+                        <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
+                        <div wysihtml="options" value="cur.content" data-placeholder="Enter text..."></div>
                     </perfect-scrollbar>
                 </div>
 

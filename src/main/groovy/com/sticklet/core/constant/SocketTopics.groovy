@@ -10,4 +10,7 @@ class SocketTopics {
     //public static final String TAG_UPDATE = "/noteUpdated"
     public static final String TAG_CREATE = "/tagCreated"
     public static final String TAG_DELETE = "/tagDeleted"
+    
+    //user
+    public static final String USER_UPDATE = "/userUpdated"
 }

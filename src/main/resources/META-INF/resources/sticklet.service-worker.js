@@ -123,23 +123,19 @@ function getCached() {
        "/bower_components/stomp-websocket/lib/stomp.min.js",
        "/bower_components/underscore/underscore-min.js",
        "/bower_components/angular/angular.min.js",
-       "/bower_components/angular-animate/angular-animate.min.js",
+       //"/bower_components/angular-animate/angular-animate.min.js",
        "/bower_components/angular-route/angular-route.min.js",
        "/bower_components/bootstrap/dist/js/bootstrap.min.js",
-       "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2",
-       "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
+       //"/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2",
+       //"/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
        "/bower_components/bootstrap/dist/css/bootstrap.min.css.map",
+       "/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css",
        "/bower_components/angular-bootstrap/ui-bootstrap.min.js",
        "/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js",
        "/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js",
        "/bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js",
-       "/bower_components/tinymce-dist/tinymce.js",
-       "/bower_components/angular-ui-tinymce/src/tinymce.js",
-       "/bower_components/tinymce-dist/skins/lightgray/content.min.css",
-       "/bower_components/tinymce-dist/themes/modern/theme.js",
-       "/bower_components/tinymce-dist/plugins/code/plugin.js",
-       "/bower_components/tinymce-dist/skins/lightgray/skin.min.css",
-       "/bower_components/tinymce-dist/skins/lightgray/fonts/tinymce.woff"
+       "/bower_components/wysihtml/dist/wysihtml-toolbar.min.js",
+       "/bower_components/wysihtml/parser_rules/advanced.js"
     ].concat(DEV ? [] : [
        '/index.html', '/404.html', '/templates/notes.html', 
        '/templates/note.html', '/templates/tags.html', 
@@ -149,6 +145,7 @@ function getCached() {
        "/js/sticklet.controllers.js", "/js/sticklet.services.js", 
        "/js/sticklet.directives.js", "/js/sticklet.filters.js",
        "/js/sticklet.register.js", "/templates/notifications.html",
-       "/templates/tags-admin.html"
+       "/templates/tags-admin.html", "wysihtml-toolbar.html",
+       "wysihtml.js"
     ]);
 }

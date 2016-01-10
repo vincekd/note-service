@@ -9,4 +9,5 @@ import java.lang.annotation.Target
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DBProp {
     boolean nullable() default true
+    boolean updatable() default true
 }

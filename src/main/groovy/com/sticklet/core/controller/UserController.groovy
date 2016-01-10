@@ -6,16 +6,15 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 
+import com.sticklet.core.constant.SocketTopics
 import com.sticklet.core.controller.base.BaseController
 import com.sticklet.core.model.User
-import com.sticklet.core.repository.UserRepo
 import com.sticklet.core.service.UserService
 
 @Controller
@@ -40,6 +39,15 @@ class UserController extends BaseController {
     @RequestMapping(value="/user", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getCurrentUser() {
         curUser()
+    }
+
+    @RequestMapping(value="/user", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def updateUser(@RequestBody Map data, HttpServletResponse resp) {
+        User user = curUser()
+        logger.debug "data: $data"
+        user = userServ.updateUser(user, data)
+        socketServ.sendToUser(user, SocketTopics.USER_UPDATE, user)
+        emptyJson()
     }
 
     @RequestMapping(value="/user/check-username", method=RequestMethod.GET, produces="application/json")

@@ -106,8 +106,7 @@ Sticklet
             }
         };
     }])
-    .directive("editableArea", ["tinymceOpts", "$timeout", "TinyMCEServ", 
-                                function(tinymceOpts, $timeout, TinyMCEServ) {
+    .directive("editableArea", ["$timeout", function($timeout) {
         return {
             "restrict": "E",
             "scope": {
@@ -125,10 +124,6 @@ Sticklet
                 var close = function() {
                         $scope.$apply(function() {
                             update();
-                            try {
-                                tinymce.remove(thisEditor);
-                                editor.destroy();
-                            } catch (e) {}
                             $scope.close();
                         });
                     },
@@ -137,34 +132,24 @@ Sticklet
                             $scope.model[$scope.prop] = $scope.cur.value;
                             $scope.update();
                         }
-                    },
-                    thisEditor;
+                    };
 
                 if ($scope.type === "textarea") {
-                    $scope.tinymceOptions = _.extend({}, tinymceOpts, {
-                        "init_instance_callback": function(editor) {
-                            thisEditor = editor;
-                            editor.on("load", function() {
-                                TinyMCEServ.loadContentCSS(thisEditor.iframeElement);
-                            });
-                            editor.on("keydown", function(ev) {
-                                //TODO: still adding extra line
+                    $scope.options = {
+                        "events": {
+                            "blur": function(ev, editor) {
+                                close();
+                            },
+                            "keydown": function(ev, editor) {
                                 if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
                                     ev.preventDefault();
                                     ev.stopPropagation();
                                     close();
                                     return false;
                                 }
-                            });
-                            editor.on("blur", function(ev) {
-                                close();
-                            });
-
-                            $timeout(function() {
-                                thisEditor.focus();
-                            }, 500);
+                            }
                         }
-                    });
+                    };
                 } else {
                     $element.on("keydown", "input", function(ev) {
                         if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {

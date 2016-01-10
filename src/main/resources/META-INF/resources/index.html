@@ -4,16 +4,18 @@
         <title>Sticklet</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <base href="/" />
 
         <!-- register service -->
         <script type="text/javascript" src="js/sticklet.register.js"></script>
 
         <!-- library css -->
-        <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
+        <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+        <link href="/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
 
         <!-- sticklet css -->
-        <link type="text/css" rel="stylesheet" href="less/css/sticklet.css" />
+        <link type="text/css" rel="stylesheet" href="/less/css/sticklet.css" />
     </head>
 
     <body>
@@ -26,26 +28,30 @@
     </body>
 
     <!-- libraries -->
-    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="bower_components/sockjs/sockjs.min.js"></script>
-    <script type="text/javascript" src="bower_components/stomp-websocket/lib/stomp.min.js"></script>
-    <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
-    <script type="text/javascript" src="bower_components/angular-animate/angular-animate.min.js"></script>
-    <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
-    <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
-    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-    <script src="bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js"></script>
+    <script type="text/javascript" src="/bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/bower_components/sockjs/sockjs.min.js"></script>
+    <script type="text/javascript" src="/bower_components/stomp-websocket/lib/stomp.min.js"></script>
+    <script type="text/javascript" src="/bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+<!--     <script type="text/javascript" src="/bower_components/angular-animate/angular-animate.min.js"></script> -->
+    <script type="text/javascript" src="/bower_components/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js"></script>
 <!--     <script src="bower_components/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min.js"></script> -->
-    <script src="bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js"></script>
-    <script type="text/javascript" src="bower_components/tinymce-dist/tinymce.js"></script>
-    <script type="text/javascript" src="bower_components/angular-ui-tinymce/src/tinymce.js"></script>
+    <script src="/bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js"></script>
+    
+    <!-- rich text editor -->
+    <script src="/bower_components/wysihtml/dist/wysihtml-toolbar.min.js"></script>
+<!--     <script src="/bower_components/wysihtml/dist/wysihtml.min.js"></script> -->
+    <script src="/bower_components/wysihtml/parser_rules/advanced.js"></script>
+    <script type="text/javascript" src="/js/wysihtml.js"></script>
 
     <!-- sticklet code -->
-    <script type="text/javascript" src="js/sticklet.js"></script>
-    <script type="text/javascript" src="js/sticklet.controllers.js"></script>
-    <script type="text/javascript" src="js/sticklet.services.js"></script>
-    <script type="text/javascript" src="js/sticklet.directives.js"></script>
-    <script type="text/javascript" src="js/sticklet.filters.js"></script>
+    <script type="text/javascript" src="/js/sticklet.js"></script>
+    <script type="text/javascript" src="/js/sticklet.controllers.js"></script>
+    <script type="text/javascript" src="/js/sticklet.services.js"></script>
+    <script type="text/javascript" src="/js/sticklet.directives.js"></script>
+    <script type="text/javascript" src="/js/sticklet.filters.js"></script>
 </html>

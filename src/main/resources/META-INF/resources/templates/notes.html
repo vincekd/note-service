@@ -6,7 +6,7 @@
 
         <div class="row full-height no-row-padding">
             <div id="notes-list" class="{{opts.display}} full-height col-sm-12">
-                <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20">
+                <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
                     <div class="notes">
                         <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order" 
                             ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
@@ -14,12 +14,13 @@
                             <div class="header clearfix container-fluid">
                                 <div class="row no-row-padding">
                                     <div class="updated col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
-                                        <i ng-if="opts.display === 'tiled'" class="glyphicon glyphicon-time" 
+                                        <i ng-if="opts.display === 'tiled'" class="oi oi-clock" 
                                             uib-tooltip="{{note.updated | DispDate}}" 
                                             tooltip-placement="right" tooltip-append-to-body="true"></i>
                                         <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | DispDate"></span>
                                     </div>
-                                    <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 8}} no-wrap-text">
+                                    <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 8}} no-wrap-text" 
+                                        ng-class="{'editing': current.title === note}">
                                         <a ng-if="current.title !== note" href="javascript:;" ng-bind="note.title" 
                                             ng-dblclick="editTitle()"></a>
                                         <div ng-if="current.title === note">
@@ -42,15 +43,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="content pointer" ng-dblclick="editNote(note)">
-                                <div ng-if="current.editing === note">
-                                    <editable-area model="note" prop="content" on-update="updateNote()" on-close="closeEditor()" type="textarea" />
-                                </div>
-                                <div ng-if="current.editing !== note" class="full-height">
-                                    <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                            <div class="content" ng-dblclick="editNote(note)">
+                                <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="3" min-scrollbar-length="20">
+                                    <div ng-if="current.editing === note">
+                                        <editable-area model="note" prop="content" on-update="updateNote()" on-close="closeEditor()" type="textarea" />
+                                    </div>
+                                    <div ng-if="current.editing !== note" class="full-height pointer">
                                         <div class="not-editing-text" ng-bind-html="note.content | Html"></div>
-                                    </perfect-scrollbar>
-                                </div>
+                                    </div>
+                                </perfect-scrollbar>
                             </div>
                             <div class="tags"><tags note="note" /></div>
                         </div>
@@ -75,12 +76,14 @@
                                     <li class="divider"></li>
                                     <li class="text-center">
                                         <span class="btn-group">
-                                            <button class="btn" type="button"
-                                                ng-click="updateOrder('ASC')" 
-                                                ng-class="{active: opts.order === 'ASC'}">ASC</button>
-                                            <button class="btn" type="button"
-                                                ng-click="updateOrder('DESC')"  
-                                                ng-class="{active: opts.order === 'DESC'}">DESC</button>
+                                            <button class="btn" type="button" ng-click="updateOrder('ASC')" 
+                                                ng-class="{active: opts.order === 'ASC'}" title="Ascending">
+                                                <i class="oi oi-sort-ascending"></i>
+                                            </button>
+                                            <button class="btn" type="button" ng-click="updateOrder('DESC')"  
+                                                ng-class="{active: opts.order === 'DESC'}" title="Descending">
+                                                <i class="oi oi-sort-descending"></i>
+                                            </button>
                                         </span>
                                     </li>
                                 </ul>
@@ -93,11 +96,11 @@
 <!--                             </button> -->
                             <button class="btn" type="button" ng-class="{active: opts.display === 'tiled'}" 
                                 ng-click="opts.display = 'tiled'">
-                                <i class="glyphicon glyphicon-th"></i>
+                                <i class="oi oi-grid-three-up"></i>
                             </button>
                             <button class="btn" type="button" ng-class="{active: opts.display === 'stacked'}" 
                                 ng-click="opts.display = 'stacked'">
-                                <i class="glyphicon glyphicon-th-list"></i>
+                                <i class="oi oi-list"></i>
                             </button>
                         </div>
                     </div>

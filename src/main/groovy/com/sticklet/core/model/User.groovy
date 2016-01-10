@@ -10,7 +10,7 @@ import com.sticklet.core.model.base.BaseModel
 
 @Document
 class User extends BaseModel {
-    @DBProp(nullable=false)
+    @DBProp(nullable=false, updatable=false)
     @Indexed(unique=true)
     public String username
 

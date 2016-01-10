@@ -263,23 +263,15 @@ Sticklet
 
         return ServiceWorker;
     }])
-    //TODO: delete!!!!!
-    .service("TinyMCEServ", ["HTTP", function(HTTP) {
-        var ccUrl = "/bower_components/tinymce-dist/skins/lightgray/content.min.css";
-        var contentCSS = HTTP.get(ccUrl).then(function(resp) {
-            return resp.data;
-        })
-        return {
-            "loadContentCSS": function(iframe) {
-                contentCSS.then(function(css) {
-                    $(iframe.contentDocument).find("head").append("<style>" + css + "</style>");
-                });
-            }
-        };
-    }])
     .service("UserServ", ["HTTP", "STOMP", function(HTTP, STOMP) {
         var user = HTTP.get("/user").then(function(resp) {
             return resp.data;
+        });
+        STOMP.register("/userUpdated.UserServ", function(u) {
+            user = user.then(function(us) {
+                _.extend(us, u);
+                return us;
+            });
         });
         return {
             "getUser": function() {

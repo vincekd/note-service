@@ -152,26 +152,14 @@ Sticklet
             }
         };
     }])
-    .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", 
-                             "tinymceOpts", "STOMP", "_globals", "TinyMCEServ",
-                             function($scope, $routeParams, NoteServ, TagServ, 
-                                     tinymceOpts, STOMP, _globals, TinyMCEServ) {
+    .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "_globals",
+                             function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, _globals) {
 
         var thisEditor,
             topicAdd = ".NoteCtrl";
 
         $scope.cur = {"content": "", "title": ""};
         $scope.note = null;
-        $scope.tinymceOptions = _.extend({}, tinymceOpts, {
-            "autoresize": false,
-            "init_instance_callback": function(editor) {
-                thisEditor = editor;
-                editor.on("load", function() {
-                    resizeIframe();
-                    TinyMCEServ.loadContentCSS(thisEditor.iframeElement)
-                });
-            }
-        });
 
         $scope.update = _.throttle(function() {
             if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
@@ -196,28 +184,27 @@ Sticklet
                 });
                 if (!$scope.note) {
                     //redirect back
-                    location.hash = ("!/notes");
+                    $location.path("/notes");
                 } else {
                     $scope.cur.title = $scope.note.title;
                     $scope.cur.content = $scope.note.content;
                 }
             });
         }
-        function resizeIframe() {
-            if (thisEditor) {
-                var $iframe = $(thisEditor.iframeElement);
-                $iframe.height(($(window).height() - $iframe.offset().top) + "px");
-            }
-        }
 
+        $scope.$watch('cur.content', function(o, n) {
+            if (o !== n) {
+                $scope.update();
+            }
+        });
         $scope.$watch(function() {
             return $routeParams.noteID;
         }, function() {
             loadNote();
         });
-        $scope.$on("note-content-resize", function() {
-            resizeIframe();
-        });
+//        $scope.$on("note-content-resize", function() {
+//            console.log("note-content-resize");
+//        });
         $scope.$on("$destroy", function() {
             STOMP.deregister(_globals.noteUpdateTopic + topicAdd);
         });
@@ -230,8 +217,25 @@ Sticklet
             $scope.opts.order = val;
         };
     }])
-    .controller("SettingsCtrl", ["$scope", function($scope) {
-        
+    .controller("SettingsCtrl", ["$scope", "$route", "$location", "HTTP",
+                                 function($scope, $route, $location, HTTP) {
+
+        $scope.sortOptions = ["created", "updated", "title", "color"];
+        $scope.mockUser;
+        $scope.saveSettings = function() {
+            HTTP.put("/user", $scope.mockUser).then(function() {
+                $location.path("/notes");
+            });
+        };
+
+        var sw = $scope.$watch(function() {
+            return $scope.user;
+        }, function() {
+            if ($scope.user) {
+                sw();
+                $scope.mockUser = _.extend({}, $scope.user);
+            }
+        });
     }])
     .controller("TagsAdminCtrl", ["$scope", function($scope) {
         

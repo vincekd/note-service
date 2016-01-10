@@ -1,0 +1,78 @@
+<div class="wysihtml-toolbar">
+    <div class="sections">
+
+        <div class="section">
+            <a data-wysihtml5-command="undo" title="undo">
+                <i class="oi oi-action-undo"></i>
+            </a>
+            <a data-wysihtml5-command="redo" title="redo">
+                <i class="oi oi-action-redo"></i>
+            </a>
+        </div>
+
+        <div class="section">
+            <a data-wysihtml5-command="bold" title="bold">
+                <i class="oi oi-bold"></i>
+            </a>
+            <a data-wysihtml5-command="underline" title="underline">
+                <i class="oi oi-underline"></i>
+            </a>
+            <a data-wysihtml5-command="italic" title="italic">
+                <i class="oi oi-italic"></i>
+            </a>
+        </div>
+        
+        
+        <div class="section">
+            <a data-wysihtml5-command="insertOrderedList" title="ordered list">
+<!--                 <i class="oi oi-numbers">1.</i> -->
+                <span>1.</span>
+            </a>
+            <a data-wysihtml5-command="insertUnorderedList" title="unordered list">
+<!--                 <span>&middot;</span> -->
+                <i class="glyphicon glyphicon-option-vertical"></i>
+            </a>
+        </div>
+    
+        <div class="section">
+            <a data-wysihtml5-command="createLink" title="create link">
+                <i class="oi oi-link-intact"></i>
+            </a>
+            <a data-wysihtml5-command="removeLink" title="remove link">
+                <i class="oi oi-link-broken"></i>
+            </a>
+            <a data-wysihtml5-command="insertImage" title="insert image">
+                <i class="oi oi-image"></i>
+            </a>
+        </div>
+
+        <div class="section">
+            <a data-wysihtml5-command="justifyLeft" title="justify left">
+                <i class="oi oi-align-left"></i>
+            </a>
+            <a data-wysihtml5-command="justifyCenter" title="justify center">
+                <i class="oi oi-align-center"></i>
+            </a>
+            <a data-wysihtml5-command="justifyRight" title="justify right">
+                <i class="oi oi-align-right"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="toolbar-extras">
+        <div data-wysihtml5-dialog="createLink" style="display: none;">
+            <label>
+                <span>Link:</span>
+                <input data-wysihtml5-dialog-field="href" value="http://" class="text">
+            </label>
+            <button class="btn" type="button" data-wysihtml5-dialog-action="save">OK</button>
+            <button class="btn" type="button" data-wysihtml5-dialog-action="cancel">Cancel</button>
+        </div>
+        <div data-wysihtml5-dialog="insertImage" style="display: none;">
+            <label><span>Image :</span> <input data-wysihtml5-dialog-field="src" value="http://"></label>
+            <button class="btn" type="button" data-wysihtml5-dialog-action="save">OK</button>
+            <button class="btn" type="button" data-wysihtml5-dialog-action="cancel">Cancel</button>
+        </div>
+    </div>
+</div>

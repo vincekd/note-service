@@ -18,7 +18,7 @@
 @border-radius: 3px;
 @border-hover-color: #888;
 @border-color: #AAA;
-
+@link-color: #23527C;
 
 @menu-height: 40px;
 @menu-padding: 7px 0px;
@@ -37,8 +37,6 @@
 
 //@box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 @box-shadow: inset 0 3px 5px rgba(0,0,0,.15);
-
-@mce-panel-height: 28px;
 
 /* helper classes */
 .pre-wrap {
@@ -104,9 +102,14 @@ html,body {
 }
 a {
     color: @font-color;
-    weight: @bold-weight;
-    &[href]:hover {
+    font-weight: @bold-weight;
+    .pointer;
+    &:hover {
         text-decoration: none;
+        color: @default-font-color;
+    }
+    &[href]:not([href^='javascript:']):not([href^='#']) {
+        color: @link-color;
     }
 }
 .caret.large-caret {
@@ -206,6 +209,13 @@ ul.dropdown-menu {
     margin-bottom: 0px;
     color: @font-color;
 }
+.stklt-header {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: @bold-weight;
+    margin: 15px 0px;
+    text-align: center;
+}
 
 /* menu */
 #menu {
@@ -286,9 +296,10 @@ ul.dropdown-menu {
                 padding-bottom: @note-bottom-padding;
                 background: @light-background;
                 overflow-y: hidden;
+                overflow-x: hidden;
                 height: @note-height;
                 transition: ease .300s;
-                &.editing .header .title {
+                &.editing .header .title.editing {
                     margin-top: -7px;
                 }
                 .header {
@@ -434,28 +445,45 @@ ul.tags-dropdown {
     }
 }
 
-/* tinymce */
-.mce-tinymce {
-    color: @default-font-color;
-    .mce-panel {
-        background: @lightest-background;
-        height: @mce-panel-height;
-        padding: 0px;
+/* Settings page */
+#settings {
+    height: 100%;
+    background: @dark-background;
+    #content-area {
+        background: @light-background;
     }
-    .mce-widget.mce-btn {
-        background: @lightest-background;
-        button {
-            padding: 2px 4px;
-            i.mce-ico {
-                font-size: 12px;
-                line-height: 14px;
-            }
+}
+
+
+/* wysihtml */
+[wysihtml] {
+    background: #FFF;
+    padding: 10px;
+    min-height: @note-content-height;
+}
+#wysihtml-toolbar {
+    position: sticky;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    padding: @default-padding;
+    background: @light-background;
+    border: @default-border;
+    .section {
+        display: inline-block;
+        border-right: @default-border;
+        padding: 0 4px;
+        &:first-child {
+            padding-left: 0px;
+        }
+        &:last-child {
+            padding-right: 0px;
+            border-right: none;
+        }
+        > a {
+            padding: 3px;
         }
     }
+    .toolbar-extras {}
 }
-#notes .mce-tinymce iframe {
-    height: ~"calc(@{note-content-height}px - @{mce-panel-height}px)" !important;
-}
-#note .mce-tinymce iframe {
-    //height: ~"calc(100% - @{mce-panel-height}px)" !important;
-}
+

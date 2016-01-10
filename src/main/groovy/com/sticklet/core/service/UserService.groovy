@@ -22,6 +22,7 @@ import com.sticklet.core.repository.UserRepo
 @Service
 class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class)
+    private static final List<String> userUpdatableProps = ["name", "bio", "prefs"]
 
     @Value("\${login.enabled}")
     boolean loginEnabled
@@ -32,13 +33,31 @@ class UserService {
     private UserPreferencesRepo userPrefsRepo
 
     public org.springframework.security.core.userdetails.User getPrincipal() {
+
         SecurityContext securityContext = SecurityContextHolder.getContext()
         Authentication authentication = securityContext.getAuthentication()
-        if (authentication != null) {
+
+        if (authentication) {
             Object principal = authentication.getPrincipal()
             return (principal instanceof UserDetails ? principal : null)
         }
-        return null;
+        null
+    }
+    
+    public User updateUser(User user, Map data) {
+        data.each { String key, def val ->
+            if (userUpdatableProps.contains(key)) {
+                if (key == "prefs") {
+                    val.each { k, v ->
+                        user.prefs[k] = v
+                    }
+                    user.prefs = userPrefsRepo.save(user.prefs)
+                } else {
+                    user[key] = val
+                }
+            }
+        }
+        repo.save(user)
     }
 
     public User getUserFromPrincipal() {
