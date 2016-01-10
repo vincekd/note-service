@@ -22,11 +22,12 @@ public class IndexErrorController extends BaseController implements ErrorControl
         ""
     }
 
-    @RequestMapping(value="/error")
-    public String error(HttpServletRequest req, HttpServletResponse resp) {
-        resp.sendRedirect("/404.html")
-        ""
-    }
+//    @RequestMapping(value="/error")
+//    public String error(HttpServletRequest req, HttpServletResponse resp) {
+//        statusServ.setStatusNotFound(resp)
+//        resp.sendRedirect("/404.html")
+//        ""
+//    }
 
     @RequestMapping(value="/ping")
     public String ping(HttpServletRequest req, HttpServletResponse resp) {

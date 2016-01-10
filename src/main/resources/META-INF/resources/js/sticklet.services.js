@@ -390,5 +390,33 @@ Sticklet
             }
         };
     }])
+    .service("FileUploadServ", ["HTTP", "$q", function(HTTP, $q) {
+        return {
+            "upload": function(file, url, onProg) {
+                return $q(function(resolve, reject) {
+                    var fd = new FormData(),
+                        xhr = new XMLHttpRequest(),
+                        promise = $q.defer();
+    
+                    fd.append("file", file);
+                    if (_.isFunction(onProg)) {
+                        xhr.upload.addEventListener("progress", onProg, false);
+                    }
+                    xhr.onreadystatechange = function(ev) {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                resolve(ev);
+                            } else {
+                                reject(ev);
+                            }
+                        }
+                    };
+    
+                    xhr.open("POST", url);
+                    xhr.send(fd);
+                });
+            }
+        };
+    }])
 ;
 }(jQuery));

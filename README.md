@@ -10,10 +10,14 @@
 </ul>
 <h2>TODO:</h2>
 <ol>
-  <li>offline storage of notes</li>
-  <li>Mobile interface</li>
-  <li>hash storage: active filters, active note, etc.</li>
-  <li>styling (tinymce, general css, large editing area, topbar, colors)</li>
-  <li>upload to googleapps for testing</li>
-  <li>get users working with google</li>
+    <li>tag manager (delete existing tags)</li>
+    <li>title only view</li>
+    <li>import from evernote</li>
+    <li>export</li>
+    <li>store offlline (service workers, kinda).</li>
+    <li>when offline restrict what can be done.</li>
+    <li>styling</li>
+    <li>Mobile interface (dedicated apps?)</li>
+    <li>upload to googleapps for testing</li>
+    <li>get users working with google</li>
 </ol>

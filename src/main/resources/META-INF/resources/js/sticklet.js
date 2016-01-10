@@ -21,6 +21,9 @@
             }).when("/tags", {
                 "templateUrl": "/templates/tags-admin.html",
                 "controller": "TagsAdminCtrl"
+            }).when("/data", {
+                "templateUrl": "/templates/data.html",
+                "controller": "DataCtrl"
             }).otherwise({
                 "redirectTo": "/notes"
             });

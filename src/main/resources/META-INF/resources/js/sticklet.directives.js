@@ -201,6 +201,21 @@ Sticklet
             }
         };
     }])
+    .directive("fileUpload", [function() {
+        return {
+            restrict: "A",
+            scope: {
+                change: "&fileUpload"
+            },
+            link: function($scope, $element, attrs) {
+                $element.on("change", function(ev) {
+                    $scope.$apply(function() {
+                        $scope.change({file: $element[0].files[0]});
+                    });
+                });
+            }
+        };
+    }])
 ;
 
 }(jQuery));

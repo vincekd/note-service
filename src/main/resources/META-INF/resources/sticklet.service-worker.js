@@ -1,7 +1,7 @@
 "use strict";
 
 var self = this,
-    version = "v0.0.58",
+    version = "v0.0.59",
     DEV = true,
     LAST_UPDATE = -1,
     CACHE_NAME = 'sticklet-cache' + '.' + version,
@@ -126,8 +126,8 @@ function getCached() {
        //"/bower_components/angular-animate/angular-animate.min.js",
        "/bower_components/angular-route/angular-route.min.js",
        "/bower_components/bootstrap/dist/js/bootstrap.min.js",
-       //"/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2",
-       //"/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
+       "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2",
+       "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
        "/bower_components/bootstrap/dist/css/bootstrap.min.css.map",
        "/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css",
        "/bower_components/angular-bootstrap/ui-bootstrap.min.js",
@@ -140,12 +140,13 @@ function getCached() {
        '/index.html', '/404.html', '/templates/notes.html', 
        '/templates/note.html', '/templates/tags.html', 
        '/templates/editable-area.html', '/templates/color-choices.html', 
-       '/templates/menu.html', '/templates/settings.html',
+       '/templates/menu.html', "wysihtml-toolbar.html",
        "/less/css/sticklet.css", "/js/sticklet.js",
        "/js/sticklet.controllers.js", "/js/sticklet.services.js", 
        "/js/sticklet.directives.js", "/js/sticklet.filters.js",
        "/js/sticklet.register.js", "/templates/notifications.html",
-       "/templates/tags-admin.html", "wysihtml-toolbar.html",
-       "wysihtml.js"
+       "/js/wysihtml.js",
+       //"/templates/tags-admin.html", '/templates/settings.html',
+       //"/templates/data.html"
     ]);
 }

@@ -240,6 +240,28 @@ Sticklet
     .controller("TagsAdminCtrl", ["$scope", function($scope) {
         
     }])
+    .controller("DataCtrl", ["$scope", "FileUploadServ", "Notify", function($scope, FileUploadServ, Notify) {
+        //upload
+        $scope.file = null;
+        $scope.fileSelected = function(file) {
+            $scope.file = file;
+        };
+        $scope.upload = function() {
+            if ($scope.file) {
+                $scope.uploadInProgress = true;
+                $scope.uploadProgress = 0;
+                FileUploadServ.upload($scope.file, "/data/upload").then(function(ev) {
+                    $scope.file = null;
+                    $scope.uploadInProgress = false;
+                    Notify.add("File successfully uploaded");
+                }, function(ev) {
+                    console.warn("error uploading file: " + $scope.file.name, "status: " + ev.status);
+                    $scope.uploadInProgress = false;
+                    Notify.add("File failed to upload");
+                });
+            }
+        };
+    }])
     .controller("NotificationsCtrl", ["$scope", "Notify", function($scope, Notify) {
         $scope.notifications = [];
         $scope.networkActiveRequests = [];
