@@ -429,6 +429,9 @@ ul.tags-dropdown {
             border: @default-border;
             border-radius: @border-radius;
             background: @lightest-background;
+            &:not(:last-child) {
+                margin-right: 10px;
+            }
             .text {
                 padding: @default-padding;
                 font-weight: @bold-weight;
@@ -460,6 +463,9 @@ ul.tags-dropdown {
     background: @dark-background;
     #data-container {
         background: @light-background;
+        .import-details {
+            margin: 15px 0px;
+        }
     }
 }
 

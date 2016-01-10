@@ -8,4 +8,5 @@ import com.sticklet.core.repository.base.BaseRepo
 
 public interface TagRepo extends BaseRepo<Tag, String> {
     public List<Tag> findAllByUser(@Param("user") User user)
+    public Tag findByNameAndUser(@Param("name") String name, @Param("user") User user)
 }

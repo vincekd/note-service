@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+import com.sticklet.core.constant.StickletConsts
 import com.sticklet.core.model.Note
 import com.sticklet.core.model.Tag
 import com.sticklet.core.model.User
@@ -39,6 +40,10 @@ class NoteService {
         noteRepo.save(note)
     }
 
+    public Note save(Note note) {
+        noteRepo.save(note)
+    }
+
     public Note getNote(String noteID, User user, HttpServletResponse resp) {
         Note note = noteRepo.findOne(noteID)
         if (note) {
@@ -68,5 +73,12 @@ class NoteService {
 
     public static boolean userHasAccess(Note note, User user) {
         note && user && note.user.id == user.id
+    }
+
+    public static String trimTitle(String title) {
+        if (title && title.length() > StickletConsts.MAX_TITLE_LENGTH) {
+            return title.substring(0, StickletConsts.MAX_TITLE_LENGTH)
+        }
+        title
     }
 }

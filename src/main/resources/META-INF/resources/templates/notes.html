@@ -8,7 +8,7 @@
             <div id="notes-list" class="{{opts.display}} full-height col-sm-12">
                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
                     <div class="notes">
-                        <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order" 
+                        <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order | Limit:100" 
                             ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
                             ng-class="{'editing': (current.editing === note || current.title === note)}">
                             <div class="header clearfix container-fluid">

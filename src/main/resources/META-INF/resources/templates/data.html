@@ -8,16 +8,32 @@
             </div>
             <div>
                 <div class="stklt-header">Import</div>
+
                 <div class="form-group" ng-if="!uploadInProgress">
-                    <label class="">Evernote .enex File</label>
-                    <input type="file" file-upload="fileSelected(file)" />
+                    <select ng-model="o.type" class="form-control">
+                        <option ng-repeat="t in importTypes track by $index"
+                            ng-selected="t === o.type" 
+                            ng-bind="t" value="{{t}}"></option>
+                    </select>
+                    <div>
+                        <div class="import-details" ng-if="o.type">
+                            <label class="" ng-if="o.type === 'Evernote'">Evernote .enex File</label>
+                            <label class="" ng-if="o.type === 'Keep'">Keep XML File</label>
+                            <label class="" ng-if="o.type === 'OneNote'">OneNote .xml File</label>
+                            <input type="file" file-upload="fileSelected(file)" />
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" type="button" ng-click="upload()" ng-disabled="!file">Upload</button>
+                        </div>
+                    </div>
                 </div>
+
                 <div ng-if="uploadInProgress">
-                    <uib-progressbar type="success" value="uploadProgress">
+                    <uib-progressbar type="success" value="uploadProgress" type="success" max="100">
                         <div class="text-center" ng-bind-template="{{uploadProgress}} / 100"></div>
                     </uib-progressbar>
                 </div>
-                <button class="btn btn-primary" type="button" ng-click="upload()" ng-disabled="!file">Upload</button>
+
             </div>
         </div>
         <div class="col-sm-3"></div>

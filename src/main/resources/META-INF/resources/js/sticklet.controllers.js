@@ -242,7 +242,10 @@ Sticklet
     }])
     .controller("DataCtrl", ["$scope", "FileUploadServ", "Notify", function($scope, FileUploadServ, Notify) {
         //upload
+        $scope.o = {"type": ""};
+        $scope.importTypes = ["Evernote", "Keep", "OneNote"];
         $scope.file = null;
+        $scope.uploadProgress = 0;
         $scope.fileSelected = function(file) {
             $scope.file = file;
         };
@@ -250,14 +253,19 @@ Sticklet
             if ($scope.file) {
                 $scope.uploadInProgress = true;
                 $scope.uploadProgress = 0;
-                FileUploadServ.upload($scope.file, "/data/upload").then(function(ev) {
+                FileUploadServ.upload($scope.file, "/data/import/" + $scope.o.type, function(ev) {
+                    $scope.$apply(function() {
+                        $scope.uploadProgress = Math.ceil((ev.loaded / ev.total) * 100);
+                    });
+                }).then(function(ev) {
                     $scope.file = null;
-                    $scope.uploadInProgress = false;
+                    $scope.o.type = "";
                     Notify.add("File successfully uploaded");
                 }, function(ev) {
-                    console.warn("error uploading file: " + $scope.file.name, "status: " + ev.status);
-                    $scope.uploadInProgress = false;
+                    console.warn("error uploading file: " + $scope.file.name);
                     Notify.add("File failed to upload");
+                }).finally(function() {
+                    $scope.uploadInProgress = false;
                 });
             }
         };

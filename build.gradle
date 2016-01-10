@@ -81,6 +81,7 @@ dependencies {
 
     //groovy
     compile("org.codehaus.groovy:groovy")
+    compile('org.codehaus.groovy:groovy-xml:2.4.3')
 
     //misc
     compile("org.reflections:reflections:0.9.9")

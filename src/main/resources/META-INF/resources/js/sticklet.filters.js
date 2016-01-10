@@ -61,5 +61,23 @@ Sticklet
             return $filter("date")(date, l ? long : short);
         };
     }])
+    .filter("Limit", [function() {
+        return function(arr, len, from) {
+            if (_.isArray(arr)) {
+                return arr.slice(from || 0, len);
+            }
+            return arr;
+        };
+    }])
+    .filter("TagsUsed", [function() {
+        return function(tags, filtered) {
+            if (filtered && filtered.length && tags && tags.length) {
+                return tags.filter(function(t) {
+                    return filtered.indexOf(t) === -1;
+                });
+            }
+            return tags;
+        };
+    }])
 ;
 }(jQuery));

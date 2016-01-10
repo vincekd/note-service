@@ -1,4 +1,4 @@
-<div class="notification" ng-repeat="notification in notifications">
+<div class="notification" ng-repeat="notification in notifications | orderBy:$index:true">
     <span ng-bind="notification.text" class="text"></span>
     <span ng-if="notification.removable" class="close" ng-click="closeNotification(notification)">&times;</span>
 </div>

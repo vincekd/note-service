@@ -12,7 +12,7 @@
                     <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
                         <li><color-choices on-change="filterColor(color)"></color-choices></li>
                         <li class="divider"></li>
-                        <li ng-repeat="tag in tags">
+                        <li ng-repeat="tag in tags | TagsUsed:current.filters.tags">
                             <a href="javascript:;" ng-click="filterTag(tag)" ng-bind="tag.name"></a>
                         </li>
                         <li class="divider"></li>

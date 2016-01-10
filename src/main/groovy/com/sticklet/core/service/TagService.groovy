@@ -24,6 +24,10 @@ class TagService {
         Tag tag = new Tag(["user": user, "name": name])
         tagRepo.save(tag)
     }
+    
+    public Tag findTag(User user, String name) {
+        tagRepo.findByNameAndUser(name, user)
+    }
 
     public Tag getTag(String tagID, User user, HttpServletResponse resp) {
         Tag tag = tagRepo.findOne(tagID)
