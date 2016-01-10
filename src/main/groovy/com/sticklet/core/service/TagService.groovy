@@ -5,14 +5,18 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+import com.sticklet.core.model.Note
 import com.sticklet.core.model.Tag
 import com.sticklet.core.model.User
+import com.sticklet.core.repository.NoteRepo
 import com.sticklet.core.repository.TagRepo
 
 @Service
 class TagService {
     @Autowired
     private TagRepo tagRepo
+    @Autowired
+    private NoteRepo noteRepo
     @Autowired
     private ResponseStatusService statusServ
 
@@ -44,7 +48,14 @@ class TagService {
     }
 
     public void deleteTag(Tag tag) {
+        List<Note> notes = noteRepo.findAllByTags(tag)
         tagRepo.delete(tag)
+        notes.each { Note note ->
+            note.tags = note.tags.findAll {
+                it.id != tag.id
+            }
+        }
+        noteRepo.save(notes)
     }
 
     public static boolean userHasAccess(Tag tag, User user) {

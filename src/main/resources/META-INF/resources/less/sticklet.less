@@ -176,7 +176,8 @@ ul.dropdown-menu {
     padding: 4px;
     border: @default-border;
     border-radius: @border-radius;
-    margin-right: 5px;
+    //margin-right: 5px;
+    margin-left: 5px;
     //&:last-child {
     //    margin-right: 0px;
     //}
@@ -213,7 +214,8 @@ ul.dropdown-menu {
     display: block;
     font-size: 1.4rem;
     font-weight: @bold-weight;
-    margin: 15px 0px;
+    //margin: 15px 0px;
+    padding: 10px;
     text-align: center;
 }
 
@@ -393,7 +395,9 @@ ul.tags-dropdown {
         #note-controls {
             padding-top: 10px;
             #note-info {
-                
+                .title {
+                    margin-top: 15px;
+                }
             }
             #note-tags {
                 padding: 10px 0px;
@@ -449,22 +453,34 @@ ul.tags-dropdown {
 }
 
 /* Settings page */
-#settings {
-    height: 100%;
-    background: @dark-background;
-    #content-area {
-        background: @light-background;
-    }
-}
+#settings {}
 
 /* data management page */
 #data {
+    .import-details {
+        margin: 15px 0px;
+    }
+}
+
+/* tags page */
+#tags-admin {
+    
+}
+
+.basic-page {
     height: 100%;
     background: @dark-background;
-    #data-container {
-        background: @light-background;
-        .import-details {
-            margin: 15px 0px;
+    display: block;
+    .basic-page-main {
+         position: relative;
+         background: @light-background;
+        .close {
+            position: absolute;
+            top: 3px;
+            right: 10px;
+        }
+        .basic-page-content {
+            height: 100%;
         }
     }
 }

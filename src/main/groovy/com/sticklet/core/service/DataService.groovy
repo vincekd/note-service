@@ -26,15 +26,12 @@ class DataService {
     @Autowired
     private TagService tagServ
 
-    public File exportUserData(String type, User user) {
-        switch (type?.toLowerCase()) {
-            case "json":
-                //TODO: implement
-                //return exportUtil.getJsonFile(user)
-            case "xml":
-            default:
-                return exportUtil.getXMLFile(user)
-        }
+    public File exportXML(User user) {
+        return exportUtil.getXMLFile(user)
+    }
+    
+    public String exportJson(User user) {
+        exportUtil.getJson(user)
     }
 
     public void importEvernote(User user, MultipartFile file) {

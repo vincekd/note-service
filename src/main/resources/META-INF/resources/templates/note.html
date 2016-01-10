@@ -1,8 +1,6 @@
-<div id="note" class="container-fluid">
-    <div class="row full-height">
-        <div class="col-sm-3"></div>
-        <div id="note-container" class="col-sm-6" ng-style="{'background': note.color}">
-
+<basic-page>
+    <div id="note">
+        <div id="note-container" ng-style="{'background': note.color}">
             <div class="full-height" balance-heights="" prefer="#note-controls">
 
                 <div id="note-controls">
@@ -19,12 +17,9 @@
                                     <span ng-bind="note.updated | DispDate:true"></span>
                                 </div>
                             </div>
-                            <div class="col-sm-7">
-                                <input type="text" class="stklt-input" ng-model="cur.title" 
+                            <div class="col-sm-8">
+                                <input type="text" class="stklt-input title" ng-model="cur.title" 
                                     ng-change="update()" maxlength="{{maxTitleLength}}"/>
-                            </div>
-                            <div class="col-sm-1">
-                                <a class="close" href="#!/notes">&times;</a>
                             </div>
                         </div>
 
@@ -35,7 +30,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div id="note-content" ng-if="note">
                     <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
                         <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
@@ -45,6 +40,5 @@
 
             </div>
         </div>
-        <div class="col-sm-3"></div>
     </div>
-</div>
+</basic-page>

@@ -1,41 +1,47 @@
-<div id="data" class="container-fluid row-full-height">
-    <div class="row">
-        <div class="col-sm-3"></div>
-        <div class="col-sm-6" id="data-container">
-            <div>
-                <div class="stklt-header">Export</div>
-                <a target="_blank" href="/data/export">Export</a>
-            </div>
-            <div>
-                <div class="stklt-header">Import</div>
-
-                <div class="form-group" ng-if="!uploadInProgress">
-                    <select ng-model="o.type" class="form-control">
-                        <option ng-repeat="t in importTypes track by $index"
-                            ng-selected="t === o.type" 
-                            ng-bind="t" value="{{t}}"></option>
-                    </select>
-                    <div>
-                        <div class="import-details" ng-if="o.type">
-                            <label class="" ng-if="o.type === 'Evernote'">Evernote .enex File</label>
-                            <label class="" ng-if="o.type === 'Keep'">Keep XML File</label>
-                            <label class="" ng-if="o.type === 'OneNote'">OneNote .xml File</label>
-                            <input type="file" file-upload="fileSelected(file)" />
+<basic-page>
+    <div id="data">
+        <div>
+            <div class="stklt-header">Export</div>
+            <a target="_blank" href="/data/export/xml">Export XML</a>
+        </div>
+        <div>
+            <div class="stklt-header">Import</div>
+            <div class="form-group" ng-if="!uploadInProgress">
+                <select ng-model="o.type" class="form-control">
+                    <option ng-repeat="t in importTypes track by $index" ng-selected="t === o.type" ng-bind="t" value="{{t}}"></option>
+                </select>
+                <div>
+                    <div class="import-details" ng-if="o.type">
+                        <div ng-if="o.type === 'Evernote'">
+                            <label class="">Evernote</label>
+                            <div>
+                                <span>Follow the instructions listed</span>
+                                <a target="_blank" 
+                                href="https://help.evernote.com/hc/en-us/articles/209005557-How-to-back-up-export-and-restore-import-notes-and-notebooks">here</a>
+                                <span>and choose the "enex" file type.</span>
+                            </div>
                         </div>
+                        <div ng-if="o.type === 'Keep'">
+                            <label class="">Google Keep</label>
+                        </div>
+                        <div ng-if="o.type === 'OneNote'">
+                            <label class="">Microsoft OneNote</label>
+                        </div>
+                        <br />
+                        <input type="file" file-upload="fileSelected(file)" />
+                        <br />
                         <div>
                             <button class="btn btn-primary" type="button" ng-click="upload()" ng-disabled="!file">Upload</button>
                         </div>
                     </div>
+                    
                 </div>
-
-                <div ng-if="uploadInProgress">
-                    <uib-progressbar type="success" value="uploadProgress" type="success" max="100">
-                        <div class="text-center" ng-bind-template="{{uploadProgress}} / 100"></div>
-                    </uib-progressbar>
-                </div>
-
+            </div>
+            <div ng-if="uploadInProgress">
+                <uib-progressbar type="success" value="uploadProgress" type="success" max="100">
+                <div class="text-center" ng-bind-template="{{uploadProgress}} / 100"></div>
+                </uib-progressbar>
             </div>
         </div>
-        <div class="col-sm-3"></div>
     </div>
-</div>
+</basic-page>

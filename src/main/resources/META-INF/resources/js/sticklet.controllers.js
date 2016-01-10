@@ -237,8 +237,22 @@ Sticklet
             }
         });
     }])
-    .controller("TagsAdminCtrl", ["$scope", function($scope) {
+    .controller("TagsAdminCtrl", ["$scope", "TagServ", function($scope, TagServ) {
+        $scope.tags = [];
+        $scope.removeTag = function(tag) {
+            TagServ.remove(tag);
+        };
+        getTags()
         
+        $scope.$on("tags-updated", function() {
+            getTags();
+        });
+
+        function getTags() {
+            TagServ.getTags().then(function(tags) {
+                $scope.tags = tags;
+            });
+        }
     }])
     .controller("DataCtrl", ["$scope", "FileUploadServ", "Notify", function($scope, FileUploadServ, Notify) {
         //upload

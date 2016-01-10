@@ -216,6 +216,25 @@ Sticklet
             }
         };
     }])
+    .directive("basicPage", [function() {
+        return {
+            "restrict": "E",
+            "transclude": true,
+            "replace": true,
+            "template": ('<div class="container-fluid row-full-height basic-page">' +
+                            '<div class="row">' +
+                                '<div class="col-sm-3"></div>' +
+                                '<div class="col-sm-6 basic-page-main">' +
+                                    '<a class="close" ng-href="#!/">&times;</a>' +
+                                    '<div class="basic-page-content">' +
+                                        '<ng-transclude></ng-transclude>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="col-sm-3"></div>' +
+                            '</div>' +
+                        '</div>')
+        };
+    }])
 ;
 
 }(jQuery));

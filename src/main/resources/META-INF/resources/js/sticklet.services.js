@@ -319,7 +319,7 @@ Sticklet
             }
         };
     }])
-    .service("TagServ", ["HTTP", "STOMP", "_globals", function(HTTP, STOMP, _globals) {
+    .service("TagServ", ["HTTP", "STOMP", "_globals", "$rootScope", function(HTTP, STOMP, _globals, $rootScope) {
         var tags = HTTP.get("/tags").then(function(resp) {
             return resp.data;
         }), 
@@ -331,15 +331,21 @@ Sticklet
                 data.push(tag);
                 return data;
             });
+            notify();
         });
-        STOMP.register(_globals.tagCreateTopic + topicAdd, function(tagID) {
+        STOMP.register(_globals.tagDeleteTopic + topicAdd, function(tagID) {
             tags = tags.then(function(data) {
                 data = data.filter(function(tag) {
                     return tag.id !== tagID;
                 });
                 return data;
             });
+            notify();
         });
+        
+        function notify() {
+            $rootScope.$broadcast("tags-updated");
+        }
 
         return {
             "getTags": function() {

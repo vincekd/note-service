@@ -1,1 +1,18 @@
-tags admin
+<basic-page>
+    <div id="tags-admin">
+        <div>
+            <div class="stklt-header">Tag Manager</div>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr><th>Tag name</th><th></th></tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="tag in tags">
+                    <td ng-bind="tag.name"></td>
+                    <td><a ng-click="removeTag(tag)">Delete</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</basic-page>

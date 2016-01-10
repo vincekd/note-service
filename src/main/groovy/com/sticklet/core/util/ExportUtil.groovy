@@ -19,8 +19,9 @@ class ExportUtil {
     @Autowired
     NoteRepo noteRepo
     
-    public String getJson() {
-        
+    public String getJson(User user) {
+        //TODO: implement
+        ""
     }
 
     public File getXMLFile(User user) {

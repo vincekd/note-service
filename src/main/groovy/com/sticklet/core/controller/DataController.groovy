@@ -25,16 +25,22 @@ class DataController extends BaseController {
     @Autowired
     private DataService dataServ
 
-    @RequestMapping(value="/data/export", method=RequestMethod.GET, produces="text/xml")
-    public @ResponseBody def exportData(HttpServletResponse resp) {
+    @RequestMapping(value="/data/export/{type}", method=RequestMethod.GET)
+    public @ResponseBody def exportData(@PathVariable('type') String type, HttpServletResponse resp) {
         User user = curUser()
         try {
-            File file = dataServ.exportUserData(user)
-            resp.setContentType("text/xml")
-            resp.setHeader("Content-Disposition", "inline; filename=" + file.getName())
-            resp.outputStream.write(file.bytes)
-            logger.debug "Exporting file: {}", file
-            return
+            switch (type) {
+                case "json": 
+                    resp.setContentType("application/json")
+                    return dataServ.exportJson(user)
+                case "xml":
+                default:
+                    File file = dataServ.exportXML(user)
+                    resp.setContentType("text/xml")
+                    resp.setHeader("Content-Disposition", "inline; filename=" + file.getName())
+                    resp.outputStream.write(file.bytes)
+                    return
+            }
         } catch (Exception e) {
             e.printStackTrace()
             statusServ.setStatusError(resp)
