@@ -28,7 +28,7 @@ class NoteController extends BaseController {
 
     @RequestMapping(value="/notes", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getNotes(HttpServletResponse resp) {
-        noteServ.getNotesByUser(curUser())
+        noteServ.getNotes(curUser())
     }
 
     @RequestMapping(value="/note/{noteID}", method=RequestMethod.GET, produces="application/json")
@@ -55,6 +55,17 @@ class NoteController extends BaseController {
         Note note = noteServ.getNote(noteID, user, resp)
         if (note) {
             note = noteServ.updateNote(note, params)
+            socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
+        }
+        emptyJson()
+    }
+
+    @RequestMapping(value="/note/archive/{noteID}", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def archiveNote(@PathVariable("noteID") String noteID, HttpServletResponse resp) {
+        User user = curUser()
+        Note note = noteServ.getNote(noteID, user, resp)
+        if (note) {
+            note = noteServ.archiveNote(note)
             socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
         }
         emptyJson()

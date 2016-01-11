@@ -2,6 +2,8 @@ package com.sticklet.core.service
 
 import javax.servlet.http.HttpServletResponse
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -13,6 +15,8 @@ import com.sticklet.core.repository.NoteRepo
 
 @Service
 class NoteService {
+    private static final Logger logger = LoggerFactory.getLogger(NoteService.class)
+
     @Autowired NoteRepo noteRepo
     @Autowired ResponseStatusService statusServ
 
@@ -31,8 +35,13 @@ class NoteService {
         note
     }
 
-    public List<Note> getNotesByUser(User user) {
-        noteRepo.findAllByUser(user)
+    public List<Note> getNotes(User user) {
+        noteRepo.findAllByUserAndArchivedAndDeleted(user, false, null)
+    }
+
+    public List<Note> getDeletable() {
+        Long lessThan = (new Date()).getTime() - StickletConsts.EMPTY_TRASH_AFTER
+        noteRepo.findAllByDeletedLessThan(lessThan)
     }
 
     public Note createNote(User user) {
@@ -67,8 +76,22 @@ class NoteService {
         noteRepo.save(note)
     }
 
+    public Note archiveNote(Note note) {
+        note.archived = true
+        noteRepo.save(note)
+    }
+
+    public void deleteNote(Note note, boolean hard) {
+        if (StickletConsts.USE_TRASH && !hard) {
+            note.deleted = (new Date()).getTime()
+            noteRepo.save(note)
+        } else {
+            noteRepo.delete(note)
+        }
+    }
+
     public void deleteNote(Note note) {
-        noteRepo.delete(note)
+        deleteNote(note, false)
     }
 
     public static boolean userHasAccess(Note note, User user) {

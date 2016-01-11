@@ -63,7 +63,7 @@ dependencies {
     //spring boot
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-web")
-    compile('org.springframework.data:spring-data-mongodb:1.7.0.RELEASE')
+    //compile('org.springframework.data:spring-data-mongodb:1.7.0.RELEASE')
 
     //Security
     compile("org.springframework.boot:spring-boot-starter-security")
@@ -74,6 +74,9 @@ dependencies {
     //data management
     compile("org.springframework.boot:spring-boot-starter-data-rest")
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    //compile("org.springframework.boot:spring-boot-starter-cache")
+    //compile("org.springframework.boot:spring-context-support")
+    //compile("org.springframework.cache:ehcache")
 
     //websockets
     compile("org.springframework.boot:spring-boot-starter-websocket")

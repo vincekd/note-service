@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 
 import com.asual.lesscss.LessEngine
 import com.sticklet.core.constant.Roles
-import com.sticklet.core.model.User
 import com.sticklet.core.service.UserService
 import com.sticklet.core.util.FileSystemUtil
 

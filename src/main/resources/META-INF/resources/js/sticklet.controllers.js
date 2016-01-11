@@ -21,6 +21,9 @@ Sticklet
                 "search": ""
             }
         };
+        $scope.resetFilters = function() {
+            $scope.current.filters = {"colors": [], "tags": [], "search": ""};
+        };
         UserServ.getUser().then(function(u) {
             $scope.user = u;
             if (u) {
@@ -29,11 +32,8 @@ Sticklet
             }
         });
     }])
-    .controller("NotesCtrl", ["$scope", "HTTP", "NoteServ", "STOMP", "_globals",
-                              function($scope, HTTP, NoteServ, STOMP, _globals) {
-        var topicAdd = ".NotesCtrl";
+    .controller("NotesCtrl", ["$scope", "NoteServ", function($scope, NoteServ) {
         $scope.notes = [];
-
         $scope.createNote = function() {
             NoteServ.create();
         };
@@ -41,45 +41,17 @@ Sticklet
             $scope.current.editing = null;
             $scope.current.title = null;
         };
-        $scope.resetFilters = function() {
-            $scope.current.filters = {"colors": [], "tags": [], "search": ""};
-        };
+        $scope.$on("notes-updated", function() {
+            getNotes();
+        });
+        getNotes();
 
-        function getNote(id) {
-            return _.find($scope.notes, function(n) {
-                return n.id === id;
+        function getNotes() {
+            //get data
+            NoteServ.getNotes().then(function(notes) {
+                $scope.notes = notes;
             });
         }
-
-        //websocket callbacks
-        STOMP.register(_globals.noteCreateTopic + topicAdd, function(note) {
-            $scope.$apply(function() { 
-                $scope.notes.push(note);
-            });
-        });
-        STOMP.register(_globals.noteDeleteTopic + topicAdd, function(noteID) {
-            $scope.$apply(function() {
-                $scope.notes = $scope.notes.filter(function(n) {
-                    return n.id !== noteID;
-                });
-            });
-        });
-        STOMP.register(_globals.noteUpdateTopic + topicAdd, function(note) {
-            $scope.$apply(function() {
-                var n = getNote(note.id);
-                _.extend(n, note);
-            });
-        });
-        $scope.$on("$destroy", function() {
-            STOMP.deregister(_globals.noteUpdateTopic + topicAdd);
-            STOMP.deregister(_globals.noteCreateTopic + topicAdd);
-            STOMP.deregister(_globals.noteDeleteTopic + topicAdd);
-        });
-
-        //get data
-        NoteServ.getNotes().then(function(notes) {
-            $scope.notes = notes;
-        });
     }])
     .controller("TopBarCtrl", ["$scope", "TagServ", "HTTP", function($scope, TagServ, HTTP) {
         $scope.opts = {
@@ -135,6 +107,9 @@ Sticklet
         };
         $scope.editTitle = function() {
             $scope.current.title = $scope.note;
+        };
+        $scope.archiveNote = function() {
+            NoteServ.archive($scope.note);
         };
         $scope.deleteNote = function() {
             NoteServ.remove($scope.note);

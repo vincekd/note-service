@@ -19,7 +19,7 @@ public class BaseRepoImpl<T, ID extends Serializable> extends SimpleMongoReposit
 
     @Autowired
     public BaseRepoImpl(MongoRepositoryFactory factory, MongoOperations mongoOperations) {
-        this(factory.<T, String>getEntityInformation(T.class), mongoOperations);
+        this(factory.<T, String>getEntityInformation(T.class), mongoOperations)
     }
     
     
@@ -35,7 +35,7 @@ public class BaseRepoImpl<T, ID extends Serializable> extends SimpleMongoReposit
     
     @Override
     public T save(T entity) {
-        logger.debug "saving enitty: $entity"
+        logger.debug "saving entity: $entity"
         super.save(entity)
     }
 }

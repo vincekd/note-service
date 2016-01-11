@@ -279,15 +279,65 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "Storage", function(HTTP, STOMP, Storage) {
+    .service("NoteServ", ["HTTP", "STOMP", "Storage", "_globals", "$rootScope", "$q",
+                          function(HTTP, STOMP, Storage, _globals, $rootScope, $q) {
         var notes = HTTP.get("/notes").then(function(resp) {
-            return resp.data;
-        }), colors = HTTP.get("/colors").then(function(resp) {
-            return resp.data;
+                Storage.set("notes", resp.data);
+                return resp.data;
+            }).finally(function() {
+                notify();
+            }),
+            colors = HTTP.get("/colors").then(function(resp) {
+                return resp.data;
+            }),
+            topicAdd = ".NoteServ";
+
+        //websocket callbacks
+        STOMP.register(_globals.noteCreateTopic + topicAdd, function(note) {
+            notes = notes.then(function(data) {
+                data.push(note);
+                return data;
+            });
+            notesUpdated();
         });
+        STOMP.register(_globals.noteDeleteTopic + topicAdd, function(noteID) {
+            notes = notes.then(function(data) {
+                return data.filter(function(n) {
+                    return n.id !== noteID;
+                });
+            });
+            notesUpdated();
+        });
+        STOMP.register(_globals.noteUpdateTopic + topicAdd, function(note) {
+            notes.then(function(data) {
+                var n = getNote(data, note.id);
+                _.extend(n, note);
+            });
+            notesUpdated();
+        });
+
+        function notesUpdated() {
+            notes.then(function(data) {
+                Storage.set("notes", data);
+            });
+            notify();
+        }
+        function notify() {
+            $rootScope.$broadcast("notes-updated");
+        }
+        function getNote(notes, id) {
+            return _.find(notes, function(n) {
+                return n.id === id;
+            });
+        }
 
         return {
             "getNotes": function() {
+//                if (notes.$$state.status === 0) {
+//                    return $q(function(resolve, reject) {
+//                        resolve(Storage.get("notes") || []);
+//                    });
+//                }
                 return notes;
             },
             "getColors": function() {
@@ -303,6 +353,9 @@ Sticklet
             },
             "remove": function(note) {
                 return HTTP.remove("/note/" + note.id);
+            },
+            "archive": function(note) {
+                return HTTP.put("/note/archive/" + note.id);
             },
             "refresh": function(note) {
                 return HTTP.get("/note/" + note.id).then(function(r) {

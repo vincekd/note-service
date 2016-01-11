@@ -44,7 +44,6 @@ class UserController extends BaseController {
     @RequestMapping(value="/user", method=RequestMethod.PUT, produces="application/json")
     public @ResponseBody def updateUser(@RequestBody Map data, HttpServletResponse resp) {
         User user = curUser()
-        logger.debug "data: $data"
         user = userServ.updateUser(user, data)
         socketServ.sendToUser(user, SocketTopics.USER_UPDATE, user)
         emptyJson()

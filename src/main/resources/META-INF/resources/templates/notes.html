@@ -11,10 +11,11 @@
                         <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order | Limit:100" 
                             ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
                             ng-class="{'editing': (current.editing === note || current.title === note)}">
+
                             <div class="header clearfix container-fluid">
                                 <div class="row no-row-padding">
                                     <div class="updated col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
-                                        <i ng-if="opts.display === 'tiled'" class="oi oi-clock" 
+                                        <i ng-if="opts.display === 'tiled' || opts.display === 'title'" class="oi oi-clock" 
                                             uib-tooltip="{{note.updated | DispDate}}" 
                                             tooltip-placement="right" tooltip-append-to-body="true"></i>
                                         <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | DispDate"></span>
@@ -29,7 +30,7 @@
                                         </div>
                                     </div>
                                     <div class="options col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
-                                        <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" >
+                                        <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" dropdown-append-to-body="true">
                                             <a href="javascript:;" class="caret large-caret" uib-dropdown-toggle=""></a>
                                             <ul class="uib-dropdown-menu dropdown-menu-right">
                                                 <li>
@@ -37,13 +38,15 @@
                                                 </li>
                                                 <li class="divider"></li>
                                                 <li><a ng-href="#!/note/{{note.id}}">Edit</a></li>
+                                                <li><a ng-click="archiveNote()">Archive</a></li>
                                                 <li><a href="javascript:;" ng-click="deleteNote()">Delete</a></li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="content" ng-dblclick="editNote(note)">
+
+                            <div class="content" ng-dblclick="editNote(note)" ng-if="opts.display !== 'title'">
                                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="3" min-scrollbar-length="20">
                                     <div ng-if="current.editing === note">
                                         <editable-area model="note" prop="content" on-update="updateNote()" on-close="closeEditor()" type="textarea" />
@@ -53,7 +56,8 @@
                                     </div>
                                 </perfect-scrollbar>
                             </div>
-                            <div class="tags"><tags note="note" /></div>
+
+                            <div class="tags" ng-if="opts.display !== 'title'"><tags note="note" /></div>
                         </div>
                     </div>
                 </perfect-scrollbar>
@@ -90,16 +94,16 @@
                             </div>
                         </div>
                         <div class="btn-group">
-<!--                             <button class="btn" type="button" ng-class="{active: opts.display === 'titles'}" -->
-<!--                                 ng-click="opts.display = 'titles'"> -->
-<!--                                 <i class="glyphicon glyphicon-menu-hamburger"></i> -->
-<!--                             </button> -->
                             <button class="btn" type="button" ng-class="{active: opts.display === 'tiled'}" 
                                 ng-click="opts.display = 'tiled'">
                                 <i class="oi oi-grid-three-up"></i>
                             </button>
                             <button class="btn" type="button" ng-class="{active: opts.display === 'stacked'}" 
                                 ng-click="opts.display = 'stacked'">
+                                <i class="oi oi-list-rich"></i>
+                            </button>
+                            <button class="btn" type="button" ng-class="{active: opts.display === 'title'}" 
+                                ng-click="opts.display = 'title'">
                                 <i class="oi oi-list"></i>
                             </button>
                         </div>

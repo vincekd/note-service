@@ -1,7 +1,5 @@
 package com.sticklet.core.model
 
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
@@ -17,6 +15,9 @@ class Note extends BaseModel {
     public String title
     public String content
     public String color
+
+    public boolean archived = false
+    public Long deleted = null
 
     @DBRef
     public List<Tag> tags = []

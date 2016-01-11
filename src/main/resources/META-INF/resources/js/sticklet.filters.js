@@ -6,9 +6,9 @@ Sticklet
         return function(notes, filters) {
             var reg = new RegExp(filters.search, "i");
             return notes.filter(function(n) {
-                return ((_.isEmpty(filters.colors) || (filters.colors.indexOf(n.color) > -1)) && 
+                return (!n.archived && !n.deleted && ((_.isEmpty(filters.colors) || (filters.colors.indexOf(n.color) > -1)) && 
                         (_.isEmpty(filters.tags) || findTags(filters.tags, n)) && 
-                        (!filters.search || reg.test(n.content) || reg.test(n.title)));
+                        (!filters.search || reg.test(n.content) || reg.test(n.title))));
             });
         };
         function findTags(tags, note) {
