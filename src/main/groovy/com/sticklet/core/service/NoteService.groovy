@@ -38,6 +38,14 @@ class NoteService {
     public List<Note> getNotes(User user) {
         noteRepo.findAllByUserAndArchivedAndDeleted(user, false, null)
     }
+    public List<Note> getArchive(User user) {
+        noteRepo.findAllByUserAndArchivedAndDeleted(user, true, null)
+    }
+    public List<Note> getTrash(User user) {
+        def o = noteRepo.findAllByUserAndDeletedIsNotNull(user)
+        logger.debug "trash: $o"
+        o
+    }
 
     public List<Note> getDeletable() {
         Long lessThan = (new Date()).getTime() - StickletConsts.EMPTY_TRASH_AFTER
@@ -81,6 +89,11 @@ class NoteService {
         noteRepo.save(note)
     }
 
+    public Note unarchiveNote(Note note) {
+        note.archived = false
+        noteRepo.save(note)
+    }
+
     public void deleteNote(Note note, boolean hard) {
         if (StickletConsts.USE_TRASH && !hard) {
             note.deleted = (new Date()).getTime()
@@ -88,6 +101,11 @@ class NoteService {
         } else {
             noteRepo.delete(note)
         }
+    }
+
+    public Note restoreNote(Note note) {
+        note.deleted = null
+        noteRepo.save(note)
     }
 
     public void deleteNote(Note note) {

@@ -5,12 +5,12 @@
     <div class="container-fluid" id="notes">
 
         <div class="row full-height no-row-padding">
-            <div id="notes-list" class="{{opts.display}} full-height col-sm-12">
+            <div id="notes-list" class="{{opts.display}} full-height col-sm-12" create-note-dblclick="">
                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
                     <div class="notes">
                         <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order | Limit:100" 
                             ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
-                            ng-class="{'editing': (current.editing === note || current.title === note)}">
+                            ng-class="{'editing': (current.editing === note || current.title === note)}" note-context-menu="">
 
                             <div class="header clearfix container-fluid">
                                 <div class="row no-row-padding">
@@ -23,14 +23,15 @@
                                     <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 8}} no-wrap-text" 
                                         ng-class="{'editing': current.title === note}">
                                         <a ng-if="current.title !== note" href="javascript:;" ng-bind="note.title" 
-                                            ng-dblclick="editTitle()"></a>
+                                            ng-dblclick="editTitle($event)"></a>
                                         <div ng-if="current.title === note">
                                             <editable-area model="note" prop="title" on-update="updateNote()" 
                                                 on-close="closeEditor()" type="input" />
                                         </div>
                                     </div>
                                     <div class="options col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
-                                        <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" dropdown-append-to-body="true">
+                                        <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" is-open="optionsMenuOpen"
+                                            dropdown-append-to-body="true">
                                             <a href="javascript:;" class="caret large-caret" uib-dropdown-toggle=""></a>
                                             <ul class="uib-dropdown-menu dropdown-menu-right">
                                                 <li>
@@ -46,7 +47,7 @@
                                 </div>
                             </div>
 
-                            <div class="content" ng-dblclick="editNote(note)" ng-if="opts.display !== 'title'">
+                            <div class="content" ng-dblclick="editNote($event)" ng-if="opts.display !== 'title'">
                                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="3" min-scrollbar-length="20">
                                     <div ng-if="current.editing === note">
                                         <editable-area model="note" prop="content" on-update="updateNote()" on-close="closeEditor()" type="textarea" />

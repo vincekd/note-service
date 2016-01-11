@@ -138,7 +138,8 @@ Sticklet
                     $scope.options = {
                         "events": {
                             "blur": function(ev, editor) {
-                                close();
+                                console.log("blur event not used");
+                                //close();
                             },
                             "keydown": function(ev, editor) {
                                 if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
@@ -233,6 +234,52 @@ Sticklet
                                 '<div class="col-sm-3"></div>' +
                             '</div>' +
                         '</div>')
+        };
+    }])
+    .directive("noteContextMenu", [function() {
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                $element.on("contextmenu", function(ev) {
+                    var $target = $(ev.target);
+                    if (!$target.is("a[href^='http']")) {
+                        ev.preventDefault()
+                        ev.stopPropagation();
+
+                        $scope.$apply(function() {
+                            setupContextMenu();
+                        });
+
+                        return false;
+                    }
+                });
+                function setupContextMenu(ev, $target) {
+                    var scope = $element.find(".options").scope();
+                    scope.optionsMenuOpen = true;
+                }
+            }
+        };
+    }])
+    .directive("createNoteDblclick", ["Settings", function(Settings) {
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                Settings.get("note.createOnDblClick").then(function(data) {
+                    if (data === true) {
+                        registerEvent();
+                    }
+                });
+                function registerEvent() {
+                    $element.on("dblclick", function(ev) {
+                        var $target = $(ev.target);
+                        if (!$target.closest("#notes-options").length && !$target.closest(".note").length) {
+                            $scope.$apply(function() {
+                                $scope.createNote();
+                            });
+                        }
+                    });
+                }
+            }
         };
     }])
 ;

@@ -38,37 +38,36 @@ Sticklet
             }
             return url;
         }
+        function doPromise(prom, notif) {
+            return prom.then(function(resp) {
+                return resp.data;
+            }).finally(function() {
+                Notify.removeNetworkActiveRequest(notif);
+            });
+        }
         return {
             "getRealUrl": getRealUrl,
             "get": function(url, data) {
                 var n = Notify.networkActiveRequest();
-                return $http.get(getRealUrl(url), {
+                return doPromise($http.get(getRealUrl(url), {
                     params: data
-                }).finally(function() {
-                    Notify.removeNetworkActiveRequest(n);
-                });
+                }), n);
             },
             "post": function(url, data) {
                 var n = Notify.networkActiveRequest();
-                return $http.post(getRealUrl(url), data).finally(function() {
-                    Notify.removeNetworkActiveRequest(n);
-                });
+                return doPromise($http.post(getRealUrl(url), data), n);
             },
             "put": function(url, data) {
                 var n = Notify.networkActiveRequest();
-                return $http.put(getRealUrl(url), data).finally(function() {
-                    Notify.removeNetworkActiveRequest(n);
-                });
+                return doPromise($http.put(getRealUrl(url), data), n);
             },
             "remove": function(url, data) {
                 var n = Notify.networkActiveRequest();
-                return $http["delete"](getRealUrl(url), data).finally(function() {
-                    Notify.removeNetworkActiveRequest(n);
-                });
+                return doPromise($http["delete"](getRealUrl(url), data), n);
             }
         };
     }])
-    .service("STOMP", ["HTTP", "$timeout", function(HTTP, $timeout) {
+    .service("STOMP", ["HTTP", "$timeout", "$q", function(HTTP, $timeout, $q) {
 
         var stompClient = null,
             socket = null,
@@ -107,6 +106,24 @@ Sticklet
                 }
             });
         }
+        
+        function getRealTopic(topic) {
+            var realTopic, namespace;
+            if (namespaceRegex.test(topic)) {
+                var match = topic.match(namespaceRegex),
+                realTopic = match[1];
+                namespace = match[2];
+            } else {
+                realTopic = topic;
+                namespace = "default";
+            }
+
+            if (!namespaces[realTopic]) {
+                namespaces[realTopic] = {};
+            }
+
+            return [realTopic, namespace];
+        }
 
         return {
             "connect": function() {
@@ -114,12 +131,14 @@ Sticklet
                     socket = new SockJS(HTTP.getRealUrl("/registerSocket"));
                     stompClient = Stomp.over(socket);
 
+                    //set heartbeats
                     stompClient.heartbeat.outgoing = 20000;
                     stompClient.heartbeat.ingoing = 20000;
 
                     //disable the crazy console output
                     stompClient.debug = function() {};
 
+                    //connect
                     stompClient.connect({}, function(frame) {
                         console.log("websocket connected");
                         connected = true;
@@ -128,25 +147,18 @@ Sticklet
                 }
             },
             "disconnect": function(fn) {
-                stompClient.disconnect(function() {
-                    connected = false;
-                    _.isFunction(fn) && fn.call(null);
+                //disconnect with callback
+                return $q(function(resolve, reject) {
+                    stompClient.disconnect(function() {
+                        connected = false;
+                        resolve();
+                    });
                 });
             },
             "deregister": function(topic) {
-                var realTopic, namespace;
-                if (namespaceRegex.test(topic)) {
-                    var match = topic.match(namespaceRegex),
-                    realTopic = match[1];
-                    namespace = match[2];
-                } else {
-                    realTopic = topic;
-                    namespace = "default";
-                }
-
-                if (!namespaces[realTopic]) {
-                    namespaces[realTopic] = {};
-                }
+                var t = getRealTopic(topic),
+                    realTopic = t[0],
+                    namespace = t[1];
                 delete namespaces[realTopic][namespace];
                 if (connected) {
                     stompClient.unsubscribe(topicBase + realTopic);
@@ -154,21 +166,11 @@ Sticklet
             },
             "register": function(topic, callback) {
                 if (_.isString(topic) && _.isFunction(callback)) {
-                    var realTopic, namespace;
-                    if (namespaceRegex.test(topic)) {
-                        var match = topic.match(namespaceRegex),
-                        realTopic = match[1];
-                        namespace = match[2];
-                    } else {
-                        realTopic = topic;
-                        namespace = "default";
-                    }
+                    var t = getRealTopic(topic),
+                        realTopic = t[0],
+                        namespace = t[1];
 
-                    if (!namespaces[realTopic]) {
-                        namespaces[realTopic] = {};
-                    }
                     namespaces[realTopic][namespace] = callback;
-
                     if (connected && !subscribed[topicBase + realTopic]) {
                         stompClient.subscribe(topicBase + realTopic, function(data) {
                             executeCallbacks(namespaces[realTopic], data);
@@ -179,8 +181,29 @@ Sticklet
             }
         };
     }])
-    .service("ServiceWorker", ["HTTP", "STOMP", "NoteServ", "$route", "_globals", "$rootScope", "$timeout", "Notify",
-                               function(HTTP, STOMP, NoteServ, $route, _globals, $rootScope, $timeout, Notify) {
+    .service("Settings", ["HTTP", "STOMP", "$q", function(HTTP, STOMP, $q) {
+        var settings = HTTP.get("/settings");
+        function get(data, name) {
+            return _.find(data, function(setting) {
+                return setting.name === name;
+            });
+        }
+        function value(setting) {
+            return (setting ? setting.value : null);
+        }
+        return {
+            "get": function(name) {
+                return $q(function(resolve, reject) {
+                    settings.then(function(data) {
+                        resolve(value(get(data, name)));
+                    });
+                });
+            }
+        };
+    }])
+    .service("ServiceWorker", ["HTTP", "STOMP", "NoteServ", "$route", "$rootScope", "$timeout", "Notify",
+                               function(HTTP, STOMP, NoteServ, $route, $rootScope, $timeout, Notify) {
+        //TODO: fix this
         var ServiceWorker;
         if ('serviceWorker' in navigator) {
             ServiceWorker = {
@@ -208,24 +231,38 @@ Sticklet
             attempts = 0,
             delay = 3000,
             timer,
-            notification;
+            notification,
+            isOnline = true;
 
         function send(message) {
             navigator.serviceWorker.controller.postMessage(message);
         }
         function setOnline(online) {
-            if (!online || !_globals.online) {
-                var orig = _globals.online;
-                _globals.setOnline(online);
-                ping(online);
-                if (online !== orig) {
-                    Notify.remove(notification);
-                    if (!online) {
-                        notification = Notify.add("Cannot connect to sticklet.com...", true);
-                    }
-                    $rootScope.$apply();
+            console.log("setting online", online, isOnline);
+            if (isOnline !== online) {
+                Notify.remove(notification);
+                if (!online) {
+                    notification = Notify.add("Cannot connect to sticklet.com...", true);
                 }
+                $rootScope.$broadcast("network-status", [online, isOnline]);
+                isOnline = online;
+                $rootScope.$apply();
             }
+            if (!online) {
+                ping(online);
+            }
+//            if (!online || !isOnline) {
+//                var orig = _globals.online;
+//                _globals.setOnline(online);
+//                ping(online);
+//                if (online !== orig) {
+//                    Notify.remove(notification);
+//                    if (!online) {
+//                        notification = Notify.add("Cannot connect to sticklet.com...", true);
+//                    }
+//                    $rootScope.$apply();
+//                }
+//            }
         }
         function ping(online) {
             if (online) {
@@ -233,7 +270,7 @@ Sticklet
                 timer = null;
                 attempts = 0;
                 //reconnect websocket
-                STOMP.disconnect(function() {
+                STOMP.disconnect().then(function() {
                     STOMP.connect();
                 });
                 //save all edited notes
@@ -252,6 +289,7 @@ Sticklet
 
         //server worker online settings
         ServiceWorker.onMessage("ServiceWorker", function(m) {
+            console.log("service worker message", m);
             if (m.data === "online") {
                 setOnline(true);
             } else if (m.data === "offline") {
@@ -264,9 +302,7 @@ Sticklet
         return ServiceWorker;
     }])
     .service("UserServ", ["HTTP", "STOMP", function(HTTP, STOMP) {
-        var user = HTTP.get("/user").then(function(resp) {
-            return resp.data;
-        });
+        var user = HTTP.get("/user");
         STOMP.register("/userUpdated.UserServ", function(u) {
             user = user.then(function(us) {
                 _.extend(us, u);
@@ -279,41 +315,45 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "Storage", "_globals", "$rootScope", "$q",
-                          function(HTTP, STOMP, Storage, _globals, $rootScope, $q) {
-        var notes = HTTP.get("/notes").then(function(resp) {
-                Storage.set("notes", resp.data);
-                return resp.data;
-            }).finally(function() {
+    .service("NoteServ", ["HTTP", "STOMP", "Storage", "$rootScope", "$q", "Settings",
+                          function(HTTP, STOMP, Storage, $rootScope, $q, Settings) {
+        var notes = HTTP.get("/notes").then(function(data) {
+                Storage.set("notes", data);
                 notify();
+                return data;
             }),
-            colors = HTTP.get("/colors").then(function(resp) {
-                return resp.data;
-            }),
+            colors = HTTP.get("/colors"),
             topicAdd = ".NoteServ";
 
-        //websocket callbacks
-        STOMP.register(_globals.noteCreateTopic + topicAdd, function(note) {
-            notes = notes.then(function(data) {
-                data.push(note);
-                return data;
-            });
-            notesUpdated();
-        });
-        STOMP.register(_globals.noteDeleteTopic + topicAdd, function(noteID) {
-            notes = notes.then(function(data) {
-                return data.filter(function(n) {
-                    return n.id !== noteID;
+        Settings.get("socket.topic.noteCreate").then(function(topic) {
+            //websocket callbacks
+            STOMP.register(topic + topicAdd, function(note) {
+                notes = notes.then(function(data) {
+                    data.push(note);
+                    return data;
                 });
+                notesUpdated();
             });
-            notesUpdated();
         });
-        STOMP.register(_globals.noteUpdateTopic + topicAdd, function(note) {
-            notes.then(function(data) {
-                var n = getNote(data, note.id);
-                _.extend(n, note);
+
+        Settings.get("socket.topic.noteDelete").then(function(topic) {
+            STOMP.register(topic + topicAdd, function(noteID) {
+                notes = notes.then(function(data) {
+                    return data.filter(function(n) {
+                        return n.id !== noteID;
+                    });
+                });
+                notesUpdated();
             });
-            notesUpdated();
+        });
+        Settings.get("socket.topic.noteUpdate").then(function(topic) {
+            STOMP.register(topic + topicAdd, function(note) {
+                notes.then(function(data) {
+                    var n = getNote(data, note.id);
+                    _.extend(n, note);
+                });
+                notesUpdated();
+            });
         });
 
         function notesUpdated() {
@@ -357,43 +397,48 @@ Sticklet
             "archive": function(note) {
                 return HTTP.put("/note/archive/" + note.id);
             },
+            "unarchive": function(note) {
+                return HTTP.put("/note/unarchive/" + note.id);
+            },
+            "restore": function(note) {
+                return HTTP.put("/note/restore/" + note.id);
+            },
             "refresh": function(note) {
-                return HTTP.get("/note/" + note.id).then(function(r) {
-                    return r.data;
-                });
+                return HTTP.get("/note/" + note.id);
             },
             "create": function() {
-                return HTTP.post("/note").then(function(resp) {
-                    return resp.data;
-                });
+                return HTTP.post("/note");
             },
             "saveFailedNotes": function() {
                 console.log("save failed notes");
             }
         };
     }])
-    .service("TagServ", ["HTTP", "STOMP", "_globals", "$rootScope", function(HTTP, STOMP, _globals, $rootScope) {
-        var tags = HTTP.get("/tags").then(function(resp) {
-            return resp.data;
-        }), 
+    .service("TagServ", ["HTTP", "STOMP", "$rootScope", "Settings",
+                         function(HTTP, STOMP, $rootScope, Settings) {
+        var tags = HTTP.get("/tags"), 
             topicAdd = ".TagServ";
 
         //keep tags in sync
-        STOMP.register(_globals.tagCreateTopic + topicAdd, function(tag) {
-            tags = tags.then(function(data) {
-                data.push(tag);
-                return data;
-            });
-            notify();
-        });
-        STOMP.register(_globals.tagDeleteTopic + topicAdd, function(tagID) {
-            tags = tags.then(function(data) {
-                data = data.filter(function(tag) {
-                    return tag.id !== tagID;
+        Settings.get("socket.topic.tagCreate").then(function(topic) {
+            STOMP.register(topic + topicAdd, function(tag) {
+                tags = tags.then(function(data) {
+                    data.push(tag);
+                    return data;
                 });
-                return data;
+                notify();
             });
-            notify();
+        });
+        Settings.get("socket.topic.tagDelete").then(function(topic) {
+            STOMP.register(topic + topicAdd, function(tagID) {
+                tags = tags.then(function(data) {
+                    data = data.filter(function(tag) {
+                        return tag.id !== tagID;
+                    });
+                    return data;
+                });
+                notify();
+            });
         });
         
         function notify() {
@@ -408,15 +453,27 @@ Sticklet
                 return HTTP.remove("/tag/" + tag.id);
             },
             "create": function(tag) {
-                return HTTP.post("/tag", tag).then(function(resp) {
-                    return resp.data;
-                });
+                return HTTP.post("/tag", tag);
             },
             "tag": function(note, tag) {
                 return HTTP.put("/tag/" + note.id + "/" + tag.id);
             },
             "untag": function(note, tag) {
                 return HTTP.remove("/untag/" + note.id + "/" + tag.id);
+            }
+        };
+    }])
+    .service("Archive", ["HTTP", function(HTTP) {
+        return {
+            "get": function() {
+                return HTTP.get("/archive");
+            }
+        };
+    }])
+    .service("Trash", ["HTTP", function(HTTP) {
+        return {
+            "get": function() {
+                return HTTP.get("/trash");
             }
         };
     }])

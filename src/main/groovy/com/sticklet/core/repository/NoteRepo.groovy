@@ -13,4 +13,5 @@ public interface NoteRepo extends BaseRepo<Note, String> {
     public List<Note> findAllByUserAndArchivedAndDeleted(@Param("user") User user, @Param("archived") boolean archived, @Param("deleted") Long deleted)
     public List<Note> findAllByTags(@Param("tag") Tag tag)
     public List<Note> findAllByDeletedLessThan(@Param("deleted") Long lessThan)
+    public List<Note> findAllByUserAndDeletedIsNotNull(@Param("user") User user)
 }

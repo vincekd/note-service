@@ -1,0 +1,31 @@
+<basic-page>
+    <div id="archive">
+        <div class="stklt-header">ARCHIVE</div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Created</th>
+                    <th>Archived</th>
+                    <th>Content</th>
+                    <th>Unarchive</th>
+                    <th>
+                        <span ng-if="opts.trashEnabled">Move to trash</span>
+                        <span ng-if="!opts.trashEnabled">Delete Permanently</span>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="note in archived | SortNotes:'updated':true">
+                    <td ng-bind="note.title"></td>
+                    <td ng-bind="note.created | DispDate:true"></td>
+                    <td ng-bind="note.updated | DispDate:true"></td>
+                    <td ng-bind="note.content | Clip"></td>
+                    <td><a ng-click="restoreNote(note)">Restore</a></td>
+                    <td><a ng-click="deleteNote(note)">Delete</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</basic-page>

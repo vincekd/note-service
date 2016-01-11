@@ -1,0 +1,32 @@
+{
+    "note": {
+        "maxTitleLength": {
+            "value": 100,
+            "userUpdatable": false
+        },
+        "trash": {
+            "enabled": {
+                "value": true,
+                "userUpdatable": true
+            },
+            "daysBeforeEmpty": {
+                "value": 30,
+                "userUpdatable": true
+            }
+        },
+        "createOnDblClick": {
+            "value": true,
+            "userUpdatable": true
+        },
+        "autoSaveInterval": {
+            "value": 1500,
+            "userUpdatable": false
+        }
+    },
+    "serviceWorker": {
+        "enabled": {
+            "value": true,
+            "userUpdatable": false
+        }
+    }
+}

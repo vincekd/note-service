@@ -24,53 +24,18 @@
             }).when("/data", {
                 "templateUrl": "/templates/data.html",
                 "controller": "DataCtrl"
+            }).when("/archive", {
+                "templateUrl": "/templates/archive.html",
+                "controller": "ArchiveCtrl"
+            }).when("/trash", {
+                "templateUrl": "/templates/trash.html",
+                "controller": "TrashCtrl"
             }).otherwise({
                 "redirectTo": "/notes"
             });
-
-            var online = getOnline(),
-                isMobile = getIsMobile();
-
-            $provide.value("_globals", {
-                get noteUpdateTopic() {
-                    return "/noteUpdated";
-                },
-                get noteCreateTopic() {
-                    return "/noteCreated";
-                },
-                get noteDeleteTopic() {
-                    return "/noteDeleted";
-                },
-                get tagUpdateTopic() {
-                    return "/tagUpdated";
-                },
-                get tagCreateTopic() {
-                    return "/tagCreated";
-                },
-                get tagDeleteTopic() {
-                    return "/tagDeleted";
-                },
-                get autoSaveInterval() {
-                    return 1500; //milliseconds
-                },
-                get maxTitleLength() {
-                    return 100;
-                },
-                get mobile() {
-                    return isMobile;
-                },
-                get online() {
-                    return online;
-                },
-                setOnline: function(onl) {
-                    if (onl !== online) {
-                        online = onl;
-                    }
-                }
-            });
         }]);
 
-        Sticklet.run(["STOMP", function(STOMP) {
+        Sticklet.run(["STOMP", "Settings", function(STOMP, Settings) {
             $(function() {
                 STOMP.connect();
             });

@@ -3,10 +3,11 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "_globals", "ServiceWorker",
-                             function($scope, UserServ, _globals, ServiceWorker) {
-        $scope.maxTitleLength = _globals.maxTitleLength;
+    .controller("PageCtrl", ["$scope", "UserServ", "Settings", function($scope, UserServ, Settings) {
         $scope.user;
+        Settings.get("note.maxTitleLength").then(function(data) {
+            $scope.maxTitleLength = data;
+        });
         $scope.opts = {
             "display": "stacked",
             "sortBy": "created",
@@ -33,6 +34,7 @@ Sticklet
         });
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", function($scope, NoteServ) {
+        
         $scope.notes = [];
         $scope.createNote = function() {
             NoteServ.create();
@@ -53,9 +55,10 @@ Sticklet
             });
         }
     }])
-    .controller("TopBarCtrl", ["$scope", "TagServ", "HTTP", function($scope, TagServ, HTTP) {
+    .controller("TopBarCtrl", ["$scope", "TagServ", "HTTP", "Settings", function($scope, TagServ, HTTP, Settings) {
         $scope.opts = {
-            "isOpen": false
+            "isOpen": false,
+            "trashEnabled": false
         };
         $scope.tags = [];
         $scope.filterOpened = function() {
@@ -92,6 +95,9 @@ Sticklet
                 window.location = "login.html";
             });
         }
+        Settings.get("note.trash.enabled").then(function(enabled) {
+            $scope.opts.trashEnabled = (enabled === true);
+        });
         function closeFilter() {
             $scope.opts.isOpen = false;
         }
@@ -102,11 +108,17 @@ Sticklet
             $scope.note.color = color;
             NoteServ.save($scope.note);
         };
-        $scope.editNote = function() {
+        $scope.editNote = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
             $scope.current.editing = $scope.note;
+            return false;
         };
-        $scope.editTitle = function() {
+        $scope.editTitle = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
             $scope.current.title = $scope.note;
+            return false;
         };
         $scope.archiveNote = function() {
             NoteServ.archive($scope.note);
@@ -127,8 +139,8 @@ Sticklet
             }
         };
     }])
-    .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "_globals",
-                             function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, _globals) {
+    .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "Settings",
+                             function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, Settings) {
 
         var thisEditor,
             topicAdd = ".NoteCtrl";
@@ -136,20 +148,27 @@ Sticklet
         $scope.cur = {"content": "", "title": ""};
         $scope.note = null;
 
-        $scope.update = _.throttle(function() {
-            if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
-                $scope.note.title = $scope.cur.title;
-                $scope.note.content = $scope.cur.content;
-                NoteServ.save($scope.note);
-            }
-        }, _globals.autoSaveInterval, {trailing: true});
+        Settings.get("note.autoSaveInterval").then(function(data) {
+            $scope.update = _.throttle(function() {
+                if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
+                    $scope.note.title = $scope.cur.title;
+                    $scope.note.content = $scope.cur.content;
+                    NoteServ.save($scope.note);
+                }
+            }, data, {trailing: true});
+        });
 
-        STOMP.register(_globals.noteUpdateTopic + topicAdd, function(note) {
-            if (note.id === $scope.note.id) {
-                $scope.$apply(function() {
-                    _.extend($scope.note, note);
-                });
-            }
+        Settings.get("socket.topic.noteUpdate").then(function(topic) {
+            STOMP.register(topic + topicAdd, function(note) {
+                if (note.id === $scope.note.id) {
+                    $scope.$apply(function() {
+                        _.extend($scope.note, note);
+                    });
+                }
+            });
+            $scope.$on("$destroy", function() {
+                STOMP.deregister(topic + topicAdd);
+            });
         });
 
         function loadNote() {
@@ -180,9 +199,6 @@ Sticklet
 //        $scope.$on("note-content-resize", function() {
 //            console.log("note-content-resize");
 //        });
-        $scope.$on("$destroy", function() {
-            STOMP.deregister(_globals.noteUpdateTopic + topicAdd);
-        });
     }])
     .controller("SortCtrl", ["$scope", function($scope) {
         $scope.updateSort = function(val) {
@@ -258,6 +274,47 @@ Sticklet
                 });
             }
         };
+    }])
+    .controller("ArchiveCtrl", ["$scope", "Archive", "Settings", "NoteServ", function($scope, Archive, Settings, NoteServ) {
+        $scope.opts = {"trashEnabled": false};
+        $scope.archived = [];
+        $scope.restoreNote = function(note) {
+            NoteServ.unarchive(note).then(function() {
+                $scope.archived = $scope.archived.filter(function(n) {
+                    return n.id !== note.id;
+                });
+            });
+        };
+        $scope.deleteNote = function(note) {
+            NoteServ.remove(note).then(function() {
+                $scope.archived = $scope.archived.filter(function(n) {
+                    return n.id !== note.id;
+                });
+            });
+        };
+        Archive.get().then(function(archived) {
+            $scope.archived = archived;
+        });
+        Settings.get("note.trash.enabled").then(function(enabled) {
+            $scope.opts.trashEnabled = enabled;
+        });
+    }])
+    .controller("TrashCtrl", ["$scope", "Trash", "Settings", "NoteServ", function($scope, Trash, Settings, NoteServ) {
+        Settings.get("note.trash.enabled").then(function(enabled) {
+            if (enabled) {
+                $scope.trash = [];
+                $scope.restoreNote = function(note) {
+                    NoteServ.restore(note).then(function() {
+                        $scope.trash = $scope.trash.filter(function(n) {
+                            return n.id !== note.id;
+                        });
+                    });
+                };
+                Trash.get().then(function(trash) {
+                    $scope.trash = trash;
+                });
+            }
+        });
     }])
     .controller("NotificationsCtrl", ["$scope", "Notify", function($scope, Notify) {
         $scope.notifications = [];

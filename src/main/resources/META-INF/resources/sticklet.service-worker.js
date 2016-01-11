@@ -1,25 +1,17 @@
 "use strict";
 
 var self = this,
-    version = "v0.0.59",
+    version = "v0.0.65",
     DEV = true,
     LAST_UPDATE = -1,
-    CACHE_NAME = 'sticklet-cache' + '.' + version,
-    OFFLINE_CACHE_NAME = "sticklet-offline-cache" + "." + version,
+    CACHE_NAME = 'sticklet-cache.' + version,
+    OFFLINE_CACHE_NAME = "sticklet-offline-cache." + version,
+    //CACHE_NOW = "sticklet-now-cache." + version,
     CACHE_WHITELIST = [CACHE_NAME, OFFLINE_CACHE_NAME],
     fetchOpts = {},
     ignoreRequests = new RegExp(["registerSocket"].join("|")),
     cached = getCached();
 
-
-//function myFetch(req, opts) {
-//    return fetch(req, opts).then(function(resp) {
-//        sendMessage("online");
-//        return resp;
-//    }).catch(function() {
-//        sendMessage("offline");
-//    });
-//}
 function sendMessage(msg) {
     self.clients.matchAll().then(function(res) {
         if (!res) {
@@ -30,8 +22,8 @@ function sendMessage(msg) {
         });
     });
 }
-function isGet(event) {
-    return /GET/i.test(event.request.method);
+function isHtmlGet(event) {
+    return /GET/i.test(event.request.method) && /\.html/i.test(event.request.url);
 }
 function onCacheError(event) {
     var resp = new Response("", {
@@ -52,7 +44,7 @@ self.addEventListener('fetch', function(event) {
             }
             return fetch(event.request, fetchOpts).then(function(resp) {
                 sendMessage("online");
-                if (isGet(event)) {
+                if (isHtmlGet(event)) {
                     return caches.open(OFFLINE_CACHE_NAME).then(function(cache) {
                         cache.put(event.request, resp.clone());
                         return resp;
@@ -61,7 +53,7 @@ self.addEventListener('fetch', function(event) {
                 return resp;
             }).catch(function() {
                 sendMessage("offline");
-                if (isGet(event)) {
+                if (isHtmlGet(event)) {
                     return caches.match(event.request, {"cacheName": OFFLINE_CACHE_NAME}).catch(function() {
                         return onGetCacheError(event);
                     });
@@ -107,7 +99,7 @@ self.addEventListener('install', function(event) {
         console.log("installing service worker...");
         LAST_UPDATE = Date.now();
         return caches.open(CACHE_NAME).then(function(cache) {
-            console.log("service workebr installed.");
+            console.log("service worker installed.");
             return cache.addAll(cached);
         });
     }
@@ -126,6 +118,7 @@ function getCached() {
        //"/bower_components/angular-animate/angular-animate.min.js",
        "/bower_components/angular-route/angular-route.min.js",
        "/bower_components/bootstrap/dist/js/bootstrap.min.js",
+       "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff",
        "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2",
        "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
        "/bower_components/bootstrap/dist/css/bootstrap.min.css.map",
@@ -140,13 +133,14 @@ function getCached() {
        '/index.html', '/404.html', '/templates/notes.html', 
        '/templates/note.html', '/templates/tags.html', 
        '/templates/editable-area.html', '/templates/color-choices.html', 
-       '/templates/menu.html', "wysihtml-toolbar.html",
+       '/templates/menu.html', "/templates/wysihtml-toolbar.html",
+       //"/templates/tags-admin.html", '/templates/settings.html',
+       //"/templates/data.html", "/templates/trash.html", 
+       //"/templates/archive.html",
        "/less/css/sticklet.css", "/js/sticklet.js",
        "/js/sticklet.controllers.js", "/js/sticklet.services.js", 
        "/js/sticklet.directives.js", "/js/sticklet.filters.js",
        "/js/sticklet.register.js", "/templates/notifications.html",
-       "/js/wysihtml.js",
-       //"/templates/tags-admin.html", '/templates/settings.html',
-       //"/templates/data.html"
+       "/js/wysihtml.js"
     ]);
 }

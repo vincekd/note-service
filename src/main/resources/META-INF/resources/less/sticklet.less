@@ -99,6 +99,7 @@ html,body {
     .full-height;
     width: 100%;
     color: @default-font-color;
+    background: @dark-background;
 }
 a {
     color: @font-color;
@@ -293,6 +294,7 @@ ul.dropdown-menu {
             margin-bottom: @notification-menu-height + 3px;
             .note {
                 margin: 10px;
+                position: relative;
                 padding: 0px;
                 padding-top: @note-top-padding;
                 padding-bottom: @note-bottom-padding;
@@ -397,12 +399,8 @@ ul.tags-dropdown {
     width: 100%;
     background: @dark-background;
     #note-container {
-        //max-width: 900px;
-        //margin: auto;
         background: @light-background;
         height: 100%;
-        //padding: 10px;
-        //padding-bottom: 0px;
         #note-controls {
             padding-top: 10px;
             #note-info {
@@ -418,6 +416,19 @@ ul.tags-dropdown {
             position: relative;
         }
     }
+}
+/* note-context-menu */
+#note-context-menu {
+    
+}
+
+.context-menu {
+    display: none;
+    position: absolute;
+    width: 225px;
+    min-height: 50px;
+    background: #FFF;
+    border: @default-border;
 }
 
 /* notifications menu */

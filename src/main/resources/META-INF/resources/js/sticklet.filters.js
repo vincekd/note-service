@@ -79,5 +79,10 @@ Sticklet
             return tags;
         };
     }])
+    .filter("Clip", [function() {
+        return function(str, len) {
+            return ((str && _.isString(str)) ? str.substring(0, len || 400) : str);
+        };
+    }])
 ;
 }(jQuery));

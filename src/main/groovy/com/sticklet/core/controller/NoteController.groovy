@@ -31,6 +31,16 @@ class NoteController extends BaseController {
         noteServ.getNotes(curUser())
     }
 
+    @RequestMapping(value="/archive", method=RequestMethod.GET, produces="application/json")
+    public @ResponseBody def getArchive(HttpServletResponse resp) {
+        noteServ.getArchive(curUser())
+    }
+
+    @RequestMapping(value="/trash", method=RequestMethod.GET, produces="application/json")
+    public @ResponseBody def getTrash(HttpServletResponse resp) {
+        noteServ.getTrash(curUser())
+    }
+
     @RequestMapping(value="/note/{noteID}", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getNote(@PathVariable("noteID") String noteID, HttpServletResponse resp) {
         User user = curUser()
@@ -71,6 +81,17 @@ class NoteController extends BaseController {
         emptyJson()
     }
 
+    @RequestMapping(value="/note/unarchive/{noteID}", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def unarchiveNote(@PathVariable("noteID") String noteID, HttpServletResponse resp) {
+        User user = curUser()
+        Note note = noteServ.getNote(noteID, user, resp)
+        if (note) {
+            note = noteServ.unarchiveNote(note)
+            socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
+        }
+        emptyJson()
+    }
+
     @RequestMapping(value="/note/{noteID}", method=RequestMethod.DELETE, produces="application/json")
     public @ResponseBody def deleteNote(@PathVariable("noteID") String noteID, HttpServletResponse resp) {
         User user = curUser()
@@ -78,6 +99,17 @@ class NoteController extends BaseController {
         if (note) {
             noteServ.deleteNote(note)
             socketServ.sendToUser(user, SocketTopics.NOTE_DELETE, note.id)
+        }
+        emptyJson()
+    }
+
+    @RequestMapping(value="/note/restore/{noteID}", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def restoreNoteFromTrash(@PathVariable("noteID") String noteID, HttpServletResponse resp) {
+        User user = curUser()
+        Note note = noteServ.getNote(noteID, user, resp)
+        if (note) {
+            note = noteServ.restoreNote(note)
+            socketServ.sendToUser(user, SocketTopics.NOTE_CREATE, note)
         }
         emptyJson()
     }

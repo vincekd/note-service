@@ -1,0 +1,29 @@
+<basic-page>
+    <div id="trash">
+        <div class="stklt-header">TRASH</div>
+        <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Created</th>
+                        <th>Deleted</th>
+                        <th>Content</th>
+                        <th>Restore</th>
+                    </tr>
+                </thead>
+    
+                <tbody>
+                    <tr ng-repeat="note in trash | SortNotes:'deleted':true">
+                        <td ng-bind="note.title"></td>
+                        <td ng-bind="note.created | DispDate:true"></td>
+                        <td ng-bind="note.updated | DispDate:true"></td>
+                        <td ng-bind="note.deleted | DispDate:true"></td>
+                        <td ng-bind="note.content | Clip"></td>
+                        <td><a ng-click="restoreNote(note)">Restore</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </perfect-scrollbar>
+    </div>
+</basic-page>
