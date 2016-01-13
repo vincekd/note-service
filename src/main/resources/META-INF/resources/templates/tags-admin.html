@@ -5,12 +5,19 @@
         </div>
         <table class="table table-striped">
             <thead>
-                <tr><th>Tag name</th><th></th></tr>
+                <tr>
+                    <th>Tag name</th>
+                    <th>Archive All Notes With Tag</th>
+                    <th>Delete All Notes With Tag</th>
+                    <th>Delete Tag From All Notes</th>
+                </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="tag in tags">
                     <td ng-bind="tag.name"></td>
-                    <td><a ng-click="removeTag(tag)">Delete</a></td>
+                    <td><a ng-click="archiveTaggedNotes(tag)">Archive Notes</a></td>
+                    <td><a ng-click="deleteTaggedNotes(tag)">Delete Notes</a></td>
+                    <td><a ng-click="removeTag(tag)">Delete Tag</a></td>
                 </tr>
             </tbody>
         </table>

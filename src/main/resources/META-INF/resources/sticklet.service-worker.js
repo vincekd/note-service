@@ -1,41 +1,18 @@
 "use strict";
 
 var self = this,
-    version = "v0.0.65",
+    version = "v0.0.69",
     DEV = true,
     LAST_UPDATE = -1,
     CACHE_NAME = 'sticklet-cache.' + version,
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + version,
-    //CACHE_NOW = "sticklet-now-cache." + version,
     CACHE_WHITELIST = [CACHE_NAME, OFFLINE_CACHE_NAME],
     fetchOpts = {},
+    fileRegex = /\.(?:html|js|css|woff|ttf|map|woff2|otf)$/i,
     ignoreRequests = new RegExp(["registerSocket"].join("|")),
     cached = getCached();
 
-function sendMessage(msg) {
-    self.clients.matchAll().then(function(res) {
-        if (!res) {
-            return;
-        }
-        res.forEach(function(client) {
-            client.postMessage(msg);
-        });
-    });
-}
-function isHtmlGet(event) {
-    return /GET/i.test(event.request.method) && /\.html/i.test(event.request.url);
-}
-function onCacheError(event) {
-    var resp = new Response("", {
-        status: 408,
-        statusText: "Request timed out"
-    });
-    return resp;
-}
-function onGetCacheError(event) {
-    return caches.match('/404.html');
-}
-
+self.addEventListener('message', onMessage);
 self.addEventListener('fetch', function(event) {
     function response() {
         return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(response) {
@@ -43,8 +20,7 @@ self.addEventListener('fetch', function(event) {
                 return response;
             }
             return fetch(event.request, fetchOpts).then(function(resp) {
-                sendMessage("online");
-                if (isHtmlGet(event)) {
+                if (isFileGet(event)) {
                     return caches.open(OFFLINE_CACHE_NAME).then(function(cache) {
                         cache.put(event.request, resp.clone());
                         return resp;
@@ -52,8 +28,7 @@ self.addEventListener('fetch', function(event) {
                 }
                 return resp;
             }).catch(function() {
-                sendMessage("offline");
-                if (isHtmlGet(event)) {
+                if (isFileGet(event)) {
                     return caches.match(event.request, {"cacheName": OFFLINE_CACHE_NAME}).catch(function() {
                         return onGetCacheError(event);
                     });
@@ -67,19 +42,9 @@ self.addEventListener('fetch', function(event) {
     }
 
     if (!ignoreRequests.test(event.request.url)) {
-        //if (isLibraryReq(event)) {
         event.respondWith(response());
-        //} else {
-        //    event.respondWith(stickletResponse());
-        //}
     }
 });
-
-
-self.addEventListener('message', function(msg) {
-    console.log('message from client - ' + msg.data);
-});
-
 self.addEventListener('activate', function(event) {
     function activate() {
         console.log("service working activating...");
@@ -93,7 +58,6 @@ self.addEventListener('activate', function(event) {
     }
     event.waitUntil(activate());
 });
-
 self.addEventListener('install', function(event) {
     function install() {
         console.log("installing service worker...");
@@ -106,6 +70,32 @@ self.addEventListener('install', function(event) {
     event.waitUntil(install());
 });
 
+function onMessage(m) {
+    console.log("message from client", m);
+}
+function sendMessage(msg) {
+    self.clients.matchAll().then(function(res) {
+        if (!res) {
+            return;
+        }
+        res.forEach(function(client) {
+            client.postMessage(msg);
+        });
+    });
+}
+function isFileGet(event) {
+    return (/GET/i.test(event.request.method) && fileRegex.test(event.request.url));
+}
+function onCacheError(event) {
+    var resp = new Response("", {
+        status: 408,
+        statusText: "Request timed out"
+    });
+    return resp;
+}
+function onGetCacheError(event) {
+    return caches.match('/404.html');
+}
 function getCached() {
     return [
        "/bower_components/bootstrap/dist/css/bootstrap.min.css",
@@ -121,6 +111,8 @@ function getCached() {
        "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff",
        "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2",
        "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
+       "/bower_components/open-iconic/font/fonts/open-iconic.woff",
+       "/bower_components/open-iconic/font/fonts/open-iconic.otf",
        "/bower_components/bootstrap/dist/css/bootstrap.min.css.map",
        "/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css",
        "/bower_components/angular-bootstrap/ui-bootstrap.min.js",

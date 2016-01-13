@@ -3,8 +3,8 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "network",
-                             function($scope, UserServ, Settings, network) {
+    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify",
+                             function($scope, UserServ, Settings, Offline, Notify) {
         $scope.user;
         Settings.get("note.maxTitleLength").then(function(data) {
             $scope.maxTitleLength = data;
@@ -29,17 +29,21 @@ Sticklet
         };
         UserServ.getUser().then(function(u) {
             $scope.user = u;
-            if (u) {
+            if ($scope.user) {
                 $scope.opts.display = $scope.user.prefs.display;
                 $scope.opts.sortBy = $scope.user.prefs.sortBy;
                 $scope.opts.order = $scope.user.prefs.order;
             }
         });
-        $scope.$watch(function() {
-            return network.online;
-        }, function (o) {
-            console.log("network online", o);
-            $scope.current.online = o;
+        var notification;
+        Offline.onNetworkChange("PageCtrl", function(online) {
+            console.log("network online", online);
+            $scope.current.online = online;
+            if (online) {
+                Notify.remove(notification);
+            } else {
+                notification = Notify.add("Cannot connect to the server....", true);
+            }
         });
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", function($scope, NoteServ) {
@@ -301,9 +305,6 @@ Sticklet
         }, function() {
             loadNote();
         });
-//        $scope.$on("note-content-resize", function() {
-//            console.log("note-content-resize");
-//        });
     }])
     .controller("SortCtrl", ["$scope", function($scope) {
         $scope.updateSort = function(val) {

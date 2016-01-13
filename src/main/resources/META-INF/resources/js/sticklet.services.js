@@ -67,7 +67,40 @@ Sticklet
             }
         };
     }])
-    .service("STOMP", ["HTTP", "$timeout", "$q", function(HTTP, $timeout, $q) {
+    .service("Settings", ["HTTP", "$q", "Offline", function(HTTP, $q, Offline) {
+        var settings = getSettings();
+        Offline.onNetworkChange("Settings", function() {
+            settings = getSettings();
+        });
+
+        function getSettings() {
+            return Offline.get("/settings");
+        }
+        function get(data, name) {
+            return _.find(data, function(setting) {
+                return setting.name === name;
+            });
+        }
+        function value(setting) {
+            return (setting ? setting.value : null);
+        }
+
+        return {
+            "get": function(name) {
+                return $q(function(resolve, reject) {
+                    settings.then(function(data) {
+                        var setting = get(data, name);
+                        if (!setting) {
+                            reject(setting);
+                        }
+                        resolve(value(setting));
+                    });
+                });
+            }
+        };
+    }])
+    .service("STOMP", ["HTTP", "$timeout", "$q", "network", "Settings", 
+                       function(HTTP, $timeout, $q, network, Settings) {
 
         var stompClient = null,
             socket = null,
@@ -77,6 +110,9 @@ Sticklet
             topicBase = "/topic",
             namespaces = {},
             subscribed = {},
+            attempts = 0,
+            retryEvery = 3000,
+            maxInterval = 30000,
             connected = false,
             sendBase = "/socket"
         ;
@@ -125,27 +161,63 @@ Sticklet
             return [realTopic, namespace];
         }
 
-        return {
-            "connect": function() {
-                if (!connected) {
-                    socket = new SockJS(HTTP.getRealUrl("/registerSocket"));
-                    stompClient = Stomp.over(socket);
-
-                    //set heartbeats
-                    stompClient.heartbeat.outgoing = 20000;
-                    stompClient.heartbeat.ingoing = 20000;
-
-                    //disable the crazy console output
-                    stompClient.debug = function() {};
-
-                    //connect
-                    stompClient.connect({}, function(frame) {
-                        console.log("websocket connected");
-                        connected = true;
-                        initialRegisterAll();
+        function onConnect(frame) {
+            console.log("websocket connected");
+            connected = true;
+            attempts = 0;
+            network.setOnline();
+            initialRegisterAll();
+        }
+        function onDisconnect(msg) {
+            console.log("disconnected", msg);
+            reconnect();
+            connected = false;
+            network.setOffline();
+        }
+        
+        function reconnect() {
+            $timeout(function() {
+                console.log("attempting socket reconnect", attempts);
+                connect();
+            }, Math.min(retryEvery * (++attempts), maxInterval));
+        }
+        
+        function register(topic, callback) {
+            if (_.isString(topic) && _.isFunction(callback)) {
+                var t = getRealTopic(topic),
+                    realTopic = t[0],
+                    namespace = t[1];
+                
+                namespaces[realTopic][namespace] = callback;
+                if (connected && !subscribed[topicBase + realTopic]) {
+                    stompClient.subscribe(topicBase + realTopic, function(data) {
+                        executeCallbacks(namespaces[realTopic], data);
                     });
+                    subscribed[topicBase + realTopic] = true;
                 }
-            },
+            }
+            return STOMP;
+        }
+        
+        function connect() {
+            if (!connected) {
+                socket = new SockJS(HTTP.getRealUrl("/registerSocket"));
+                stompClient = Stomp.over(socket);
+
+                //set heartbeats
+                stompClient.heartbeat.outgoing = 20000;
+                stompClient.heartbeat.ingoing = 20000;
+
+                //disable the crazy console output
+                stompClient.debug = function() {};
+
+                //connect
+                stompClient.connect({}, onConnect, onDisconnect);
+            }
+        }
+
+        var STOMP = {
+            "connect": connect,
             "disconnect": function(fn) {
                 //disconnect with callback
                 return $q(function(resolve, reject) {
@@ -164,42 +236,16 @@ Sticklet
                     stompClient.unsubscribe(topicBase + realTopic);
                 }
             },
-            "register": function(topic, callback) {
-                if (_.isString(topic) && _.isFunction(callback)) {
-                    var t = getRealTopic(topic),
-                        realTopic = t[0],
-                        namespace = t[1];
-
-                    namespaces[realTopic][namespace] = callback;
-                    if (connected && !subscribed[topicBase + realTopic]) {
-                        stompClient.subscribe(topicBase + realTopic, function(data) {
-                            executeCallbacks(namespaces[realTopic], data);
-                        });
-                        subscribed[topicBase + realTopic] = true;
-                    }
-                }
-            }
-        };
-    }])
-    .service("Settings", ["HTTP", "STOMP", "$q", function(HTTP, STOMP, $q) {
-        var settings = HTTP.get("/settings");
-        function get(data, name) {
-            return _.find(data, function(setting) {
-                return setting.name === name;
-            });
-        }
-        function value(setting) {
-            return (setting ? setting.value : null);
-        }
-        return {
-            "get": function(name) {
-                return $q(function(resolve, reject) {
-                    settings.then(function(data) {
-                        resolve(value(get(data, name)));
-                    });
+            "registerSetting": function(setting, topicAdd, callback) {
+                Settings.get("socket.topic." + setting).then(function(topic) {
+                    register(topic + "." + topicAdd, callback);
                 });
-            }
+                return STOMP;
+            },
+            "register": register
         };
+        
+        return STOMP;
     }])
     .service("Popup", ["$q", "$uibModal", function($q, $modal) {
         function getModalParams(type, text, name) {
@@ -245,155 +291,130 @@ Sticklet
             }
         };
     }])
-    .service("ServiceWorker", ["HTTP", "STOMP", "NoteServ", "$route", "$rootScope", "$timeout", "Notify",
-                               function(HTTP, STOMP, NoteServ, $route, $rootScope, $timeout, Notify) {
-        //TODO: fix this
-        var ServiceWorker;
+    .service("ServiceWorker", [function() {
         if ('serviceWorker' in navigator) {
-            ServiceWorker = {
-                "message": function(message) {
-                    send(message);
-                },
-                "onMessage": function(name, callback) {
-                    if (_.isFunction(callback)) {
-                        msgHandlers[name] = callback
-                    }
-                }
-            };
             navigator.serviceWorker.addEventListener("message", function(e) {
-                _.each(msgHandlers, function(fn) {
-                    fn.call(null, e);
-                });
+                console.log("ServiceWorker message", e);
             });
-        } else {
-            ServiceWorker = {
-                "message": function(message) {},
-                "onMessage": function(name, callback) {}
-            };
         }
-        var msgHandlers = {},
-            attempts = 0,
-            delay = 3000,
-            timer,
-            notification,
-            isOnline = true;
-
-        function send(message) {
-            navigator.serviceWorker.controller.postMessage(message);
-        }
-        function setOnline(online) {
-            //console.log("setting online", online, isOnline);
-            if (isOnline !== online) {
-                Notify.remove(notification);
-                if (!online) {
-                    notification = Notify.add("Cannot connect to sticklet.com...", true);
-                }
-                isOnline = online;
-                //$rootScope.$broadcast("network-status", online, isOnline);
-                //$rootScope.$apply();
-            }
-            if (!online) {
-                ping(online);
-            }
-        }
-
-        function ping(online) {
-            if (online) {
-                $timeout.cancel(timer);
-                timer = null;
-                attempts = 0;
-                //reconnect websocket
-                STOMP.disconnect().then(function() {
-                    STOMP.connect();
-                });
-                //save all edited notes
-                NoteServ.saveFailedNotes();
-                //reload scopes
-                $route.reload();
-            } else if (!timer) {
-                timer = $timeout(function() {
-                    console.log("pinging server, attempt: ", attempts + 1);
-                    timer = null;
-                    HTTP.get("/ping");
-                }, (delay * attempts));
-                attempts++;
-            }
-        }
-
-        //server worker online settings
-        ServiceWorker.onMessage("ServiceWorker", function(m) {
-            //console.log("service worker message", m);
-            if (m.data === "online") {
-                //setOnline(true);
-            } else if (m.data === "offline") {
-                //setOnline(false);
-            } else {
-                console.log("unidentified ServiceWorker message", m.data);
-            }
-        });
-
-        return ServiceWorker;
+        return {};
     }])
-    .service("UserServ", ["HTTP", "STOMP", function(HTTP, STOMP) {
-        var user = HTTP.get("/user");
-        STOMP.register("/userUpdated.UserServ", function(u) {
+    .service("UserServ", ["STOMP", "Offline",
+                          function(STOMP, Offline) {
+        var user = getUser(),
+            namespace = "UserServ";
+
+        function getUser() {
+            return Offline.get("/user", {});
+        }
+        Offline.onNetworkChange(namespace, function(online) {
+            getUser();
+        });
+        STOMP.registerSetting("userUpdate", namespace, function(u) {
             user = user.then(function(us) {
                 _.extend(us, u);
                 return us;
             });
         });
+
         return {
             "getUser": function() {
                 return user;
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "Storage", "$rootScope", "$q", "Settings", "Popup",
-                          function(HTTP, STOMP, Storage, $rootScope, $q, Settings, Popup) {
-        var notes = HTTP.get("/notes").then(function(data) {
-                Storage.set("notes", data);
+    .service("NoteServ", ["HTTP", "STOMP", "$rootScope", "$q", "Popup", "Offline",
+                          function(HTTP, STOMP, $rootScope, $q, Popup, Offline) {
+        var notesGet = "/notes",
+            colorsGet = "/colors",
+            notes = getNotes(),
+            colors = getColors(),
+            namespace = "NoteServ";
+
+        function getNotes() {
+            return Offline.get(notesGet).finally(function() {
                 notify();
+            });
+        }
+        function getColors() {
+            return Offline.get(colorsGet);
+        }
+
+        //websocket callbacks
+        STOMP.registerSetting("noteCreate", namespace, function(note) {
+            createNote(note);
+        }).registerSetting("noteDelete", namespace, function(noteID) {
+            deleteNote(noteID);
+        }).registerSetting("noteUpdate", namespace, function(note) {
+            updateNote(note);
+        });
+
+        //offline sync callbacks
+        Offline.onSync("note", function(data) {
+            return Service.saveAll(data);
+        }).onSync("delete-note", function(data) {
+            var notes = _.map(data, function(del, id) {
+                return { "id": id };
+            });
+            return Service.removeAll(notes, false);
+        }).onSync("archive-note", function(data) {
+            var notes = _.map(data, function(arch, id) {
+                return { "id": id };
+            });
+            return Service.archiveAll(notes);
+        }).onNetworkChange("noteServ", function(online) {
+            notes = getNotes();
+            colors = getColors();
+        });
+
+        function createNote(note) {
+            notes = notes.then(function(data) {
+                data.push(note);
+                storeNotes(data);
                 return data;
-            }),
-            colors = HTTP.get("/colors"),
-            topicAdd = ".NoteServ";
-
-        Settings.get("socket.topic.noteCreate").then(function(topic) {
-            //websocket callbacks
-            STOMP.register(topic + topicAdd, function(note) {
-                notes = notes.then(function(data) {
-                    data.push(note);
-                    return data;
-                });
-                notesUpdated();
             });
-        });
-
-        Settings.get("socket.topic.noteDelete").then(function(topic) {
-            STOMP.register(topic + topicAdd, function(noteID) {
-                notes = notes.then(function(data) {
-                    return data.filter(function(n) {
-                        return n.id !== noteID;
-                    });
+            notify();
+        }
+        function deleteNote(noteID) {
+            notes = notes.then(function(data) {
+                var o = data.filter(function(n) {
+                    return n.id !== noteID;
                 });
-                notesUpdated();
+                storeNotes(o);
+                return o;
             });
-        });
-        Settings.get("socket.topic.noteUpdate").then(function(topic) {
-            STOMP.register(topic + topicAdd, function(note) {
-                notes.then(function(data) {
+            notify();
+        }
+        function deleteNotes(noteIds) {
+            notes = notes.then(function(data) {
+                var o = data.filter(function(n) {
+                    return noteIds.indexOf(n.id) < 0;
+                });
+                storeNotes(o);
+                return o;
+            });
+            notify();
+        }
+        function updateNote(note) {
+            notes.then(function(data) {
+                var n = getNote(data, note.id);
+                _.extend(n, note);
+                storeNotes(data);
+            });
+            notify();
+        }
+        function updateNotes(ns) {
+            notes.then(function(data) {
+                _.each(ns, function(note) {
                     var n = getNote(data, note.id);
                     _.extend(n, note);
                 });
-                notesUpdated();
-            });
-        });
-
-        function notesUpdated() {
-            notes.then(function(data) {
-                Storage.set("notes", data);
+                storeNotes(data);
             });
             notify();
+        }
+        function storeNotes(notes) {
+            Offline.storeRequest("get", notesGet, notes);
         }
         function notify() {
             $rootScope.$broadcast("notes-updated");
@@ -407,31 +428,36 @@ Sticklet
             return _.omit(note, ["tags"]);
         }
 
-        return {
+        var Service = {
             "getNotes": function() {
-//                if (notes.$$state.status === 0) {
-//                    return $q(function(resolve, reject) {
-//                        resolve(Storage.get("notes") || []);
-//                    });
-//                }
                 return notes;
             },
             "getColors": function() {
                 return colors;
             },
             "save": function(note) {
-                return HTTP.put("/note/" + note.id, safe(note)).catch(function(resp) {
-                    if (resp.status === 408) {
-                        //TODO: //record
-                        console.log("failed to save note with service worker", resp.statusText);
+                var data = safe(note);
+                return Offline.put("/note/" + note.id, data).then(function() {
+                    updateNote(note);
+                }).catch(function(msg) {
+                    if (msg === "offline") {
+                        //Store offline for sync
+                        Offline.sync("note." + note.id, data);
+                        updateNote(note);
                     }
                 });
             },
             "remove": function(note) {
                 return $q(function(resolve, reject) {
                     Popup.confirm("Are you sure you wish to delete this note?", "Confirm Delete").then(function() {
-                        HTTP.remove("/note/" + note.id).then(function(d) {
+                        Offline.remove("/note/" + note.id).then(function(d) {
+                            deleteNote(note.id);
                             resolve(d);
+                        }).catch(function(msg) {
+                            if (msg === "offline") {
+                                Offline.sync("delete-note." + note.id, true);
+                                deleteNote(note.id);
+                            }
                         });
                     }).catch(function() {
                         reject();
@@ -439,28 +465,66 @@ Sticklet
                 });
             },
             "archive": function(note) {
-                return HTTP.put("/note/archive/" + note.id);
+                return Offline.put("/note/archive/" + note.id).catch(function(msg) {
+                    if (msg === "offline") {
+                        Offline.sync("archive-note." + note.id, true);
+                        note.archived = true;
+                        updateNote(note);
+                    }
+                });
             },
             "archiveAll": function(notes) {
-                return HTTP.put("/notes/archive", _.getIDs(notes));
-            },
-            "removeAll": function(notes) {
-                return $q(function(resolve, reject) {
-                    Popup.confirm("Are you sure you wish to delete these notes?", "Confirm Delete").then(function() {
-                        return HTTP.put("/notes/delete", _.getIDs(notes)).then(function(d) {
-                            resolve(d);
+                var data = _.getIDs(notes);
+                return Offline.put("/notes/archive", data).catch(function(msg) {
+                    if (msg === "offline") {
+                        _.each(notes, function(note) {
+                            note.archived = true;
+                            Offline.sync("archive-note." + note.id, true);
                         });
-                    }).catch(function() {
-                        reject();
-                    });
+                        updateNotes(notes);
+                    }
+                });
+            },
+            "removeAll": function(notes, confirm) {
+                return $q(function(resolve, reject) {
+                    var data = _.getIDs(notes);
+                    function run() {
+                        Offline.put("/notes/delete", data).then(function(d) {
+                            resolve(d);
+                        }).catch(function(msg) {
+                            if (msg === "offline") {
+                                _.each(notes, function(note) {
+                                    Offline.sync("delete-note." + note.id, true);
+                                });
+                                deleteNotes(data);
+                                resolve(data);
+                            }
+                        });
+                    }
+                    if (confirm !== false) {
+                        Popup.confirm("Are you sure you wish to delete these notes?", "Confirm Delete").then(function() {
+                            run();
+                        }).catch(function() {
+                            reject();
+                        });
+                    } else {
+                        run();
+                    }
                 });
             },
             "saveAll": function(notes) {
-                return HTTP.put("/notes", _.map(notes, safe));
+                var data = _.map(notes, safe);
+                return Offline.put("/notes", data).catch(function(msg) {
+                    if (msg === "offline") {
+                        Offline.syncAll("note", "id", data);
+                        updateNotes(data);
+                    }
+                });
             },
             "unarchive": function(note) {
                 return HTTP.put("/note/unarchive/" + note.id);
             },
+            //restore from trash
             "restore": function(note) {
                 return HTTP.put("/note/restore/" + note.id);
             },
@@ -468,45 +532,92 @@ Sticklet
                 return HTTP.get("/note/" + note.id);
             },
             "create": function() {
-                return HTTP.post("/note");
+                return Offline.post("/note").catch(function(msg) {
+                    if (msg === "offline") {
+                        console.log("TODO: handle note creation when offline.");
+                        //this will be harder, since we need note ids to do tagging, coloring, etc once created
+                    }
+                });
             },
-            "saveFailedNotes": function() {
-                console.log("save failed notes");
-            }
+            "updateNote": updateNote,
+            "updateNotes": updateNotes
         };
+        return Service;
     }])
-    .service("TagServ", ["HTTP", "STOMP", "$rootScope", "Settings",
-                         function(HTTP, STOMP, $rootScope, Settings) {
-        var tags = HTTP.get("/tags"), 
-            topicAdd = ".TagServ";
+    .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Storage", "Offline", "NoteServ",
+                         function(HTTP, STOMP, $rootScope, $q, Storage, Offline, NoteServ) {
+        var tagsGet = "/tags",
+            tags = getTags(),
+            namespace = "TagServ";
+
+        function getTags() {
+            return Offline.get(tagsGet);
+        }
+        Offline.onSync("tag", function(data) {
+            return $q.all(_.map(fromData(data), function(notes, tagID) {
+                return TagServ.tagAll(notes, {"id": tagID});
+            }));
+        }).onSync("untag", function(data) {
+            return $q.all(_.map(fromData(data), function(notes, tagID) {
+                return TagServ.untagAll(notes, {"id": tagID});
+            }));
+        }).onNetworkChange("TagServ", function(online) {
+            tags = getTags();
+        });
 
         //keep tags in sync
-        Settings.get("socket.topic.tagCreate").then(function(topic) {
-            STOMP.register(topic + topicAdd, function(tag) {
-                tags = tags.then(function(data) {
-                    data.push(tag);
-                    return data;
-                });
-                notify();
+        STOMP.registerSetting("tagCreate", namespace, function(tag) {
+            tags = tags.then(function(data) {
+                data.push(tag);
+                return data;
             });
-        });
-        Settings.get("socket.topic.tagDelete").then(function(topic) {
-            STOMP.register(topic + topicAdd, function(tagID) {
-                tags = tags.then(function(data) {
-                    data = data.filter(function(tag) {
-                        return tag.id !== tagID;
-                    });
-                    return data;
+            notify();
+        }).registerSetting("tagDelete", namespace, function(tagID) {
+            tags = tags.then(function(data) {
+                data = data.filter(function(tag) {
+                    return tag.id !== tagID;
                 });
-                notify();
+                return data;
             });
+            notify();
         });
-        
         function notify() {
             $rootScope.$broadcast("tags-updated");
         }
+        function notifyNotes() {
+            $rootScope.$broadcast("notes-updated");
+        }
+        function tagNote(note, tag) {
+            note.tags.push(tag);
+            NoteServ.updateNote(note);
+        }
+        function untagNote(note, tag) {
+            note.tags = note.tags.filter(function(t) {
+                return t.id !== tag.id;
+            });
+            NoteServ.updateNote(note);
+        }
+        function tagNotes(notes, tag) {
+            _.each(notes, function(n) {
+                n.tags.push(tag);
+            });
+            NoteServ.updateNotes(notes);
+        }
+        function getStoreData(note, tag) {
+            return { "note": { "id": note.id }, "tag": { "id": tag.id } };
+        }
+        function fromData(data) {
+            var tags = {};
+            _.each(data, function(d) {
+                if (!tags[d.tag.id]) {
+                    tags[d.tag.id] = [];
+                }
+                tags[d.tag.id].push(d.note);
+            });
+            return tags;
+        }
 
-        return {
+        var TagServ = {
             "getTags": function() {
                 return tags;
             },
@@ -517,13 +628,43 @@ Sticklet
                 return HTTP.post("/tag", tag);
             },
             "tag": function(note, tag) {
-                return HTTP.put("/tag/" + note.id + "/" + tag.id);
+                return Offline.put("/tag/" + note.id + "/" + tag.id).catch(function(msg) {
+                    if (msg === "offline") {
+                        Offline.sync("tag." + note.id + "-" + tag.id, getStoreData(note, tag));
+                        tagNote(note, tag);
+                    }
+                });
             },
             "untag": function(note, tag) {
-                return HTTP.remove("/untag/" + note.id + "/" + tag.id);
+                return Offline.put("/untag/" + note.id + "/" + tag.id).catch(function(msg) {
+                    if (msg === "offline") {
+                        Offline.sync("untag." + note.id + "-" + tag.id, getStoreData(note, tag));
+                        untagNote(note, tag);
+                    }
+                });
             },
             "tagAll": function(notes, tag) {
-                return HTTP.put("/tag/" + tag.id, _.getIDs(notes));
+                var data = _.getIDs(notes);
+                return Offline.put("/tag/" + tag.id, data).catch(function(msg) {
+                    if (msg === "offline") {
+                        _.each(notes, function(note) {
+                            Offline.sync("tag." + note.id + "-" + tag.id, getStoreData(note, tag));
+                        });
+                        tagNotes(notes, tag);
+                    }
+                });
+            },
+            //only used for syncing after offline session
+            "untagAll": function(notes, tag) {
+                var data = _.getIDs(notes);
+                return Offline.put("/untag/" + tag.id, data).catch(function(msg) {
+//                    if (msg === "offline") {
+//                        _.each(notes, function(note) {
+//                            Offline.sync("untag." + note.id + "-" + tag.id, getStoreData(note, tag));
+//                        });
+//                        untagNotes(notes, tag);
+//                    }
+                });
             },
             "noteHasTag": function(note, tag) {
                 return _.some(note.tags, function(t) {
@@ -531,6 +672,7 @@ Sticklet
                 });
             }
         };
+        return TagServ;
     }])
     .service("Archive", ["HTTP", function(HTTP) {
         return {
@@ -602,6 +744,112 @@ Sticklet
                 });
             }
         };
+    }])
+    .service("Offline", ["$rootScope", "network", "Storage", "$q", "HTTP",
+                         function($rootScope, network, Storage, $q, HTTP) {
+
+        var registers = {},
+            syncs = {},
+            defaultData = {};
+        $rootScope.$on("network-state-change", function($event) {
+            runCachedRequests().finally(function() {
+                _.each(registers, function(fn, p) {
+                    fn.call(null, network.online);
+                });
+            });
+        });
+
+        function runCachedRequests() {
+            return $q(function(resolve, reject) {
+                if (network.online) {
+                    var sync = Storage.get("sync");
+                    var promises = _.map(sync, function(data, base) {
+                        if (syncs[base]) {
+                            var prom = syncs[base].call(null, data);
+                            delete sync[base];
+                            return prom;
+                        } 
+                        console.warn("no sync registered for", base);
+                    }).filter(_.identity);
+                    Storage.set("sync", sync);
+
+                    $q.all(promises).then(function() {
+                        resolve();
+                    });
+                } else {
+                    reject();
+                }
+            });
+        }
+
+        var Offline = {
+            "onSync": function(base, callback) {
+                if (_.isString(base) && _.isFunction(callback)) {
+                    syncs[base] = callback;
+                }
+                return Offline;
+            },
+            "onNetworkChange": function(path, callback) {
+                if (_.isString(path) && _.isFunction(callback)) {
+                    registers[path] = callback;
+                }
+                return Offline;
+            },
+            "storeRequest": function(method, url, data) {
+                if (method && url) {
+                    Storage.set(method + "." + url, data);
+                }
+            },
+            "sync": function(path, data) {
+                Storage.set("sync." + path, data);
+            },
+            "syncAll": function(base, prop, data) {
+                var path = "sync." + base + ".",
+                    save = {};
+                _.each(data, function(d) {
+                    save[path + d[prop]] = d; 
+                });
+                Storage.set(save);
+            },
+            "get": function(url, def) {
+                var path = "get." + url;
+                if (network.online) {
+                    return HTTP.get(url).then(function(data) {
+                        Storage.set(path, data);
+                        return data;
+                    });
+                }
+                return $q(function(resolve, reject) {
+                    resolve(Storage.get(path) || def || []);
+                });
+            },
+            "put": function(url, data) {
+                if (network.online) {
+                    return HTTP.put(url, data);
+                }
+                return $q(function(resolve, reject) {
+                    reject("offline");
+                });
+            },
+            "post": function(url, data) {
+                if (network.online) {
+                    return HTTP.post(url, data);
+                }
+                return $q(function(resolve, reject) {
+                    reject("offline");
+                });
+            },
+            "remove": function(url, data) {
+                if (network.online) {
+                    return HTTP.remove(url);
+                }
+                return $q(function(resolve, reject) {
+                    reject("offline");
+                });
+            }
+        };
+
+        return Offline;
     }])
 ;
 }(jQuery));

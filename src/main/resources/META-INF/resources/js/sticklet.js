@@ -1,8 +1,27 @@
 (function() { "use strict";
     var Sticklet,
         network = {
-            "online": false
+            "online": false,
+            "setOnline": function($scope) {
+                if (network.online !== true) {
+                    network.online = true;
+                    if ($scope) {
+                        $scope.$broadcast("network-state-change");
+                        $scope.$apply();
+                    }
+                }
+            },
+            "setOffline": function($scope) {
+                if (network.online !== false) {
+                    network.online = false;
+                    if ($scope) {
+                        $scope.$broadcast("network-state-change");
+                        $scope.$apply();
+                    }
+                }
+            }
         };
+
     if (location.pathname === "/login.html") {
         Sticklet = angular.module("Sticklet", []);
     } else {
@@ -36,23 +55,39 @@
             }).otherwise({
                 "redirectTo": "/notes"
             });
-            
+
             $provide.value("network", {
                 get online() {
                     return network.online;
                 },
-                setOnline: function(o) {
-                    network.online = o;
+                setOnline: function() {
+                    //how to indicate to root scope ?
+                    network.online = true;
+                },
+                setOffline: function() {
+                    network.online = false;
                 }
             });
         }]);
 
 
 
-        Sticklet.run(["STOMP", "Settings", "ServiceWorker", function(STOMP, Settings, ServiceWorker) {
-            $(function() {
-                STOMP.connect();
-            });
+        Sticklet.run(["STOMP", "Settings", "network", "$rootScope",
+                      function(STOMP, Settings, net, $rootScope) {
+            net.setOnline = function() {
+                network.setOnline($rootScope);
+            };
+            net.setOffline = function() {
+                network.setOffline($rootScope);
+            };
+
+            //TODO: remove when done testing
+            window.setOffline = net.setOffline;
+            window.setOnline = net.setOnline;
+
+            //$(function() {
+            STOMP.connect();
+            //});
         }]);
     }
 
@@ -72,7 +107,6 @@
         },
         "val": function(context, name, value) {
             var create = (typeof value !== "undefined"),
-                regex = /\[([^\]])\]$/,
                 namespaces = name.split("."),
                 last = namespaces.pop();
 
@@ -82,15 +116,15 @@
                     context = context[ns];
                 } else if (create) {
                     context = context[ns] = {};
+                } else {
+                    return void(0);
                 }
-                return void(0);
             }
 
             if (create) {
                 context[last] = value;
                 return context;
             }
-
             return ((context !== null && typeof context !== "undefined") ? context[last] : void(0));
         },
         "getIDs": function(arr) {

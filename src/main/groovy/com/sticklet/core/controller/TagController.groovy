@@ -62,6 +62,20 @@ class TagController extends BaseController {
         }
         emptyJson()
     }
+    
+    @RequestMapping(value="/untag/{tagID}", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def untagNotes(@RequestBody List<String> noteIDs, @PathVariable("tagID") String tagID, HttpServletResponse resp) {
+        User user = curUser()
+        Tag tag = tagServ.getTag(tagID, user, resp)
+        List<Note> notes = noteServ.getNotesByIds(user, noteIDs, resp)
+        if (notes && tag) {
+            notes.each { Note note ->
+                note = noteServ.untagNote(note, tag)
+                socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
+            }
+        }
+        emptyJson()
+    }
 
     @RequestMapping(value="/tags", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getTags(HttpServletResponse resp) {
