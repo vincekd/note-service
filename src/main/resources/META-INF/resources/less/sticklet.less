@@ -3,6 +3,7 @@
 @light-background: #D4D4D4;
 @lightest-background: #EEE;
 @button-background:  #F3F3F3;
+@danger-button-background: #F0A0A0;
 
 @font-size: 12px;
 @small-font: .8rem;
@@ -19,6 +20,7 @@
 @border-hover-color: #888;
 @border-color: #AAA;
 @link-color: #23527C;
+@batch-select-border: 3px solid #F33;
 
 @menu-height: 40px;
 @menu-padding: 7px 0px;
@@ -163,7 +165,6 @@ ul.dropdown-menu {
     &:hover {
         color: #333;
         border-color: @border-hover-color;
-        //box-shadow: @box-shadow;
     }
     &:active {
         color: #000000;
@@ -171,6 +172,19 @@ ul.dropdown-menu {
     }
     &:focus {
         outline: none;
+    }
+    &.btn-danger {
+        background: @danger-button-background;
+    }
+    &[disabled] {
+        opacity: 1;
+        background: #CCC;
+        color: #AAA;
+        &:active,
+        &:hover,
+        &:focus {
+            border: @default-border;
+        }
     }
 }
 .tag-label {
@@ -242,6 +256,7 @@ ul.dropdown-menu {
     right: 0px;
     height: 1px;
     #create-note,
+    #batch-edit,
     #notes-display-options {
         display: inline-block;
         position: absolute;
@@ -250,9 +265,20 @@ ul.dropdown-menu {
     #create-note {
         left: 15px;
     }
+    #batch-edit {
+        //margin: 7px auto auto 0;
+        //width: 210px;
+        //display: block;
+        //TODO: fix this (use margin?
+        left: ~"calc(50% - 105px)";
+        > div {
+            display: inline-block;
+        }
+    }
     #notes-display-options {
         right: 15px;
-        #notes-sort {
+        #notes-sort,
+        #batch-edit-btn {
             display: inline-block;
             margin-right: 15px;
         }
@@ -305,6 +331,10 @@ ul.dropdown-menu {
                 transition: ease .300s;
                 &.editing .header .title.editing {
                     margin-top: -7px;
+                }
+                &.batchSelect {
+                    border: @batch-select-border;
+                    opacity: .5;
                 }
                 .header {
                     height: @note-header-height;
@@ -539,3 +569,8 @@ ul.tags-dropdown {
     .toolbar-extras {}
 }
 
+/* Popup style */
+.sticklet-popup-backdrop {}
+.sticklet-popup-window {
+    .sticklet-popup {}
+}

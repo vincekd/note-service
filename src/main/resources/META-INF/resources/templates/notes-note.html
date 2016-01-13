@@ -1,0 +1,43 @@
+<div class="header clearfix container-fluid">
+    <div class="row no-row-padding">
+        <div class="updated col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
+            <i ng-if="opts.display === 'tiled' || opts.display === 'title'" class="oi oi-clock" 
+                uib-tooltip="{{note.updated | DispDate}}" tooltip-placement="right" 
+                tooltip-append-to-body="true"></i>
+            <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | DispDate"></span>
+        </div>
+        <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 8}} no-wrap-text" ng-class="{'editing': current.title === note}">
+            <a ng-if="current.title !== note" ng-bind="note.title" ng-dblclick="editTitle($event)"></a>
+            <div ng-if="current.title === note">
+                <editable-area model="note" prop="title" on-update="updateNote()" on-close="closeEditor()" type="input" />
+            </div>
+        </div>
+        <div class="options col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
+            <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" is-open="optionsMenuOpen" dropdown-append-to-body="true" ng-hide="opts.batchSelect">
+                <div uib-dropdown-toggle><a class="caret large-caret"></a></div>
+                <ul class="uib-dropdown-menu dropdown-menu-right">
+                    <li>
+                        <color-choices on-change="changeColor(color)" 
+                            mouseover="colorMouseover(color)" 
+                            mouseleave="colorMouseleave(color)"></color-choices>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a ng-href="#!/note/{{note.id}}">Edit</a></li>
+                    <li><a ng-click="archiveNote()">Archive</a></li>
+                    <li><a ng-click="deleteNote()">Delete</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content" ng-dblclick="editNote($event)" ng-if="opts.display !== 'title'">
+    <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="3" min-scrollbar-length="20">
+        <div ng-if="current.editing === note">
+            <editable-area model="note" prop="content" on-update="updateNote()" on-close="closeEditor()" type="textarea" />
+        </div>
+        <div ng-if="current.editing !== note" class="full-height pointer">
+            <div class="not-editing-text" ng-bind-html="note.content | Html"></div>
+        </div>
+    </perfect-scrollbar>
+</div>
+<div class="tags" ng-if="opts.display !== 'title'"><tags note="note" batch="opts.batchSelect"/></div>

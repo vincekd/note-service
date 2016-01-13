@@ -30,12 +30,41 @@ Sticklet
             if (u) {
                 $scope.opts.display = $scope.user.prefs.display;
                 $scope.opts.sortBy = $scope.user.prefs.sortBy;
+                $scope.opts.order = $scope.user.prefs.order;
             }
         });
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", function($scope, NoteServ) {
         
+        $scope.editable = true;
         $scope.notes = [];
+        $scope.batchSelections = [];
+        $scope.toggleBatchSelection = function(note) {
+            if ($scope.batchSelections.indexOf(note) >= 0) {
+                $scope.batchSelections = _.without($scope.batchSelections, note);
+            } else {
+                $scope.batchSelections.push(note);
+            }
+        };
+        $scope.startBatchSelect = function() {
+            $scope.opts.batchSelect = true;
+            $scope.batchSelections = [];
+        };
+        $scope.clearBatchSelect = function() {
+            $scope.opts.batchSelect = false;
+            $scope.batchSelections = [];
+        };
+        $scope.updateTempColor = function(notes, color) {
+            $scope.$broadcast("update-temp-color", notes, color);
+        };
+        $scope.noteClick = function($event, note) {
+            if ($event.ctrlKey || $scope.opts.batchSelect) {
+                if ($event.ctrlKey && !$scope.opts.batchSelect) {
+                    $scope.startBatchSelect();
+                }
+                $scope.toggleBatchSelection(note);
+            }
+        };
         $scope.createNote = function() {
             NoteServ.create();
         };
@@ -46,8 +75,14 @@ Sticklet
         $scope.$on("notes-updated", function() {
             getNotes();
         });
-        getNotes();
+        $scope.$watch(function() {
+            return (!$scope.batchSelect && !$scope.offline);
+        }, function(editable) {
+            console.log("editable", editable);
+            $scope.editable = editable;
+        });
 
+        getNotes();
         function getNotes() {
             //get data
             NoteServ.getNotes().then(function(notes) {
@@ -102,23 +137,86 @@ Sticklet
             $scope.opts.isOpen = false;
         }
     }])
+    .controller("BatchEditCtrl", ["$scope", "NoteServ", "TagServ", function($scope, NoteServ, TagServ) {
+        $scope.tmp = { "isOpen": false, "search": "" };
+        $scope.tags = [];
+        $scope.tagsOpened = function() {
+            if ($scope.tmp.isOpen) {
+                $scope.tmp.search = "";
+                TagServ.getTags().then(function(tags) {
+                    //filter out tags that are on all selections
+                    $scope.tags = tags.filter(function(tag) {
+                        return _.some($scope.batchSelections, function(note) {
+                            return !TagServ.noteHasTag(note, tag);
+                        });
+                    });
+                });
+            }
+        };
+        $scope.archiveBatch = function() {
+            NoteServ.archiveAll($scope.batchSelections).then(function() {
+                $scope.clearBatchSelect();
+            });
+        };
+        $scope.deleteBatch = function() {
+            NoteServ.removeAll($scope.batchSelections).then(function() {
+                $scope.clearBatchSelect();
+            });
+        };
+        $scope.tagBatch = function(tag) {
+            TagServ.tagAll($scope.batchSelections, tag).then(function() {
+                $scope.clearBatchSelect();
+            });
+        };
+        $scope.createAndTagBatch = function() {
+            TagServ.create({name: $scope.tmp.search}).then(function(tag) {
+                $scope.tagBatch(tag);
+            });
+        };
+        $scope.colorBatch = function(color) {
+            _.each($scope.batchSelections, function(note) {
+                note.color = color;
+            });
+            NoteServ.saveAll($scope.batchSelections).then(function() {
+                $scope.clearBatchSelect();
+                $scope.updateTempColor($scope.batchSelections);
+            });
+        };
+        $scope.colorMouseover = function(color) {
+            $scope.updateTempColor($scope.batchSelections, color);
+        };
+        $scope.colorMouseleave = function() {
+            $scope.updateTempColor($scope.batchSelections);
+        };
+    }])
     .controller("NoteListNoteCtrl", ["$scope", "NoteServ", "TagServ", function($scope, NoteServ, TagServ) {
         $scope.editing = false;
+        $scope.tmpColor = $scope.note.color;
         $scope.changeColor = function(color) {
-            $scope.note.color = color;
+            $scope.tmpColor = $scope.note.color = color;
             NoteServ.save($scope.note);
         };
+        $scope.colorMouseover = function(color) {
+            $scope.tmpColor = color;
+        };
+        $scope.colorMouseleave = function() {
+            $scope.tmpColor = $scope.note.color;
+        };
         $scope.editNote = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            $scope.current.editing = $scope.note;
-            return false;
+            if (!$scope.opts.batchSelect) {
+                $event.preventDefault();
+                $event.stopPropagation();
+                $scope.current.editing = $scope.note;
+                return false;
+            }
         };
         $scope.editTitle = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            $scope.current.title = $scope.note;
-            return false;
+            if (!$scope.opts.batchSelect) {
+                $event.preventDefault();
+                $event.stopPropagation();
+                $scope.current.title = $scope.note;
+                return false;
+            }
         };
         $scope.archiveNote = function() {
             NoteServ.archive($scope.note);
@@ -138,6 +236,11 @@ Sticklet
                 }
             }
         };
+        $scope.$on("update-temp-color", function($event, notes, color) {
+            if (notes.indexOf($scope.note) >= 0) {
+                $scope.tmpColor = (color || $scope.note.color);
+            }
+        });
     }])
     .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "Settings",
                              function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, Settings) {
@@ -333,6 +436,19 @@ Sticklet
         }, function(n) {
             $scope.networkActiveRequests = n;
         });
+    }])
+    .controller("PopupCtrl", ["$scope", "$uibModalInstance", "type", "text", "name",
+                              function($scope, $modalInstance, type, text, name) {
+        $scope.type = type;
+        $scope.text = text;
+        $scope.name = name;
+        $scope.input = {val: ""};
+        $scope.cancel = function() {
+            $modalInstance.close($scope.type === 'prompt' ? null : false);
+        };
+        $scope.accept = function() {
+            $modalInstance.close($scope.type === 'prompt' ? $scope.input.val : true);
+        };
     }])
 ;
 }(jQuery));

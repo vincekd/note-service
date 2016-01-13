@@ -61,9 +61,9 @@ Sticklet
                 var n = Notify.networkActiveRequest();
                 return doPromise($http.put(getRealUrl(url), data), n);
             },
-            "remove": function(url, data) {
+            "remove": function(url) {
                 var n = Notify.networkActiveRequest();
-                return doPromise($http["delete"](getRealUrl(url), data), n);
+                return doPromise($http["delete"](getRealUrl(url)), n);
             }
         };
     }])
@@ -201,6 +201,50 @@ Sticklet
             }
         };
     }])
+    .service("Popup", ["$q", "$uibModal", function($q, $modal) {
+        function getModalParams(type, text, name) {
+            return {
+                "animation": true,
+                "templateUrl": "/templates/popup.html",
+                "controller": "PopupCtrl",
+                "backdrop": "static",
+                "keyboard": false,
+                "backdropClass": "sticklet-popup-backdrop",
+                "windowClass": "sticklet-popup-window",
+                "resolve": {
+                    "text": function() { return text; },
+                    "type": function() { return type; },
+                    "name": function() { return name; }
+                }
+            };
+        }
+
+        function doPopup(type, text, name) {
+            var promise = $q(function(resolve, reject) {
+                var modalInstance = $modal.open(getModalParams(type, text, name));
+                modalInstance.result.then(function(result) {
+                    if ((type === "prompt" && typeof(result) === "string") || result === true) {
+                        resolve(result);
+                    } else {
+                        reject(result);
+                    }
+                });
+            });
+            return promise;
+        }
+
+        return {
+            "alert": function(text, name) {
+                return doPopup("alert", text, name);
+            },
+            "confirm": function(text, name) {
+                return doPopup("confirm", text, name);
+            },
+            "prompt": function(text, name) {
+                return doPopup("prompt", text, name);
+            }
+        };
+    }])
     .service("ServiceWorker", ["HTTP", "STOMP", "NoteServ", "$route", "$rootScope", "$timeout", "Notify",
                                function(HTTP, STOMP, NoteServ, $route, $rootScope, $timeout, Notify) {
         //TODO: fix this
@@ -315,8 +359,8 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "Storage", "$rootScope", "$q", "Settings",
-                          function(HTTP, STOMP, Storage, $rootScope, $q, Settings) {
+    .service("NoteServ", ["HTTP", "STOMP", "Storage", "$rootScope", "$q", "Settings", "Popup",
+                          function(HTTP, STOMP, Storage, $rootScope, $q, Settings, Popup) {
         var notes = HTTP.get("/notes").then(function(data) {
                 Storage.set("notes", data);
                 notify();
@@ -370,6 +414,9 @@ Sticklet
                 return n.id === id;
             });
         }
+        function safe(note) {
+            return _.omit(note, ["tags"]);
+        }
 
         return {
             "getNotes": function() {
@@ -384,7 +431,7 @@ Sticklet
                 return colors;
             },
             "save": function(note) {
-                return HTTP.put("/note/" + note.id, _.omit(note, ["tags"])).catch(function(resp) {
+                return HTTP.put("/note/" + note.id, safe(note)).catch(function(resp) {
                     if (resp.status === 408) {
                         //TODO: //record
                         console.log("failed to save note with service worker", resp.statusText);
@@ -392,10 +439,35 @@ Sticklet
                 });
             },
             "remove": function(note) {
-                return HTTP.remove("/note/" + note.id);
+                return $q(function(resolve, reject) {
+                    Popup.confirm("Are you sure you wish to delete this note?", "Confirm Delete").then(function() {
+                        HTTP.remove("/note/" + note.id).then(function(d) {
+                            resolve(d);
+                        });
+                    }).catch(function() {
+                        reject();
+                    });
+                });
             },
             "archive": function(note) {
                 return HTTP.put("/note/archive/" + note.id);
+            },
+            "archiveAll": function(notes) {
+                return HTTP.put("/notes/archive", _.getIDs(notes));
+            },
+            "removeAll": function(notes) {
+                return $q(function(resolve, reject) {
+                    Popup.confirm("Are you sure you wish to delete these notes?", "Confirm Delete").then(function() {
+                        return HTTP.put("/notes/delete", _.getIDs(notes)).then(function(d) {
+                            resolve(d);
+                        });
+                    }).catch(function() {
+                        reject();
+                    });
+                });
+            },
+            "saveAll": function(notes) {
+                return HTTP.put("/notes", _.map(notes, safe));
             },
             "unarchive": function(note) {
                 return HTTP.put("/note/unarchive/" + note.id);
@@ -460,6 +532,14 @@ Sticklet
             },
             "untag": function(note, tag) {
                 return HTTP.remove("/untag/" + note.id + "/" + tag.id);
+            },
+            "tagAll": function(notes, tag) {
+                return HTTP.put("/tag/" + tag.id, _.getIDs(notes));
+            },
+            "noteHasTag": function(note, tag) {
+                return _.some(note.tags, function(t) {
+                    return tag.id === t.id;
+                });
             }
         };
     }])

@@ -6,110 +6,19 @@
 
         <div class="row full-height no-row-padding">
             <div id="notes-list" class="{{opts.display}} full-height col-sm-12" create-note-dblclick="">
+
                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
                     <div class="notes">
                         <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order | Limit:100" 
-                            ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': note.color}" 
-                            ng-class="{'editing': (current.editing === note || current.title === note)}" note-context-menu="">
-
-                            <div class="header clearfix container-fluid">
-                                <div class="row no-row-padding">
-                                    <div class="updated col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
-                                        <i ng-if="opts.display === 'tiled' || opts.display === 'title'" class="oi oi-clock" 
-                                            uib-tooltip="{{note.updated | DispDate}}" 
-                                            tooltip-placement="right" tooltip-append-to-body="true"></i>
-                                        <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | DispDate"></span>
-                                    </div>
-                                    <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 8}} no-wrap-text" 
-                                        ng-class="{'editing': current.title === note}">
-                                        <a ng-if="current.title !== note" href="javascript:;" ng-bind="note.title" 
-                                            ng-dblclick="editTitle($event)"></a>
-                                        <div ng-if="current.title === note">
-                                            <editable-area model="note" prop="title" on-update="updateNote()" 
-                                                on-close="closeEditor()" type="input" />
-                                        </div>
-                                    </div>
-                                    <div class="options col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
-                                        <div class="pull-right" uib-dropdown="" uib-keyboard-nav="" is-open="optionsMenuOpen"
-                                            dropdown-append-to-body="true">
-                                            <a href="javascript:;" class="caret large-caret" uib-dropdown-toggle=""></a>
-                                            <ul class="uib-dropdown-menu dropdown-menu-right">
-                                                <li>
-                                                    <color-choices on-change="changeColor(color)" note="note"></color-choices>
-                                                </li>
-                                                <li class="divider"></li>
-                                                <li><a ng-href="#!/note/{{note.id}}">Edit</a></li>
-                                                <li><a ng-click="archiveNote()">Archive</a></li>
-                                                <li><a href="javascript:;" ng-click="deleteNote()">Delete</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="content" ng-dblclick="editNote($event)" ng-if="opts.display !== 'title'">
-                                <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="3" min-scrollbar-length="20">
-                                    <div ng-if="current.editing === note">
-                                        <editable-area model="note" prop="content" on-update="updateNote()" on-close="closeEditor()" type="textarea" />
-                                    </div>
-                                    <div ng-if="current.editing !== note" class="full-height pointer">
-                                        <div class="not-editing-text" ng-bind-html="note.content | Html"></div>
-                                    </div>
-                                </perfect-scrollbar>
-                            </div>
-
-                            <div class="tags" ng-if="opts.display !== 'title'"><tags note="note" /></div>
+                            ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': (tmpColor || note.color)}" 
+                            ng-class="{'editing': (current.editing === note || current.title === note), 'batchSelect': batchSelections.indexOf(note) >= 0}"
+                            note-context-menu="" ng-click="noteClick($event, note)">
+                            <div ng-include="'/templates/notes-note.html'"></div>
                         </div>
                     </div>
                 </perfect-scrollbar>
-                <div id="notes-options" ng-if="!current.editing">
-                    <div id="create-note">
-                        <button class="btn" ng-click="createNote()">+ Create Note</button>
-                    </div>
-                    <div class="" id="notes-display-options">
-                        <div id="notes-sort" ng-controller="SortCtrl">
-                            <div class="" uib-dropdown="" uib-keyboard-nav="" >
-                                <button type="button" class="btn" uib-dropdown-toggle="">
-                                    <span>Sort</span>
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="uib-dropdown-menu dropdown-menu-right">
-                                    <li><a href="javascript:;" ng-click="updateSort('created')">Created</a></li>
-                                    <li><a href="javascript:;" ng-click="updateSort('updated')">Updated</a></li>
-                                    <li><a href="javascript:;" ng-click="updateSort('title')">Title</a></li>
-                                    <li><a href="javascript:;" ng-click="updateSort('color')">Color</a></li>
-                                    <li class="divider"></li>
-                                    <li class="text-center">
-                                        <span class="btn-group">
-                                            <button class="btn" type="button" ng-click="updateOrder('ASC')" 
-                                                ng-class="{active: opts.order === 'ASC'}" title="Ascending">
-                                                <i class="oi oi-sort-ascending"></i>
-                                            </button>
-                                            <button class="btn" type="button" ng-click="updateOrder('DESC')"  
-                                                ng-class="{active: opts.order === 'DESC'}" title="Descending">
-                                                <i class="oi oi-sort-descending"></i>
-                                            </button>
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn" type="button" ng-class="{active: opts.display === 'tiled'}" 
-                                ng-click="opts.display = 'tiled'">
-                                <i class="oi oi-grid-three-up"></i>
-                            </button>
-                            <button class="btn" type="button" ng-class="{active: opts.display === 'stacked'}" 
-                                ng-click="opts.display = 'stacked'">
-                                <i class="oi oi-list-rich"></i>
-                            </button>
-                            <button class="btn" type="button" ng-class="{active: opts.display === 'title'}" 
-                                ng-click="opts.display = 'title'">
-                                <i class="oi oi-list"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+
+                <div id="notes-options" ng-if="!current.editing" ng-include="'/templates/notes-options.html'"></div>
             </div>
         </div>
 

@@ -23,6 +23,7 @@ class NoteController extends BaseController {
 
     @RequestMapping(value="/colors", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getColors(HttpServletResponse resp) {
+        //TODO: store this or something
         AppConfig.colors
     }
 
@@ -46,6 +47,49 @@ class NoteController extends BaseController {
         User user = curUser()
         Note note = noteServ.getNote(noteID, user, resp)
         note
+    }
+
+    //DELETE method disallows body, use PUT instead
+    @RequestMapping(value="/notes/delete", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def deleteNotes(@RequestBody List<String> ids, HttpServletResponse resp) {
+        User user = curUser()
+        List<Note> notes = noteServ.getNotesByIds(user, ids, resp)
+        if (notes) {
+            notes.each { Note note ->
+                noteServ.deleteNote(note)
+                socketServ.sendToUser(user, SocketTopics.NOTE_DELETE, note.id)
+            }
+        }
+        emptyJson()
+    }
+
+    @RequestMapping(value="/notes", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def updateNotes(@RequestBody List<Map> noteData, HttpServletResponse resp) {
+        User user = curUser()
+        List<Note> notes = noteServ.getNotesByIds(user, noteData.collect { it.id }, resp)
+        if (notes) {
+            notes.each { Note note ->
+                Map data = noteData.find { it.id == note.id }
+                if (data) {
+                    note = noteServ.updateNote(note, data)
+                    socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
+                }
+            }
+        }
+        emptyJson()
+    }
+
+    @RequestMapping(value="/notes/archive", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def archiveNotes(@RequestBody List<String> ids, HttpServletResponse resp) {
+        User user = curUser()
+        List<Note> notes = noteServ.getNotesByIds(user, ids, resp)
+        if (notes) {
+            notes.each { Note note ->
+                note = noteServ.archiveNote(note)
+                socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
+            }
+        }
+        emptyJson()
     }
 
     @RequestMapping(value="/note", method=RequestMethod.POST, produces="application/json")

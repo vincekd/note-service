@@ -85,6 +85,12 @@
             }
 
             return ((context !== null && typeof context !== "undefined") ? context[last] : void(0));
+        },
+        "getIDs": function(arr) {
+            if (_.isArray(arr)) {
+                return _.map(arr, function(a) { return (a ? a.id : a); });
+            }
+            return arr;
         }
     });
 }());

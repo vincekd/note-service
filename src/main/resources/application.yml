@@ -8,11 +8,9 @@ spring:
       port: 27017
       username: 
       password:
-  jackson:
-    serialization:
-      indent_output: false
-spring-data-releasetrain:
-  version: Gosling-BUILD-SNAPSHOT
+    cache:
+      ehcache:
+        config: classpath:ehcache.xml
 logging: 
   level:
     org.springframework: WARN
@@ -21,7 +19,13 @@ logging:
     org.egr.authorware: DEBUG
 server:
   port: 9000
-  contextPath: 
+  #port: 8443
+  #contextPath: 
+#  ssl:
+#    key-store: keystore.p12
+#    key-store-password: sticklet
+#    keyStoreType: PKCS12
+#    keyAlias: sticklet-selfsigned
 directory:
   upload: ./data/uploads
 login:

@@ -16,6 +16,7 @@ import com.sticklet.core.repository.NoteRepo
 @Service
 class NoteService {
     private static final Logger logger = LoggerFactory.getLogger(NoteService.class)
+    private static final List<String> userUpdatableProps = ["title", "content", "color"]
 
     @Autowired NoteRepo noteRepo
     @Autowired ResponseStatusService statusServ
@@ -37,6 +38,16 @@ class NoteService {
 
     public List<Note> getNotes(User user) {
         noteRepo.findAllByUserAndArchivedAndDeleted(user, false, null)
+    }
+    public List<Note> getNotesByIds(User user, List<String> ids, HttpServletResponse resp) {
+        List<Note> notes = noteRepo.findAll(ids)
+        Note notAccessible = notes.find { Note note ->
+            !response(note, user, resp)
+        }
+        if (!notAccessible) {
+            return notes
+        }
+        return null
     }
     public List<Note> getArchive(User user) {
         noteRepo.findAllByUserAndArchivedAndDeleted(user, true, null)
@@ -63,21 +74,28 @@ class NoteService {
 
     public Note getNote(String noteID, User user, HttpServletResponse resp) {
         Note note = noteRepo.findOne(noteID)
+        if (response(note, user, resp)) {
+            return note
+        }
+        return null
+    }
+
+    public boolean response(Note note, User user, HttpServletResponse resp) {
         if (note) {
             if (userHasAccess(note, user)) {
-                return note
+                return true
             } else {
                 statusServ.setStatusUnauthorized(resp)
             }
         } else {
             statusServ.setStatusNotFound(resp)
         }
-        return null
+        return false
     }
 
     public Note updateNote(Note note, Map params) {
-        params.each { String key, val ->
-            if (note.hasProperty(key) && key != "id") {
+        params.each { String key, def val ->
+            if (note.hasProperty(key) && userUpdatableProps.contains(key)) {
                 note[key] = val
             }
         }

@@ -1,0 +1,15 @@
+<div class="sticklet-popup">
+    <div class="modal-header">
+        <h4 class="modal-title" ng-bind="name"></h4>
+    </div>
+    <div class="modal-body">
+        <div ng-bind="text"></div>
+        <div ng-if="type === 'prompt'">
+            <input class="form-control" type="text" ng-model="input.val" />
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" ng-click="accept()">OK</button>
+        <button ng-if="type !== 'alert'" class="btn btn-danger" ng-click="cancel()">Cancel</button>
+    </div>
+</div>

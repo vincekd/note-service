@@ -13,10 +13,10 @@
                         <li><color-choices on-change="filterColor(color)"></color-choices></li>
                         <li class="divider"></li>
                         <li ng-repeat="tag in tags | TagsUsed:current.filters.tags">
-                            <a href="javascript:;" ng-click="filterTag(tag)" ng-bind="tag.name"></a>
+                            <a ng-click="filterTag(tag)" ng-bind="tag.name"></a>
                         </li>
                         <li class="divider"></li>
-                        <li><a href="javascript:;" ng-click="resetFilters()">Clear filters</a></li>
+                        <li><a ng-click="resetFilters()">Clear filters</a></li>
                   </ul>
                 </div>
                 <button class="btn" ng-click="resetFilters()"
@@ -34,11 +34,11 @@
                 <div class="current-filters">
                     <span class="tag-label" ng-repeat="color in current.filters.colors" ng-style="{'background': color}">
                         <span class="name" ng-bind="color"></span>
-                        <a class="pull-right close" href="javascript:;" ng-click="removeColorFilter(color)">&times;</a>
+                        <a class="pull-right close" ng-click="removeColorFilter(color)">&times;</a>
                     </span>
                     <span class="tag-label" ng-repeat="tag in current.filters.tags">
                         <span ng-bind="tag.name" class="name"></span>
-                        <a class="pull-right close" href="javascript:;" ng-click="removeTagFilter(tag)">&times;</a>
+                        <a class="pull-right close" ng-click="removeTagFilter(tag)">&times;</a>
                     </span>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                             <li><a ng-href="#!/trash" ng-if="opts.trashEnabled">Trash</a></li>
                             <li><a ng-href="#!/settings">Settings</a></li>
                             <li class="divider"></li>
-                            <li><a href="javascript:;" ng-click="logout()">Logout</a></li>
+                            <li><a ng-click="logout()">Logout</a></li>
                       </ul>
                     </div>
                 </div>

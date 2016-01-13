@@ -10,7 +10,8 @@ Sticklet
         return {
             "restrict": "E",
             "scope": {
-                "note": "="
+                "note": "=",
+                "batch": "="
             },
             "templateUrl": "templates/tags.html",
             "link": function($scope, $element, $attrs) {
@@ -24,9 +25,7 @@ Sticklet
                         $scope.opts.search = "";
                         TagServ.getTags().then(function(tags) {
                             $scope.userTags = tags.filter(function(tag) {
-                                return _.every($scope.note.tags, function(t) {
-                                    return tag.id !== t.id;
-                                });
+                                return !TagServ.noteHasTag($scope.note, tag);
                             });
                         });
                     }
@@ -79,30 +78,23 @@ Sticklet
             "restrict": "E",
             "scope": {
                 "onChange": "&",
-                "note": "="
+                "mouseover": "&",
+                "mouseleave": "&"
             },
             "templateUrl": "templates/color-choices.html",
             "link": function($scope, $element, $attrs) {
                 colors.then(function(c) {
                     $scope.colors = c;
                 });
-                if ($scope.note) {
-                    var originalColor = $scope.note.color;
-                    $scope.colorClick = function($event, color) {
-                        $scope.note.color = originalColor = color;
-                        $scope.onChange({color: color});
-                    };
-                    $scope.mouseEnter = function($event, color) {
-                        $scope.note.color = color;
-                    };
-                    $scope.mouseLeave = function($event, color) {
-                        $scope.note.color = originalColor;
-                    };
-                } else {
-                    $scope.colorClick = function($event, color) {
-                        $scope.onChange({color: color});
-                    };
-                }
+                $scope.colorClick = function($event, color) {
+                    $scope.onChange({ "color": color });
+                };
+                $scope.mouseEnter = function($event, color) {
+                    $scope.mouseover({ "color": color });
+                };
+                $scope.mouseLeave = function($event, color) {
+                    $scope.mouseleave({ "color": color });
+                };
             }
         };
     }])
@@ -278,6 +270,27 @@ Sticklet
                             });
                         }
                     });
+                }
+            }
+        };
+    }])
+    .directive("tagSelector", [function() {
+        return {
+            "restrict": "E",
+            "templateUrl": "/templates/tag-selector.html",
+            "scope": {
+                "search": "=",
+                "title": "@",
+                "tags": "=",
+                "onToggle": "&",
+                "isOpen": "=",
+                "tagSelect": "&",
+                "tagAdd": "&",
+                "isDisabled": "="
+            },
+            "link": function($scope, $element, $attrs) {
+                $scope.tagSelected = function(t) {
+                    $scope.tagSelect({"tag": t});
                 }
             }
         };

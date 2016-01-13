@@ -1,0 +1,83 @@
+<div id="create-note">
+    <button class="btn" ng-click="createNote()" ng-disabled="opts.batchSelect">+ Create Note</button>
+</div>
+
+<div id="batch-edit" ng-controller="BatchEditCtrl" ng-if="opts.batchSelect">
+
+        <button class="btn" type="button" ng-click="archiveBatch()" ng-disabled="batchSelections | Empty">
+            <span>Archive</span>
+        </button>
+
+        <tag-selector on-toggle="tagsOpened()" tags="tags"
+            title="Tag" is-open="tmp.isOpen" search="tmp.search" is-disabled="batchSelections | Empty"
+            tag-select="tagBatch(tag)" tag-add="createAndTagBatch()"></tag-selector>
+
+        <div class="" uib-dropdown="">
+            <button type="button" class="btn" uib-dropdown-toggle="" ng-disabled="batchSelections | Empty">
+                <span>Color</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="uib-dropdown-menu">
+                <li>
+                    <color-choices on-change="colorBatch(color)" 
+                        mouseover="colorMouseover(color)" 
+                        mouseleave="colorMouseleave(color)"></color-choices>
+                </li>
+            </ul>
+        </div>
+
+        <button class="btn" type="button" ng-click="deleteBatch()" ng-disabled="batchSelections | Empty">
+            <span>Delete</span>
+        </button>
+
+        <button class="btn  btn-danger" type="button" ng-click="clearBatchSelect()">
+            <span>Cancel</span>
+        </button>
+</div>
+
+<div class="" id="notes-display-options">
+    <button class="btn" type="button" ng-click="startBatchSelect()" ng-if="!opts.batchSelect" id="batch-edit-btn">
+        <span>Batch Actions</span>
+    </button>
+    <div id="notes-sort" ng-controller="SortCtrl">
+        <div class="" uib-dropdown="" uib-keyboard-nav="" >
+            <button type="button" class="btn" uib-dropdown-toggle="">
+                <span>Sort</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="uib-dropdown-menu dropdown-menu-right">
+                <li><a ng-click="updateSort('created')">Created</a></li>
+                <li><a ng-click="updateSort('updated')">Updated</a></li>
+                <li><a ng-click="updateSort('title')">Title</a></li>
+                <li><a ng-click="updateSort('color')">Color</a></li>
+                <li class="divider"></li>
+                <li class="text-center">
+                    <span class="btn-group">
+                        <button class="btn" type="button" ng-click="updateOrder('ASC')" 
+                            ng-class="{active: opts.order === 'ASC'}" title="Ascending">
+                            <i class="oi oi-sort-ascending"></i>
+                        </button>
+                        <button class="btn" type="button" ng-click="updateOrder('DESC')"  
+                            ng-class="{active: opts.order === 'DESC'}" title="Descending">
+                            <i class="oi oi-sort-descending"></i>
+                        </button>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="btn-group">
+        <button class="btn" type="button" ng-class="{active: opts.display === 'tiled'}" 
+            ng-click="opts.display = 'tiled'">
+            <i class="oi oi-grid-three-up"></i>
+        </button>
+        <button class="btn" type="button" ng-class="{active: opts.display === 'stacked'}" 
+            ng-click="opts.display = 'stacked'">
+            <i class="oi oi-list-rich"></i>
+        </button>
+        <button class="btn" type="button" ng-class="{active: opts.display === 'title'}" 
+            ng-click="opts.display = 'title'">
+            <i class="oi oi-list"></i>
+        </button>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+<div class="btn-group tags-dropdown-toggle" uib-dropdown="" auto-close="outsideClick" uib-keyboard-nav="" 
+    on-toggle="onToggle()" dropdown-append-to-body="" is-open="isOpen">
+    <button type="button" class="btn" uib-dropdown-toggle="" ng-disabled="isDisabled">
+        <span ng-bind="title"></span>
+        <span class="caret"></span>
+    </button>
+    <ul class="uib-dropdown-menu tags-dropdown" role="menu" aria-labelledby="single-button">
+        <li><input type="text" ng-model="search" placeholder="Search" class="stklt-input" maxlength="50" /></li>
+        <li class="divider" ng-if="!(filteredTags | Empty)"></li>
+        <li ng-repeat="t in (filteredTags = (tags | FilterTags:search | orderBy:'name'))">
+            <a ng-bind="t.name" ng-click="tagSelected(t)"></a>
+        </li>
+        <li class="divider" ng-if="(filteredTags | Empty) && !(search | Empty)"></li>
+        <li ng-if="(filteredTags | Empty) && !(search | Empty)">
+            <a ng-click="tagAdd()">
+                <span class="">Create and Add:</span>
+                <span class="tag-search-create" ng-bind="search"></span>
+            </a>
+        </li>
+    </ul>
+</div>

@@ -1,6 +1,6 @@
 <span class="color-choices">
     <span class="color-choice" ng-repeat="color in colors" ng-style="{'background': color}">
-        <a href="javascript:;" ng-click="colorClick($event, color)" 
+        <a ng-click="colorClick($event, color)" 
             ng-mouseenter="mouseEnter($event, color)" 
             ng-mouseleave="mouseLeave($event, color)">&nbsp;</a>
     </span>
