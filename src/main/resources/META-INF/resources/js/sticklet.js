@@ -1,5 +1,8 @@
 (function() { "use strict";
-    var Sticklet;
+    var Sticklet,
+        network = {
+            "online": false
+        };
     if (location.pathname === "/login.html") {
         Sticklet = angular.module("Sticklet", []);
     } else {
@@ -33,20 +36,24 @@
             }).otherwise({
                 "redirectTo": "/notes"
             });
+            
+            $provide.value("network", {
+                get online() {
+                    return network.online;
+                },
+                setOnline: function(o) {
+                    network.online = o;
+                }
+            });
         }]);
 
-        Sticklet.run(["STOMP", "Settings", function(STOMP, Settings) {
+
+
+        Sticklet.run(["STOMP", "Settings", "ServiceWorker", function(STOMP, Settings, ServiceWorker) {
             $(function() {
                 STOMP.connect();
             });
         }]);
-    }
-
-    function getIsMobile() {
-        return false;
-    }
-    function getOnline() {
-        return navigator.onLine;
     }
 
     _.mixin({

@@ -282,32 +282,21 @@ Sticklet
             navigator.serviceWorker.controller.postMessage(message);
         }
         function setOnline(online) {
-            console.log("setting online", online, isOnline);
+            //console.log("setting online", online, isOnline);
             if (isOnline !== online) {
                 Notify.remove(notification);
                 if (!online) {
                     notification = Notify.add("Cannot connect to sticklet.com...", true);
                 }
-                $rootScope.$broadcast("network-status", [online, isOnline]);
                 isOnline = online;
-                $rootScope.$apply();
+                //$rootScope.$broadcast("network-status", online, isOnline);
+                //$rootScope.$apply();
             }
             if (!online) {
                 ping(online);
             }
-//            if (!online || !isOnline) {
-//                var orig = _globals.online;
-//                _globals.setOnline(online);
-//                ping(online);
-//                if (online !== orig) {
-//                    Notify.remove(notification);
-//                    if (!online) {
-//                        notification = Notify.add("Cannot connect to sticklet.com...", true);
-//                    }
-//                    $rootScope.$apply();
-//                }
-//            }
         }
+
         function ping(online) {
             if (online) {
                 $timeout.cancel(timer);
@@ -333,11 +322,11 @@ Sticklet
 
         //server worker online settings
         ServiceWorker.onMessage("ServiceWorker", function(m) {
-            console.log("service worker message", m);
+            //console.log("service worker message", m);
             if (m.data === "online") {
-                setOnline(true);
+                //setOnline(true);
             } else if (m.data === "offline") {
-                setOnline(false);
+                //setOnline(false);
             } else {
                 console.log("unidentified ServiceWorker message", m.data);
             }

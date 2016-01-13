@@ -3,7 +3,8 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "Settings", function($scope, UserServ, Settings) {
+    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "network",
+                             function($scope, UserServ, Settings, network) {
         $scope.user;
         Settings.get("note.maxTitleLength").then(function(data) {
             $scope.maxTitleLength = data;
@@ -14,6 +15,7 @@ Sticklet
             "order": "ASC"
         };
         $scope.current = {
+            "online": true,
             "editing": null,
             "title": null,
             "filters": {
@@ -32,6 +34,12 @@ Sticklet
                 $scope.opts.sortBy = $scope.user.prefs.sortBy;
                 $scope.opts.order = $scope.user.prefs.order;
             }
+        });
+        $scope.$watch(function() {
+            return network.online;
+        }, function (o) {
+            console.log("network online", o);
+            $scope.current.online = o;
         });
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", function($scope, NoteServ) {
@@ -74,12 +82,6 @@ Sticklet
         };
         $scope.$on("notes-updated", function() {
             getNotes();
-        });
-        $scope.$watch(function() {
-            return (!$scope.batchSelect && !$scope.offline);
-        }, function(editable) {
-            console.log("editable", editable);
-            $scope.editable = editable;
         });
 
         getNotes();

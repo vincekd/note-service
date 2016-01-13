@@ -245,6 +245,9 @@ ul.dropdown-menu {
         .current-filters {
             padding: 0px 10px;
         }
+        #batch-edit-btn {
+            margin-right: 10px;
+        }
     }
 }
 
@@ -277,8 +280,7 @@ ul.dropdown-menu {
     }
     #notes-display-options {
         right: 15px;
-        #notes-sort,
-        #batch-edit-btn {
+        #notes-sort {
             display: inline-block;
             margin-right: 15px;
         }
@@ -409,6 +411,9 @@ ul.dropdown-menu {
             margin: auto;
             height: auto;
             margin-bottom: 10px;
+            .header {
+                border-bottom: none;
+            }
             .content,
             .tags {
                 display: none;
@@ -572,5 +577,16 @@ ul.tags-dropdown {
 /* Popup style */
 .sticklet-popup-backdrop {}
 .sticklet-popup-window {
-    .sticklet-popup {}
+    .sticklet-popup {
+        background: @lightest-background;
+        border-radius: @border-radius;
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            border: none;
+        }
+        .modal-body {
+            padding: 40px 15px;
+        }
+    }
 }

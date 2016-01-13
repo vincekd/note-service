@@ -130,8 +130,7 @@ Sticklet
                     $scope.options = {
                         "events": {
                             "blur": function(ev, editor) {
-                                console.log("blur event not used");
-                                //close();
+                                close();
                             },
                             "keydown": function(ev, editor) {
                                 if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {

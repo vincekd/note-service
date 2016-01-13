@@ -45,6 +45,9 @@
 
             <div class="col-sm-3">
                 <div class="pull-right">
+                    <button class="btn" type="button" ng-click="startBatchSelect()" ng-if="!opts.batchSelect" id="batch-edit-btn">
+                        <span>Batch Actions</span>
+                    </button>
                     <div class="btn-group" uib-dropdown="" uib-keyboard-nav="" dropdown-append-to-body="">
                         <button type="button" class="btn" uib-dropdown-toggle="">
                             <span>Settings</span>
