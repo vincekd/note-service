@@ -48,13 +48,13 @@
                     <button class="btn" type="button" ng-click="startBatchSelect()" ng-if="!opts.batchSelect" id="batch-edit-btn">
                         <span>Batch Actions</span>
                     </button>
-                    <div class="btn-group" uib-dropdown="" uib-keyboard-nav="" dropdown-append-to-body="">
+                    <div class="btn-group" uib-dropdown="" uib-keyboard-nav="" dropdown-append-to-body="" ng-hide="!current.online">
                         <button type="button" class="btn" uib-dropdown-toggle="">
                             <span>Settings</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="uib-dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="single-button">
-                            <li><a ng-href="#!/tags">Tag Manager</a></li>
+                            <li><a ng-href="#!/tags" >Tag Manager</a></li>
                             <li><a ng-href="#!/data">Data Manager</a></li>
                             <li><a ng-href="#!/archive">Archive</a></li>
                             <li><a ng-href="#!/trash" ng-if="opts.trashEnabled">Trash</a></li>

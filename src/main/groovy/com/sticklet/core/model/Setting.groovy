@@ -4,13 +4,13 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
-import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.sticklet.core.annotation.DBProp
 import com.sticklet.core.model.base.BaseModel
 
+@JsonIgnoreProperties(["user", "updated", "created", "initial", "userUpdatable"])
 @Document
 class Setting extends BaseModel {
-    @JsonIgnore
     @DBRef
     User user = null
 
@@ -20,7 +20,6 @@ class Setting extends BaseModel {
 
     def value
 
-    @JsonIgnore
     boolean initial = false
     boolean userUpdatable = false
 }

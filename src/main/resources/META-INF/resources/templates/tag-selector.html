@@ -10,8 +10,8 @@
         <li ng-repeat="t in (filteredTags = (tags | FilterTags:search | orderBy:'name'))">
             <a ng-bind="t.name" ng-click="tagSelected(t)"></a>
         </li>
-        <li class="divider" ng-if="(filteredTags | Empty) && !(search | Empty)"></li>
-        <li ng-if="(filteredTags | Empty) && !(search | Empty)">
+        <li class="divider" ng-if="canAdd()"></li>
+        <li ng-if="canAdd()">
             <a ng-click="tagAdd()">
                 <span class="">Create and Add:</span>
                 <span class="tag-search-create" ng-bind="search"></span>

@@ -43,10 +43,10 @@
                 <span class="caret"></span>
             </button>
             <ul class="uib-dropdown-menu dropdown-menu-right">
-                <li><a ng-click="updateSort('created')">Created</a></li>
-                <li><a ng-click="updateSort('updated')">Updated</a></li>
-                <li><a ng-click="updateSort('title')">Title</a></li>
-                <li><a ng-click="updateSort('color')">Color</a></li>
+                <li ng-class="{active: opts.sortBy === 'created'}"><a ng-click="updateSort('created')">Created</a></li>
+                <li ng-class="{active: opts.sortBy === 'updated'}"><a ng-click="updateSort('updated')">Updated</a></li>
+                <li ng-class="{active: opts.sortBy === 'title'}"><a ng-click="updateSort('title')">Title</a></li>
+                <li ng-class="{active: opts.sortBy === 'color'}"><a ng-click="updateSort('color')">Color</a></li>
                 <li class="divider"></li>
                 <li class="text-center">
                     <span class="btn-group">

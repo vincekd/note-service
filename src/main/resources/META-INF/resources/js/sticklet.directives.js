@@ -72,8 +72,6 @@ Sticklet
         };
     }])
     .directive("colorChoices", ["NoteServ", function(NoteServ) {
-        var colors = NoteServ.getColors();
-
         return {
             "restrict": "E",
             "scope": {
@@ -83,6 +81,7 @@ Sticklet
             },
             "templateUrl": "templates/color-choices.html",
             "link": function($scope, $element, $attrs) {
+                var colors = NoteServ.getColors();
                 colors.then(function(c) {
                     $scope.colors = c;
                 });
@@ -251,29 +250,29 @@ Sticklet
             }
         };
     }])
-    .directive("createNoteDblclick", ["Settings", function(Settings) {
-        return {
-            "restrict": "A",
-            "link": function($scope, $element, $attrs) {
-                Settings.get("note.createOnDblClick").then(function(data) {
-                    if (data === true) {
-                        registerEvent();
-                    }
-                });
-                function registerEvent() {
-                    $element.on("dblclick", function(ev) {
-                        var $target = $(ev.target);
-                        if (!$target.closest("#notes-options").length && !$target.closest(".note").length) {
-                            $scope.$apply(function() {
-                                $scope.createNote();
-                            });
-                        }
-                    });
-                }
-            }
-        };
-    }])
-    .directive("tagSelector", [function() {
+//    .directive("createNoteDblclick", ["Settings", function(Settings) {
+//        return {
+//            "restrict": "A",
+//            "link": function($scope, $element, $attrs) {
+//                Settings.get("note.createOnDblClick").then(function(data) {
+//                    if (data === true) {
+//                        registerEvent();
+//                    }
+//                });
+//                function registerEvent() {
+//                    $element.on("dblclick", function(ev) {
+//                        var $target = $(ev.target);
+//                        if (!$target.closest("#notes-options").length && !$target.closest(".note").length) {
+//                            $scope.$apply(function() {
+//                                $scope.createNote();
+//                            });
+//                        }
+//                    });
+//                }
+//            }
+//        };
+//    }])
+    .directive("tagSelector", ["network", function(network) {
         return {
             "restrict": "E",
             "templateUrl": "/templates/tag-selector.html",
@@ -288,6 +287,9 @@ Sticklet
                 "isDisabled": "="
             },
             "link": function($scope, $element, $attrs) {
+                $scope.canAdd = function() {
+                    return (network.online && _.isEmpty($scope.filteredTags) && !_.isEmpty($scope.search));
+                };
                 $scope.tagSelected = function(t) {
                     $scope.tagSelect({"tag": t});
                 }

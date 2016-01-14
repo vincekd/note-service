@@ -7,6 +7,7 @@
             <thead>
                 <tr>
                     <th>Tag name</th>
+                    <th>Notes with Tag</th>
                     <th>Archive All Notes With Tag</th>
                     <th>Delete All Notes With Tag</th>
                     <th>Delete Tag From All Notes</th>
@@ -15,8 +16,9 @@
             <tbody>
                 <tr ng-repeat="tag in tags">
                     <td ng-bind="tag.name"></td>
-                    <td><a ng-click="archiveTaggedNotes(tag)">Archive Notes</a></td>
-                    <td><a ng-click="deleteTaggedNotes(tag)">Delete Notes</a></td>
+                    <td ng-bind="tag.noteCount"></td>
+                    <td><a ng-click="archiveTaggedNotes(tag)" ng-if="tag.noteCount > 0">Archive Notes</a></td>
+                    <td><a ng-click="deleteTaggedNotes(tag)"  ng-if="tag.noteCount > 0">Delete Notes</a></td>
                     <td><a ng-click="removeTag(tag)">Delete Tag</a></td>
                 </tr>
             </tbody>

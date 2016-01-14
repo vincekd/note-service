@@ -27,6 +27,7 @@ class EvernoteImportUtil {
             out["tags"] = note.get("tag").collect { Node tag ->
                 tag.text()
             }
+            out["tags"] << "evernote-import"
             out
         }
         notes

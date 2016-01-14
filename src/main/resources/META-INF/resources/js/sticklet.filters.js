@@ -55,9 +55,13 @@ Sticklet
     }])
     .filter("DispDate", ["$filter", function($filter) {
         var short = "MM/dd/yy h:mma",
-            long = "MMM d, yyyy h:mm a"
+            long = "MMM d, yyyy h:mm a";
+
         return function(date, l) {
-            //return $filter("date")(date, "short");
+            var ago = _.ago(date);
+            if (/now|min|hour|day/i.test(ago)) {
+                return ago;
+            }
             return $filter("date")(date, l ? long : short);
         };
     }])

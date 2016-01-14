@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 
 import com.sticklet.core.constant.SocketTopics
@@ -24,6 +25,32 @@ class TagController extends BaseController {
     private TagService tagServ
     @Autowired
     private NoteService noteServ
+
+    @RequestMapping(value="/tag/archive/{tagID}", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def archiveTaggedNotes(@PathVariable("tagID") String tagID, HttpServletResponse resp) {
+        User user = curUser()
+        Tag tag = tagServ.getTag(tagID, user, resp)
+        if (tag) {
+            List<Note> notes = tagServ.archiveNotesByTag(tag)
+            notes.each {
+                socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, it)
+            }
+        }
+        emptyJson()
+    }
+
+    @RequestMapping(value="/tag/delete/{tagID}", method=RequestMethod.DELETE, produces="application/json")
+    public @ResponseBody def deleteTaggedNotes(@PathVariable("tagID") String tagID, HttpServletResponse resp) {
+        User user = curUser()
+        Tag tag = tagServ.getTag(tagID, user, resp)
+        if (tag) {
+            List<Note> notes = tagServ.deleteNotesByTag(tag)
+            notes.each {
+                socketServ.sendToUser(user, SocketTopics.NOTE_DELETE, it.id)
+            }
+        }
+        emptyJson()
+    }
 
     @RequestMapping(value="/untag/{noteID}/{tagID}", method=RequestMethod.DELETE, produces="application/json")
     public @ResponseBody def untagNote(@PathVariable("noteID") String noteID, @PathVariable("tagID") String tagID, HttpServletResponse resp) {
@@ -62,7 +89,7 @@ class TagController extends BaseController {
         }
         emptyJson()
     }
-    
+
     @RequestMapping(value="/untag/{tagID}", method=RequestMethod.PUT, produces="application/json")
     public @ResponseBody def untagNotes(@RequestBody List<String> noteIDs, @PathVariable("tagID") String tagID, HttpServletResponse resp) {
         User user = curUser()
@@ -78,8 +105,8 @@ class TagController extends BaseController {
     }
 
     @RequestMapping(value="/tags", method=RequestMethod.GET, produces="application/json")
-    public @ResponseBody def getTags(HttpServletResponse resp) {
-        tagServ.getTagsByUser(curUser())
+    public @ResponseBody def getTags(@RequestParam(value="noteCount", required=false) boolean noteCount, HttpServletResponse resp) {
+        tagServ.getTagsByUser(curUser(), noteCount)
     }
 
     @RequestMapping(value="/tag/{tagID}", method=RequestMethod.GET, produces="application/json")

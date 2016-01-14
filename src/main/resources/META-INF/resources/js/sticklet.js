@@ -72,8 +72,8 @@
 
 
 
-        Sticklet.run(["STOMP", "Settings", "network", "$rootScope",
-                      function(STOMP, Settings, net, $rootScope) {
+        Sticklet.run(["STOMP", "Settings", "network", "$rootScope", "$q",
+                      function(STOMP, Settings, net, $rootScope, $q) {
             net.setOnline = function() {
                 network.setOnline($rootScope);
             };
@@ -88,6 +88,11 @@
             //$(function() {
             STOMP.connect();
             //});
+            _.mixin({
+                "noOpProm": function() {
+                    return $q.defer().promise;
+                }
+            });
         }]);
     }
 
@@ -132,6 +137,38 @@
                 return _.map(arr, function(a) { return (a ? a.id : a); });
             }
             return arr;
-        }
+        },
+        "ago": (function() {
+            function sq(num) {
+                return num * num;
+            }
+            var times = {
+                "min": 60,
+                "hour": sq(60),
+                "day": (sq(60) * 24),
+                "week": (sq(60) * 24 * 7),
+                "month": (sq(60) * 24 * 7 * 4),
+                "year": (sq(60) * 24 * 7 * 4 * 12)
+            };
+            return function(date, max) {
+                if (!date) return "";
+                var d = new Date(date),
+                    diff = ((Date.now() - d.getTime()) / 1000);
+                if (diff < times.min) {
+                    return "now";
+                } else if (diff < times.hour) {
+                    return Math.floor(diff / times.min) + " min ago";
+                } else if (diff < times.day) {
+                    return Math.floor(diff / times.hour) + " hours ago";
+                } else if (diff < times.week) {
+                    return Math.floor(diff / times.day) + " days ago";
+                } else if (diff < times.month) {
+                    return Math.floor(diff / times.week) + " weeks ago";
+                } else if (diff < times.year) {
+                    return Math.floor(diff / times.month) + " months ago";
+                } //else over a year
+                return "over a year ago";
+            };
+        }())
     });
 }());

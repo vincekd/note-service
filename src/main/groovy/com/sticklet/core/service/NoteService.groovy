@@ -53,9 +53,7 @@ class NoteService {
         noteRepo.findAllByUserAndArchivedAndDeleted(user, true, null)
     }
     public List<Note> getTrash(User user) {
-        def o = noteRepo.findAllByUserAndDeletedIsNotNull(user)
-        logger.debug "trash: $o"
-        o
+        noteRepo.findAllByUserAndDeletedIsNotNull(user)
     }
 
     public List<Note> getDeletable() {
@@ -64,7 +62,7 @@ class NoteService {
     }
 
     public Note createNote(User user) {
-        Note note = new Note(["user": user, "title": "Note", "content": ""])
+        Note note = new Note(["user": user, "title": "", "content": ""])
         noteRepo.save(note)
     }
 
@@ -94,6 +92,10 @@ class NoteService {
     }
 
     public Note updateNote(Note note, Map params) {
+        if (params.title && params.title != note.title) {
+            note.titleEdited = true
+            params.title = trimTitle(params.title)
+        }
         params.each { String key, def val ->
             if (note.hasProperty(key) && userUpdatableProps.contains(key)) {
                 note[key] = val

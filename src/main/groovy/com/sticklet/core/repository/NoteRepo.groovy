@@ -18,4 +18,5 @@ public interface NoteRepo extends BaseRepo<Note, String> {
     public List<Note> findAllByTags(@Param("tag") Tag tag)
     public List<Note> findAllByDeletedLessThan(@Param("deleted") Long lessThan)
     public List<Note> findAllByUserAndDeletedIsNotNull(@Param("user") User user)
+    //public Integer findCountByTags(@Param("tag") Tag tag)
 }

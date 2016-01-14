@@ -327,8 +327,10 @@ Sticklet
                           function(HTTP, STOMP, $rootScope, $q, Popup, Offline) {
         var notesGet = "/notes",
             colorsGet = "/colors",
-            notes = getNotes(),
-            colors = getColors(),
+            origNotesProm = $q.defer(),
+            origColorsProm = $q.defer(),
+            notes = origNotesProm.promise,
+            colors = origColorsProm.promise,
             namespace = "NoteServ";
 
         function getNotes() {
@@ -365,6 +367,18 @@ Sticklet
         }).onNetworkChange("noteServ", function(online) {
             notes = getNotes();
             colors = getColors();
+            if (origNotesProm) {
+                notes.then(function(n) {
+                    origNotesProm.resolve(n);
+                    origNotesProm = null;
+                });
+            }
+            if (origColorsProm) {
+                colors.then(function(n) {
+                    origColorsProm.resolve(n);
+                    origColorsProm = null;
+                });
+            }
         });
 
         function createNote(note) {
@@ -547,11 +561,14 @@ Sticklet
     .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Storage", "Offline", "NoteServ",
                          function(HTTP, STOMP, $rootScope, $q, Storage, Offline, NoteServ) {
         var tagsGet = "/tags",
-            tags = getTags(),
+            origProm = $q.defer(),
+            tags = origProm.promise,
             namespace = "TagServ";
 
         function getTags() {
-            return Offline.get(tagsGet);
+            return Offline.get(tagsGet).finally(function() {
+                notify();
+            });
         }
         Offline.onSync("tag", function(data) {
             return $q.all(_.map(fromData(data), function(notes, tagID) {
@@ -563,6 +580,12 @@ Sticklet
             }));
         }).onNetworkChange("TagServ", function(online) {
             tags = getTags();
+            if (origProm) {
+                tags.then(function(t) {
+                    origProm.resolve(t);
+                    origProm = null;
+                });
+            }
         });
 
         //keep tags in sync
@@ -666,6 +689,12 @@ Sticklet
 //                    }
                 });
             },
+            "archiveTaggedNotes": function(tag) {
+                return HTTP.put("/tag/archive/" + tag.id);
+            },
+            "deleteTaggedNotes": function(tag) {
+                return HTTP.remove("/tag/delete/" + tag.id);
+            },
             "noteHasTag": function(note, tag) {
                 return _.some(note.tags, function(t) {
                     return tag.id === t.id;
@@ -722,8 +751,7 @@ Sticklet
             "upload": function(file, url, onProg) {
                 return $q(function(resolve, reject) {
                     var fd = new FormData(),
-                        xhr = new XMLHttpRequest(),
-                        promise = $q.defer();
+                        xhr = new XMLHttpRequest();
     
                     fd.append("file", file);
                     if (_.isFunction(onProg)) {

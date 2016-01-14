@@ -18,17 +18,30 @@ class TagService {
     @Autowired
     private NoteRepo noteRepo
     @Autowired
+    private NoteService noteServ
+    @Autowired
     private ResponseStatusService statusServ
 
     public List<Tag> getTagsByUser(User user) {
-        tagRepo.findAllByUser(user)
+        getTagsByUser(user, false)
+    }
+    public List<Tag> getTagsByUser(User user, boolean noteCount) {
+        List<Tag> tags = tagRepo.findAllByUser(user)
+        if (noteCount) {
+            tags.each {
+                //TODO: this better
+                it.noteCount = noteRepo.findAllByTags(it).size()
+                //it.noteCount = noteRepo.findCountByTags(it)
+            }
+        }
+        tags
     }
 
     public Tag createTag(User user, String name) {
         Tag tag = new Tag(["user": user, "name": name])
         tagRepo.save(tag)
     }
-    
+
     public Tag findTag(User user, String name) {
         tagRepo.findByNameAndUser(name, user)
     }
@@ -45,6 +58,20 @@ class TagService {
             statusServ.setStatusNotFound(resp)
         }
         return null
+    }
+
+    public List<Note> archiveNotesByTag(Tag tag) {
+        List<Note> notes = noteRepo.findAllByTags(tag)
+        notes.collect { Note note ->
+            noteServ.archiveNote(note)
+        }
+    }
+
+    public List<Note> deleteNotesByTag(Tag tag) {
+        List<Note> notes = noteRepo.findAllByTags(tag)
+        notes.each { Note note ->
+            noteServ.deleteNote(note)
+        }
     }
 
     public void deleteTag(Tag tag) {

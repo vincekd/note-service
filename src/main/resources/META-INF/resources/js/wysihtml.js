@@ -3,7 +3,7 @@
     
     var parserRules = {
         "tags": {
-            "b":  {}, "i":  {}, "br": {}, "ol": {}, "ul": {}, "li": {},
+            "b":  {}, "i":  {}, "ol": {}, "ul": {}, "li": {}, "br": {}, 
             "h1": {}, "h2": {}, "h3": {}, "h4": {}, "h5": {}, "h6": {},
             "blockquote": {}, "u": 1, "span": {}, "p": {}, "div": {},
             "blink": {}, "caption": {}, "code": {}, "hr": {},
@@ -56,7 +56,8 @@
                 var editor = new wysihtml5.Editor(id, { 
                     "toolbar": toolbarName,
                     //"parserRules": wysihtml5ParserRules,
-                    "parserRules": parserRules
+                    "parserRules": parserRules,
+                    "useLineBreaks": false
                 });
                 editor.on("load", function() {
                     editor.focus();

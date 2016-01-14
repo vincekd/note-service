@@ -134,17 +134,29 @@ ul.dropdown-menu {
         background-color: #AEAEAE;
         margin: 5px 3px;
     }
-    > li > a {
-        font-weight: @bold-weight;
-        padding: @default-padding;
-        //text-align: center;
-        &:hover {
-            background: @light-background;
+    > li {
+        > a {
+            color: @default-font-color;
+            font-weight: @bold-weight;
             padding: @default-padding;
-            //box-shadow: @box-shadow;
+            //text-align: center;
+            &:hover {
+                background: @light-background;
+                padding: @default-padding;
+                //box-shadow: @box-shadow;
+            }
+            &:focus {
+                outline: none;
+            }
         }
-        &:focus {
-            outline: none;
+        &.active > a {
+            &,
+            &:hover,
+            &:focus,
+            &:active {
+                background: @dark-background;
+                color: #DDD;
+            }
         }
     }
 }

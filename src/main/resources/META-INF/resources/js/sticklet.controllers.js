@@ -231,6 +231,16 @@ Sticklet
             NoteServ.remove($scope.note);
         };
         $scope.updateNote = function() {
+            if (!$scope.note.titleEdited && $scope.note.title === "" && $scope.note.content) {
+                var el = document.createElement("div"),
+                    text;
+                el.innerHTML = $scope.note.content.replace(/\<br\>|\<br\s+\/\>/img, " ");
+                text = el.textContent;
+                $scope.note.title = text.substring(0, $scope.maxTitleLength - 10);
+                if (text.length > $scope.maxTitleLength) {
+                    $scope.note.title += "...";
+                }
+            }
             NoteServ.save($scope.note);
         };
         $scope.addTag = function(tag) {
@@ -334,19 +344,26 @@ Sticklet
             }
         });
     }])
-    .controller("TagsAdminCtrl", ["$scope", "TagServ", function($scope, TagServ) {
+    .controller("TagsAdminCtrl", ["$scope", "TagServ", "HTTP",
+                                  function($scope, TagServ, HTTP) {
         $scope.tags = [];
         $scope.removeTag = function(tag) {
             TagServ.remove(tag);
         };
+        $scope.archiveTaggedNotes = function(tag) {
+            TagServ.archiveTaggedNotes(tag);
+        };
+        $scope.deleteTaggedNotes = function(tag) {
+            TagServ.deleteTaggedNotes(tag);
+        };
+
         getTags()
-        
         $scope.$on("tags-updated", function() {
             getTags();
         });
 
         function getTags() {
-            TagServ.getTags().then(function(tags) {
+            HTTP.get("/tags", {"noteCount": true}).then(function(tags) {
                 $scope.tags = tags;
             });
         }
