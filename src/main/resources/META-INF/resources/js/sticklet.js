@@ -70,10 +70,8 @@
             });
         }]);
 
-
-
-        Sticklet.run(["STOMP", "Settings", "network", "$rootScope", "$q",
-                      function(STOMP, Settings, net, $rootScope, $q) {
+        Sticklet.run(["STOMP", "Settings", "Offline", "network", "$rootScope", "ServiceWorker",
+                      function(STOMP, Settings, Offline, net, $rootScope, ServiceWorker) {
             net.setOnline = function() {
                 network.setOnline($rootScope);
             };
@@ -82,15 +80,10 @@
             };
 
             //remove when done testing
-            //window.setOffline = net.setOffline;
-            //window.setOnline = net.setOnline;
+            window.setOffline = net.setOffline;
+            window.setOnline = net.setOnline;
 
             STOMP.connect();
-            _.mixin({
-                "noOpProm": function() {
-                    return $q.defer().promise;
-                }
-            });
         }]);
     }
 

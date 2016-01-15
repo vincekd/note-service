@@ -1,48 +1,19 @@
 "use strict";
 
 var self = this,
-    version = "v0.0.69",
-    DEV = true,
+    version = "v0.0.85",
     LAST_UPDATE = -1,
     CACHE_NAME = 'sticklet-cache.' + version,
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + version,
     CACHE_WHITELIST = [CACHE_NAME, OFFLINE_CACHE_NAME],
     fetchOpts = {},
     fileRegex = /\.(?:html|js|css|woff|ttf|map|woff2|otf)$/i,
-    ignoreRequests = new RegExp(["registerSocket"].join("|")),
     cached = getCached();
 
 self.addEventListener('message', onMessage);
 self.addEventListener('fetch', function(event) {
-    function response() {
-        return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(response) {
-            if (response) {
-                return response;
-            }
-            return fetch(event.request, fetchOpts).then(function(resp) {
-                if (isFileGet(event)) {
-                    return caches.open(OFFLINE_CACHE_NAME).then(function(cache) {
-                        cache.put(event.request, resp.clone());
-                        return resp;
-                    });
-                }
-                return resp;
-            }).catch(function() {
-                if (isFileGet(event)) {
-                    return caches.match(event.request, {"cacheName": OFFLINE_CACHE_NAME}).catch(function() {
-                        return onGetCacheError(event);
-                    });
-                }
-                return onCacheError(event);
-            });
-        }).catch(function() {
-            console.log("why are we here?", event.request.url);
-            return onCacheError(event);
-        });
-    }
-
-    if (!ignoreRequests.test(event.request.url)) {
-        event.respondWith(response());
+    if (isFileGet(event)) {
+        event.respondWith(response(event));
     }
 });
 self.addEventListener('activate', function(event) {
@@ -60,18 +31,41 @@ self.addEventListener('activate', function(event) {
 });
 self.addEventListener('install', function(event) {
     function install() {
-        console.log("installing service worker...");
+        console.log("installing service worker...")
         LAST_UPDATE = Date.now();
         return caches.open(CACHE_NAME).then(function(cache) {
             console.log("service worker installed.");
+            sendMessage({
+                "command": "install"
+            });
             return cache.addAll(cached);
         });
     }
     event.waitUntil(install());
 });
-
+function response(event) {
+    return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(cached) {
+        var network = fetch(event.request).then(function(resp) {
+            caches.open(CACHE_NAME).then(function(cache) {
+                cache.put(event.request, resp);
+            });
+            return resp.clone();
+        }, function(err) {
+            return new Response('<h1>Service Unavailable</h1>', {
+                "status": 503,
+                "statusText": 'Service Unavailable',
+                "headers": new Headers({
+                    "Content-Type": "text/html"
+                })
+            });
+        });
+        return cached || network;
+    });
+}
 function onMessage(m) {
-    console.log("message from client", m);
+    if (m.data.command === "networkStatus") {
+        //ONLINE = (m.data.online === true);
+    }
 }
 function sendMessage(msg) {
     self.clients.matchAll().then(function(res) {
@@ -86,18 +80,9 @@ function sendMessage(msg) {
 function isFileGet(event) {
     return (/GET/i.test(event.request.method) && fileRegex.test(event.request.url));
 }
-function onCacheError(event) {
-    var resp = new Response("", {
-        status: 408,
-        statusText: "Request timed out"
-    });
-    return resp;
-}
-function onGetCacheError(event) {
-    return caches.match('/404.html');
-}
 function getCached() {
     return [
+       //library objects
        "/bower_components/bootstrap/dist/css/bootstrap.min.css",
        "/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css",
        "/bower_components/jquery/dist/jquery.min.js",
@@ -121,7 +106,8 @@ function getCached() {
        "/bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js",
        "/bower_components/wysihtml/dist/wysihtml-toolbar.min.js",
        "/bower_components/wysihtml/parser_rules/advanced.js"
-    ].concat(DEV ? [] : [
+    ].concat([
+       //sticklet objects
        '/index.html', '/404.html', '/templates/notes.html', 
        '/templates/note.html', '/templates/tags.html', 
        '/templates/editable-area.html', '/templates/color-choices.html', 

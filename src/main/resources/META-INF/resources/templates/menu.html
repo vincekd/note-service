@@ -4,7 +4,7 @@
 
             <div class="col-sm-1">
                 <div class="btn-group" uib-dropdown="" uib-keyboard-nav="" 
-                    on-toggle="filterOpened()" dropdown-append-to-body="" is-open="opts.isOpen">
+                    on-toggle="filterOpened()" dropdown-append-to-body="" is-open="cur.isOpen">
                     <button type="button" class="btn" uib-dropdown-toggle="">
                         <span>Filters</span>
                         <span class="caret"></span>
@@ -57,7 +57,7 @@
                             <li><a route-load="/tags" >Tag Manager</a></li>
                             <li><a route-load="/data">Data Manager</a></li>
                             <li><a route-load="/archive">Archive</a></li>
-                            <li><a route-load="/trash" ng-if="opts.trashEnabled">Trash</a></li>
+                            <li><a route-load="/trash" ng-if="cur.trashEnabled">Trash</a></li>
                             <li><a route-load="/settings">Settings</a></li>
                             <li class="divider"></li>
                             <li><a ng-click="logout()">Logout</a></li>

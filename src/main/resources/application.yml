@@ -18,16 +18,16 @@ logging:
     org.hibernate: INFO
     org.egr.authorware: DEBUG
 server:
-  port: 9000
-  #port: 8443
+  port: 80
+  # port: 8443 #for ssl
   #contextPath: 
 #  ssl:
 #    key-store: keystore.p12
 #    key-store-password: sticklet
 #    keyStoreType: PKCS12
 #    keyAlias: sticklet-selfsigned
-directory:
-  upload: ./data/uploads
+#directory:
+#  upload: ./data/uploads
 login:
   enabled: false
 ---

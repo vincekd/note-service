@@ -5,7 +5,6 @@ var Sticklet = angular.module("Sticklet");
 Sticklet
     .factory("ServiceWorker", ["Offline", function(Offline) {
         var supported = ('serviceWorker' in navigator);
-        console.log("here");
         if (supported) {
             navigator.serviceWorker.addEventListener("message", function(e) {
                 console.log("ServiceWorker message", e);
@@ -13,12 +12,15 @@ Sticklet
             
         }
         function sendMessage(message) {
-            if (supported) {
+            if (supported && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage(message);
             }
         }
         Offline.onNetworkChange("ServiceWorker", function(online) {
-            sendMessage(online ? "online": "offline");
+            sendMessage({
+                "command": "networkStatus",
+                "online": online === true
+            });
         });
         return {
             "onMessage": function() {},

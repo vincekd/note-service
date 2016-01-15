@@ -43,7 +43,7 @@ Sticklet
             if (online) {
                 Notify.remove(notification);
             } else {
-                notification = Notify.add("Cannot connect to the server....", true);
+                notification = Notify.add("Cannot connect to the server....", true, false);
             }
         });
     }])
@@ -123,13 +123,13 @@ Sticklet
         }
     }])
     .controller("TopBarCtrl", ["$scope", "TagServ", "HTTP", "Settings", function($scope, TagServ, HTTP, Settings) {
-        $scope.opts = {
+        $scope.cur = {
             "isOpen": false,
             "trashEnabled": false
         };
         $scope.tags = [];
         $scope.filterOpened = function() {
-            if ($scope.opts.isOpen) {
+            if ($scope.cur.isOpen) {
                 TagServ.getTags().then(function(tags) {
                     $scope.tags = tags.filter(function(tag) {
                         return _.some($scope.notes, function(note) {
@@ -167,10 +167,10 @@ Sticklet
             });
         }
         Settings.get("note.trash.enabled").then(function(enabled) {
-            $scope.opts.trashEnabled = (enabled === true);
+            $scope.cur.trashEnabled = (enabled === true);
         });
         function closeFilter() {
-            $scope.opts.isOpen = false;
+            $scope.cur.isOpen = false;
         }
     }])
     .controller("BatchEditCtrl", ["$scope", "NoteServ", "TagServ", "Popup",
@@ -321,7 +321,7 @@ Sticklet
             }
         });
         $scope.$on("$destroy", function() {
-            STOMP.deregisterSetting(topic, topicAdd);
+            STOMP.deregisterSetting("noteUpdate", topicAdd);
         });
 
         function loadNote() {

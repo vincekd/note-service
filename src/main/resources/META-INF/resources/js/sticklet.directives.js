@@ -378,9 +378,9 @@ Sticklet
                 $scope.$watch('opts.display', function(disp, o) {
                     if (disp !== o) {
                         if (disp === "title") {
-                            leeway = 100;
-                        } else if (disp === "tiled") {
                             leeway = 250;
+                        } else if (disp === "tiled") {
+                            leeway = 500;
                         } else {
                             leeway = 1000;
                         }

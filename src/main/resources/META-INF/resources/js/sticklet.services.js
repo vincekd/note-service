@@ -31,7 +31,7 @@ Sticklet
             },
             "remove": function(notification) {
                 notifications = _.without(notifications, notification);
-                if (notification.notif) {
+                if (notification && notification.notif) {
                     notification.notif.close();
                 }
             },
@@ -382,7 +382,7 @@ Sticklet
                 return { "id": id };
             });
             return Service.archiveAll(notes);
-        }).onNetworkChange("noteServ", function(online) {
+        }).onNetworkChange(namespace, function(online) {
             notes = getNotes();
             colors = getColors();
         });
@@ -762,10 +762,13 @@ Sticklet
 
         var registers = {},
             syncs = {};
+
         $rootScope.$on("network-state-change", function($event) {
             runCachedRequests().finally(function() {
                 _.each(registers, function(fn, p) {
-                    fn.call(null, network.online);
+                    try {
+                        fn.call(null, network.online);
+                    } catch(err) { console.error(err); }
                 });
             });
         });
@@ -784,7 +787,7 @@ Sticklet
                     }).filter(_.identity);
                     Storage.set("sync", sync);
 
-                    $q.all(promises).then(function() {
+                    $q.all(promises).finally(function() {
                         resolve();
                     });
                 } else {
