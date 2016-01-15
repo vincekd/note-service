@@ -3,13 +3,14 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify",
-                             function($scope, UserServ, Settings, Offline, Notify) {
+    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify", "Design",
+                             function($scope, UserServ, Settings, Offline, Notify, Design) {
         $scope.user;
         Settings.get("note.maxTitleLength").then(function(data) {
             $scope.maxTitleLength = data;
         });
         $scope.opts = {
+            "screenSize": 0,
             "display": "stacked",
             "sortBy": "created",
             "order": "ASC",
@@ -28,6 +29,12 @@ Sticklet
         $scope.resetFilters = function() {
             $scope.current.filters = {"colors": [], "tags": [], "search": ""};
         };
+        $scope.$watch(function() {
+            return Design.size;
+        }, function(s) {
+            $scope.opts.screenSize = s;
+        });
+        $scope.template = Design.template;
         UserServ.getUser().then(function(u) {
             $scope.user = u;
             if ($scope.user) {

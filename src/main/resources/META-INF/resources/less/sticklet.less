@@ -20,8 +20,8 @@
 @border-hover-color: #888;
 @border-color: #AAA;
 @link-color: #23527C;
-@batch-select-border: 3px solid #F33;
-@batch-select-hover-border: 3px solid #d5d311;
+@batch-select-border: @note-border-size solid #F33;
+@batch-select-hover-border: @note-border-size solid #D5D311;
 
 @menu-height: 40px;
 @menu-padding: 7px 0px;
@@ -29,11 +29,14 @@
 
 @note-top-padding: 0;
 @note-bottom-padding: 0px;
-@note-height: 250px;
+@note-border-size: 3px;
+@note-height: 250px + @note-border-size + @note-border-size;
+@note-mobile-height: 70px;
 @note-header-height: 25px;
 @note-content-height: 190px - (@note-top-padding + @note-bottom-padding);
 @note-tags-height: 35px;
 @note-header-border: 1px solid @border-color;
+
 //@note-content-padding-top: 10px;
 
 @notification-menu-height: 23px;
@@ -53,6 +56,13 @@
 }
 .full-height {
     height: 100%;
+}
+.full-width {
+    width: 100%;
+}
+.full {
+    .full-height;
+    .full-width;
 }
 ul.no-list-style {
     list-style: none;
@@ -331,24 +341,38 @@ ul.dropdown-menu {
         margin-bottom: 20px;
         overflow-y: auto;
         .notes {
-            margin-top: 20px;
-            margin-bottom: @notification-menu-height + 3px;
             position: relative;
             .noteContainer {
                 padding: 0;
                 margin: 10px;
-                height: @note-height;
                 position: relative;
                 min-height: 25px;
+                .note {
+                    background: @light-background;
+                    overflow: hidden;
+                    height: 100%;
+                }
+            }
+        }
+        &.mobile .notes {
+            .noteContainer {
+                height: @note-mobile-height;
+                .note {
+                    padding: 0px;
+                }
+            }
+        }
+        &:not(.mobile) .notes {
+            margin-top: 20px;
+            margin-bottom: @notification-menu-height + 3px;
+            .noteContainer {
+                height: @note-height;
                 .note {
                     padding: 0px;
                     padding-top: @note-top-padding;
                     padding-bottom: @note-bottom-padding;
-                    background: @light-background;
-                    overflow-y: hidden;
-                    overflow-x: hidden;
-                    height: 100%;
                     transition: ease .300s;
+                    border: @note-border-size solid transparent;
                     &.editing .header .title.editing {
                         margin-top: -7px;
                     }
@@ -436,12 +460,14 @@ ul.dropdown-menu {
             margin: auto;
             height: auto;
             margin-bottom: 10px;
-            .header {
-                border-bottom: none;
-            }
-            .content,
-            .tags {
-                display: none;
+            .note  {
+                .header {
+                    border-bottom: none;
+                }
+                .content,
+                .tags {
+                    display: none;
+                }
             }
         }
     }

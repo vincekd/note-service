@@ -1,0 +1,8 @@
+<div ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': (tmpColor || note.color)}" 
+    ng-class="{'batchSelect': batchSelections.indexOf(note) >= 0}" ng-click="noteClick($event, note)">
+
+    <div ng-bind="note.updated | DispDate"></div>
+    <div ng-bind="note.title"></div>
+    <div ng-bind-html="note.content | Html"></div>
+
+</div>

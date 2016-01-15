@@ -1,7 +1,7 @@
 "use strict";
 
 var self = this,
-    version = "v0.0.85",
+    version = "v0.0.86",
     LAST_UPDATE = -1,
     CACHE_NAME = 'sticklet-cache.' + version,
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + version,
@@ -13,7 +13,8 @@ var self = this,
 self.addEventListener('message', onMessage);
 self.addEventListener('fetch', function(event) {
     if (isFileGet(event)) {
-        event.respondWith(response(event));
+        //TODO: re-enable when it isn't annoying
+        //event.respondWith(response(event));
     }
 });
 self.addEventListener('activate', function(event) {

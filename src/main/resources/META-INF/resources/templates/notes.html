@@ -1,24 +1,23 @@
 <div class="full-height">
-    <div id="menu"><div class="full-height" ng-include="'templates/menu.html'"></div></div>
+    <div id="menu" class="full-height" ng-include="template('menu.html')"></div>
 
-<!--     <div class="container-fluid" id="notes" show-hide-timer="" time="8" element="#notes-options"> -->
-    <div class="container-fluid" id="notes">
+    <div class="full" id="notes">
+        <div class="full">
+            <div id="notes-list" class="{{opts.screenSize > 1 ? opts.display : 'mobile'}} full" create-note-dblclick="">
 
-        <div class="row full-height no-row-padding">
-            <div id="notes-list" class="{{opts.display}} full-height col-sm-12" create-note-dblclick=""> <!-- notes-infinite-scroll> --> 
-
-                <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3" notes-infinite-scroll>
+                <perfect-scrollbar class="scrollbar" wheel-propagation="true" 
+                    min-scrollbar-length="20" wheel-speed="3" notes-infinite-scroll>
                     <div class="notes">
                         <div class="noteContainer" ng-repeat="note in notes | InfiniteScrollLimit:displayNotes:15">
-<!--                             ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order | InfiniteScrollLimit:displayNotes:15"> -->
-                            <div ng-if="viewableNote(note)" ng-include="'/templates/notes-note.html'"></div>
+                            <div ng-if="viewableNote(note)" class="full-height" 
+                                ng-include="template('/notes-note.html')"></div>
                         </div>
                     </div>
                 </perfect-scrollbar>
 
-                <div id="notes-options" ng-if="!current.editing" ng-include="'/templates/notes-options.html'"></div>
+                <div id="notes-options" ng-if="!current.editing && opts.screenSize > 1" ng-include="template('/notes-options.html')"></div>
             </div>
         </div>
-
     </div>
+
 </div>

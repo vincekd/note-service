@@ -6,8 +6,11 @@ Sticklet
     .factory("ServiceWorker", ["Offline", function(Offline) {
         var supported = ('serviceWorker' in navigator);
         if (supported) {
-            navigator.serviceWorker.addEventListener("message", function(e) {
-                console.log("ServiceWorker message", e);
+            navigator.serviceWorker.addEventListener("message", function(ev) {
+                //console.log("ServiceWorker message", ev);
+                if (ev.data.command === "install") {
+                    
+                }
             });
             
         }
@@ -26,5 +29,46 @@ Sticklet
             "onMessage": function() {},
             "sendMessage": function(){}
         };
+    }])
+    .factory("Design", ["$rootScope", function($rootScope) {
+        var screen = resize(),
+            baseTemp = "/templates/",
+            nums = {
+                "xs": 0,
+                "sm": 1,
+                "md": 2,
+                "lg": 3
+            };
+        function resize() {
+            var size = $(window).width();
+            if (size > 1200) {
+                return "lg";
+            } else if (size > 992) {
+                return "md";
+            } else if (size > 768) {
+                return "sm";
+            }
+            return "xs";
+        }
+        $(window).on("resize", _.debounce(function() {
+            $rootScope.$apply(function() {
+                screen = resize();
+            });
+        }, 250));
+
+        var Design = {
+            get screen() {
+                return screen;
+            },
+            get size() {
+                return nums[screen];
+            },
+            template: function(temp) {
+                temp = /^\//.test(temp) ? temp : "/" + temp;
+                return (baseTemp + (Design.size > 1 ? temp : "mobile" + temp));
+            }
+        };
+
+        return Design;
     }])
 }(jQuery));
