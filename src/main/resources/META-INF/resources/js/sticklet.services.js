@@ -3,20 +3,37 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .service("Notify", [function() {
+    .service("Notify", ["$timeout", function($timeout) {
         var notifications = [],
             networkActiveRequests = [];
-        return {
+        Notification.requestPermission();
+        var Notify = {
             "get": function() {
                 return notifications;
             },
-            "add": function(msg, perm) {
-                var n = {"text": msg, "removable": !perm};
+            "add": function(msg, permOrRemoveAfter, html5) {
+                var n = {"text": msg, "removable": permOrRemoveAfter !== true};
+                if (html5 && Notification.permission === "granted") {
+                    n.notif = new Notification("", {
+                        "body": msg,
+                        "icon": null,
+                        "tag": msg,
+                        "sticky": n.removable
+                    });
+                }
                 notifications.push(n);
+                if (typeof permOrRemoveAfter === "number") {
+                    $timeout(function() {
+                        Notify.remove(n);
+                    }, permOrRemoveAfter * 1000);
+                }
                 return n;
             },
             "remove": function(notification) {
                 notifications = _.without(notifications, notification);
+                if (notification.notif) {
+                    notification.notif.close();
+                }
             },
             "getNet": function() {
                 return networkActiveRequests;
@@ -30,6 +47,8 @@ Sticklet
                 networkActiveRequests = _.without(networkActiveRequests, n);
             }
         };
+        
+        return Notify;
     }])
     .service("HTTP", ["$http", "Notify", function($http, Notify) {
         function getRealUrl(url) {
