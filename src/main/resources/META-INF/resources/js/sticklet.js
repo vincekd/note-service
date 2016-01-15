@@ -81,13 +81,11 @@
                 network.setOffline($rootScope);
             };
 
-            //TODO: remove when done testing
-            window.setOffline = net.setOffline;
-            window.setOnline = net.setOnline;
+            //remove when done testing
+            //window.setOffline = net.setOffline;
+            //window.setOnline = net.setOnline;
 
-            //$(function() {
             STOMP.connect();
-            //});
             _.mixin({
                 "noOpProm": function() {
                     return $q.defer().promise;
@@ -150,7 +148,7 @@
                 "month": (sq(60) * 24 * 7 * 4),
                 "year": (sq(60) * 24 * 7 * 4 * 12)
             };
-            return function(date, max) {
+            return function(date) {
                 if (!date) return "";
                 var d = new Date(date),
                     diff = ((Date.now() - d.getTime()) / 1000);

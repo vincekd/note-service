@@ -127,13 +127,13 @@ function getCached() {
        '/templates/editable-area.html', '/templates/color-choices.html', 
        '/templates/menu.html', "/templates/wysihtml-toolbar.html",
        "/templates/tag-selector.html", "/templates/popup.html",
-       //"/templates/tags-admin.html", '/templates/settings.html',
-       //"/templates/data.html", "/templates/trash.html", 
-       //"/templates/archive.html", 
+       "/templates/notifications.html", "/templates/archive.html",
+       "/templates/tags-admin.html", '/templates/settings.html',
+       "/templates/data.html", "/templates/trash.html", 
        "/less/css/sticklet.css", "/js/sticklet.js",
-       "/js/sticklet.controllers.js", "/js/sticklet.services.js", 
+       "/js/sticklet.controllers.js", "/js/sticklet.services.js",
        "/js/sticklet.directives.js", "/js/sticklet.filters.js",
-       "/js/sticklet.register.js", "/templates/notifications.html",
+       "/js/sticklet.factory.js", "/js/sticklet.register.js",
        "/js/wysihtml.js"
     ]);
 }

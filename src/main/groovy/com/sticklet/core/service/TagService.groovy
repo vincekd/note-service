@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+import com.sticklet.core.constant.StickletConsts
 import com.sticklet.core.model.Note
 import com.sticklet.core.model.Tag
 import com.sticklet.core.model.User
@@ -23,22 +24,29 @@ class TagService {
     private ResponseStatusService statusServ
 
     public List<Tag> getTagsByUser(User user) {
-        getTagsByUser(user, false)
+        tagRepo.findAllByUser(user)
     }
-    public List<Tag> getTagsByUser(User user, boolean noteCount) {
+
+    public List<Map> getTagsAndCountsByUser(User user) {
         List<Tag> tags = tagRepo.findAllByUser(user)
-        if (noteCount) {
-            tags.each {
-                //TODO: this better
-                it.noteCount = noteRepo.findAllByTags(it).size()
-                //it.noteCount = noteRepo.findCountByTags(it)
-            }
+        tags.collect {
+            List<Note> notes = noteRepo.findAllByTags(it)
+            [
+                "id": it.id,
+                "name": it.name,
+                "noteCount": notes.size(),
+                "archivedCount": notes.findAll {
+                    it.archived && !it.deleted
+                }.size(),
+                "deletedCount": notes.findAll {
+                    it.deleted
+                }.size()
+            ]
         }
-        tags
     }
 
     public Tag createTag(User user, String name) {
-        Tag tag = new Tag(["user": user, "name": name])
+        Tag tag = new Tag(["user": user, "name": trimName(name)])
         tagRepo.save(tag)
     }
 
@@ -87,5 +95,12 @@ class TagService {
 
     public static boolean userHasAccess(Tag tag, User user) {
         tag && user && tag.user.id == user.id
+    }
+    public static String trimName(String tagName) {
+        //TODO: use Setting
+        if (tagName && tagName.length() > StickletConsts.MAX_NAME_LENGTH) {
+            return tagName.substring(0, StickletConsts.MAX_NAME_LENGTH)
+        }
+        tagName
     }
 }

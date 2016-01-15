@@ -198,7 +198,16 @@ Sticklet
             }
             return STOMP;
         }
-        
+        function deregister(topic) {
+            var t = getRealTopic(topic),
+                realTopic = t[0],
+                namespace = t[1];
+            delete namespaces[realTopic][namespace];
+            if (connected) {
+                stompClient.unsubscribe(topicBase + realTopic);
+            }
+            return STOMP;
+        }
         function connect() {
             if (!connected) {
                 socket = new SockJS(HTTP.getRealUrl("/registerSocket"));
@@ -218,8 +227,9 @@ Sticklet
 
         var STOMP = {
             "connect": connect,
-            "disconnect": function(fn) {
-                //disconnect with callback
+            "deregister": deregister,
+            "register": register,
+            "disconnect": function() {
                 return $q(function(resolve, reject) {
                     stompClient.disconnect(function() {
                         connected = false;
@@ -227,22 +237,18 @@ Sticklet
                     });
                 });
             },
-            "deregister": function(topic) {
-                var t = getRealTopic(topic),
-                    realTopic = t[0],
-                    namespace = t[1];
-                delete namespaces[realTopic][namespace];
-                if (connected) {
-                    stompClient.unsubscribe(topicBase + realTopic);
-                }
+            "deregisterSetting": function(setting, topicAdd) {
+                Settings.get("socket.topic." + setting).then(function(topic) {
+                    deregister(topic + "." + topicAdd);
+                });
+                return STOMP;
             },
             "registerSetting": function(setting, topicAdd, callback) {
                 Settings.get("socket.topic." + setting).then(function(topic) {
                     register(topic + "." + topicAdd, callback);
                 });
                 return STOMP;
-            },
-            "register": register
+            }
         };
         
         return STOMP;
@@ -291,21 +297,16 @@ Sticklet
             }
         };
     }])
-    .service("ServiceWorker", [function() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.addEventListener("message", function(e) {
-                console.log("ServiceWorker message", e);
-            });
-        }
-        return {};
-    }])
+//    .service("ServiceWorker", ["Offline", function(Offline) {
+//
+//    }])
     .service("UserServ", ["STOMP", "Offline",
                           function(STOMP, Offline) {
         var user = getUser(),
             namespace = "UserServ";
 
         function getUser() {
-            return Offline.get("/user", {});
+            return Offline.get("/user");
         }
         Offline.onNetworkChange(namespace, function(online) {
             getUser();
@@ -323,14 +324,12 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "$rootScope", "$q", "Popup", "Offline",
-                          function(HTTP, STOMP, $rootScope, $q, Popup, Offline) {
+    .service("NoteServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline",
+                          function(HTTP, STOMP, $rootScope, $q, Offline) {
         var notesGet = "/notes",
             colorsGet = "/colors",
-            origNotesProm = $q.defer(),
-            origColorsProm = $q.defer(),
-            notes = origNotesProm.promise,
-            colors = origColorsProm.promise,
+            notes = getNotes(),
+            colors = getColors(),
             namespace = "NoteServ";
 
         function getNotes() {
@@ -358,7 +357,7 @@ Sticklet
             var notes = _.map(data, function(del, id) {
                 return { "id": id };
             });
-            return Service.removeAll(notes, false);
+            return Service.removeAll(notes);
         }).onSync("archive-note", function(data) {
             var notes = _.map(data, function(arch, id) {
                 return { "id": id };
@@ -367,18 +366,6 @@ Sticklet
         }).onNetworkChange("noteServ", function(online) {
             notes = getNotes();
             colors = getColors();
-            if (origNotesProm) {
-                notes.then(function(n) {
-                    origNotesProm.resolve(n);
-                    origNotesProm = null;
-                });
-            }
-            if (origColorsProm) {
-                colors.then(function(n) {
-                    origColorsProm.resolve(n);
-                    origColorsProm = null;
-                });
-            }
         });
 
         function createNote(note) {
@@ -463,18 +450,14 @@ Sticklet
             },
             "remove": function(note) {
                 return $q(function(resolve, reject) {
-                    Popup.confirm("Are you sure you wish to delete this note?", "Confirm Delete").then(function() {
-                        Offline.remove("/note/" + note.id).then(function(d) {
+                    Offline.remove("/note/" + note.id).then(function(d) {
+                        deleteNote(note.id);
+                        resolve(d);
+                    }).catch(function(msg) {
+                        if (msg === "offline") {
+                            Offline.sync("delete-note." + note.id, true);
                             deleteNote(note.id);
-                            resolve(d);
-                        }).catch(function(msg) {
-                            if (msg === "offline") {
-                                Offline.sync("delete-note." + note.id, true);
-                                deleteNote(note.id);
-                            }
-                        });
-                    }).catch(function() {
-                        reject();
+                        }
                     });
                 });
             },
@@ -499,31 +482,20 @@ Sticklet
                     }
                 });
             },
-            "removeAll": function(notes, confirm) {
+            "removeAll": function(notes) {
                 return $q(function(resolve, reject) {
                     var data = _.getIDs(notes);
-                    function run() {
-                        Offline.put("/notes/delete", data).then(function(d) {
-                            resolve(d);
-                        }).catch(function(msg) {
-                            if (msg === "offline") {
-                                _.each(notes, function(note) {
-                                    Offline.sync("delete-note." + note.id, true);
-                                });
-                                deleteNotes(data);
-                                resolve(data);
-                            }
-                        });
-                    }
-                    if (confirm !== false) {
-                        Popup.confirm("Are you sure you wish to delete these notes?", "Confirm Delete").then(function() {
-                            run();
-                        }).catch(function() {
-                            reject();
-                        });
-                    } else {
-                        run();
-                    }
+                    Offline.put("/notes/delete", data).then(function(d) {
+                        resolve(d);
+                    }).catch(function(msg) {
+                        if (msg === "offline") {
+                            _.each(notes, function(note) {
+                                Offline.sync("delete-note." + note.id, true);
+                            });
+                            deleteNotes(data);
+                            resolve(data);
+                        }
+                    });
                 });
             },
             "saveAll": function(notes) {
@@ -561,8 +533,7 @@ Sticklet
     .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Storage", "Offline", "NoteServ",
                          function(HTTP, STOMP, $rootScope, $q, Storage, Offline, NoteServ) {
         var tagsGet = "/tags",
-            origProm = $q.defer(),
-            tags = origProm.promise,
+            tags = getTags(),
             namespace = "TagServ";
 
         function getTags() {
@@ -580,12 +551,6 @@ Sticklet
             }));
         }).onNetworkChange("TagServ", function(online) {
             tags = getTags();
-            if (origProm) {
-                tags.then(function(t) {
-                    origProm.resolve(t);
-                    origProm = null;
-                });
-            }
         });
 
         //keep tags in sync
@@ -659,7 +624,7 @@ Sticklet
                 });
             },
             "untag": function(note, tag) {
-                return Offline.put("/untag/" + note.id + "/" + tag.id).catch(function(msg) {
+                return Offline.remove("/untag/" + note.id + "/" + tag.id).catch(function(msg) {
                     if (msg === "offline") {
                         Offline.sync("untag." + note.id + "-" + tag.id, getStoreData(note, tag));
                         untagNote(note, tag);
@@ -777,8 +742,7 @@ Sticklet
                          function($rootScope, network, Storage, $q, HTTP) {
 
         var registers = {},
-            syncs = {},
-            defaultData = {};
+            syncs = {};
         $rootScope.$on("network-state-change", function($event) {
             runCachedRequests().finally(function() {
                 _.each(registers, function(fn, p) {
@@ -839,7 +803,7 @@ Sticklet
                 });
                 Storage.set(save);
             },
-            "get": function(url, def) {
+            "get": function(url) {
                 var path = "get." + url;
                 if (network.online) {
                     return HTTP.get(url).then(function(data) {
@@ -848,7 +812,12 @@ Sticklet
                     });
                 }
                 return $q(function(resolve, reject) {
-                    resolve(Storage.get(path) || def || []);
+                    var d = Storage.get(path);
+                    if (d) {
+                        resolve(d);
+                    } else {
+                        reject(d);
+                    }
                 });
             },
             "put": function(url, data) {

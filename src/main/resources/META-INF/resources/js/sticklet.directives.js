@@ -6,6 +6,21 @@ var Sticklet = angular.module("Sticklet"),
         "ENTER": 13
     };
 Sticklet
+    .directive("routeLoad", ["$location", function($location) {
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                $element.on("click.sticklet", function(ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    $scope.$apply(function() {
+                        $location.path($attrs.routeLoad);
+                    });
+                    return false;
+                });
+            }
+        };
+    }])
     .directive("tags", ["TagServ", function(TagServ) {
         return {
             "restrict": "E",
@@ -48,6 +63,14 @@ Sticklet
                     $scope.opts.search = "";
                     $scope.opts.isOpen = false;
                 }
+                $scope.$watchCollection('note.tags', function(n, o) {
+                    if (n !== o) {
+                        //resize scrollbar
+                        setTimeout(function() {
+                            $element.find(".scrollbar-x").scroll();
+                        }, 0);
+                    }
+                });
             }
         };
     }])
@@ -56,14 +79,14 @@ Sticklet
             "restrict": "A",
             "link": function($scope, $element, $attrs) {
                 var timer;
-                $element.on("mousemove", _.debounce(function() {
+                $element.on("mousemove.sticklet", _.debounce(function() {
                     var $el = $element.find($attrs.element).show();
                     $timeout.cancel(timer);
                     timer = $timeout(function() {
                         $el.hide();
                     }, _.toInt($attrs.time || 6) * 1000);
                 }, 200, {leading: true}))
-                .on("mouseleave", function() {
+                .on("mouseleave.sticklet", function() {
                     $element.find($attrs.element).hide();
                     $timeout.cancel(timer);
                     timer = null;
@@ -142,14 +165,14 @@ Sticklet
                         }
                     };
                 } else {
-                    $element.on("keydown", "input", function(ev) {
+                    $element.on("keydown.sticklet", "input", function(ev) {
                         if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
                             ev.preventDefault();
                             ev.stopPropagation();
                             close();
                             return false;
                         }
-                    }).on("blur", "input", function(event) {
+                    }).on("blur.sticklet", "input", function(event) {
                         close();
                     });
                     $timeout(function() {
@@ -160,6 +183,7 @@ Sticklet
         };
     }])
     .directive("balanceHeights", ["$rootScope", function($rootScope) {
+        var paddingBottom = 15;
         return {
             "restrict": "A",
             "link": function($scope, $element, $attrs) {
@@ -167,7 +191,7 @@ Sticklet
                 function balanceHeights(height, prefHeight) {
                     var $children = $element.children().not($pref);
                     if ($children.length > 0) {
-                        $children.height(Math.floor((height - prefHeight) / $children.length) + "px");
+                        $children.height((Math.floor((height - prefHeight) / $children.length) - paddingBottom) + "px");
                     }
                     $rootScope.$broadcast("note-content-resize");
                 }
@@ -199,7 +223,7 @@ Sticklet
                 change: "&fileUpload"
             },
             link: function($scope, $element, attrs) {
-                $element.on("change", function(ev) {
+                $element.on("change.sticklet", function(ev) {
                     $scope.$apply(function() {
                         $scope.change({file: $element[0].files[0]});
                     });
@@ -216,7 +240,7 @@ Sticklet
                             '<div class="row">' +
                                 '<div class="col-sm-3"></div>' +
                                 '<div class="col-sm-6 basic-page-main">' +
-                                    '<a class="close" ng-href="#!/">&times;</a>' +
+                                    '<a class="close" route-load="/">&times;</a>' +
                                     '<div class="basic-page-content">' +
                                         '<ng-transclude></ng-transclude>' +
                                     '</div>' +
@@ -230,7 +254,7 @@ Sticklet
         return {
             "restrict": "A",
             "link": function($scope, $element, $attrs) {
-                $element.on("contextmenu", function(ev) {
+                $element.on("contextmenu.sticklet", function(ev) {
                     var $target = $(ev.target);
                     if (!$target.is("a[href^='http']")) {
                         ev.preventDefault()
@@ -260,7 +284,7 @@ Sticklet
 //                    }
 //                });
 //                function registerEvent() {
-//                    $element.on("dblclick", function(ev) {
+//                    $element.on("dblclick.sticklet", function(ev) {
 //                        var $target = $(ev.target);
 //                        if (!$target.closest("#notes-options").length && !$target.closest(".note").length) {
 //                            $scope.$apply(function() {
@@ -272,7 +296,8 @@ Sticklet
 //            }
 //        };
 //    }])
-    .directive("tagSelector", ["network", function(network) {
+    .directive("tagSelector", ["network", "TagServ", "Settings",
+                               function(network, TagServ, Settings) {
         return {
             "restrict": "E",
             "templateUrl": "/templates/tag-selector.html",
@@ -287,11 +312,88 @@ Sticklet
                 "isDisabled": "="
             },
             "link": function($scope, $element, $attrs) {
+                var tags;
+                TagServ.getTags().then(function(t) {
+                    tags = t;
+                });
                 $scope.canAdd = function() {
-                    return (network.online && _.isEmpty($scope.filteredTags) && !_.isEmpty($scope.search));
+                    return (network.online && !_.isEmpty($scope.search) && noExactMatches());
                 };
                 $scope.tagSelected = function(t) {
-                    $scope.tagSelect({"tag": t});
+                    $scope.tagSelect({ "tag": t });
+                };
+
+                $scope.maxNameLength;
+                Settings.get("tag.maxNameLength").then(function(len) {
+                    $scope.maxNameLength = len;
+                });
+
+                function noExactMatches() {
+                    return _.every(tags ? tags : $scope.tags, function(tag) {
+                        return tag.name !== $scope.search;
+                    });
+                }
+            }
+        };
+    }])
+    .directive("notesInfiniteScroll", ["$timeout", function($timeout) {
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                var leeway = 1000,
+                    elem = $element[0],
+                    $child = $(elem.firstChild);
+
+                function updateDisplayNotes() {
+                    var scrollTop = $element.scrollTop(),
+                        portal = $element.height(),
+                        els = elem.querySelectorAll(".noteContainer"),
+                        arr = [];
+
+                    for (var i = 0; i < els.length; i++) {
+                        var $el = $(els[i]),
+                            top = $el.position().top;
+                        
+                        if ((top + $el.outerHeight()) >= (scrollTop - leeway) && top <= ((scrollTop + portal) + leeway)) {
+                            arr.push($el.scope().note.id);
+                        }
+                    }
+
+                    $scope.displayNotes = arr;
+                }
+
+                $element.on("scroll.sticklet", _.throttle(function(ev) {
+                    $scope.$apply(function() {
+                        updateDisplayNotes();
+                    });
+                }, 100, {"trailing": true}));
+
+                $timeout(function() {
+                    updateDisplayNotes();
+                }, 0);
+                $scope.$watchCollection('notes', function() {
+                    //updateDisplayNotes();
+                    triggerScroll();
+                });
+                $scope.$watch('opts.display', function(disp, o) {
+                    if (disp !== o) {
+                        if (disp === "title") {
+                            leeway = 100;
+                        } else if (disp === "tiled") {
+                            leeway = 250;
+                        } else {
+                            leeway = 1000;
+                        }
+                        triggerScroll();
+                    }
+                });
+                function triggerScroll(again) {
+                    setTimeout(function() {
+                        $element.scroll();
+                        if (again !== false) {
+                            triggerScroll(false);
+                        }
+                    });
                 }
             }
         };

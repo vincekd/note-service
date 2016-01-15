@@ -21,6 +21,7 @@
 @border-color: #AAA;
 @link-color: #23527C;
 @batch-select-border: 3px solid #F33;
+@batch-select-hover-border: 3px solid #d5d311;
 
 @menu-height: 40px;
 @menu-padding: 7px 0px;
@@ -332,92 +333,104 @@ ul.dropdown-menu {
         .notes {
             margin-top: 20px;
             margin-bottom: @notification-menu-height + 3px;
-            .note {
+            position: relative;
+            .noteContainer {
+                padding: 0;
                 margin: 10px;
-                position: relative;
-                padding: 0px;
-                padding-top: @note-top-padding;
-                padding-bottom: @note-bottom-padding;
-                background: @light-background;
-                overflow-y: hidden;
-                overflow-x: hidden;
                 height: @note-height;
-                transition: ease .300s;
-                &.editing .header .title.editing {
-                    margin-top: -7px;
-                }
-                &.batchSelect {
-                    border: @batch-select-border;
-                    opacity: .5;
-                }
-                .header {
-                    height: @note-header-height;
-                    padding-top: 7px;
-                    border-bottom: @note-header-border;
-                    .updated {
-                        padding-left: 10px;
-                        i {
-                            cursor: default;
-                        }
+                position: relative;
+                min-height: 25px;
+                .note {
+                    padding: 0px;
+                    padding-top: @note-top-padding;
+                    padding-bottom: @note-bottom-padding;
+                    background: @light-background;
+                    overflow-y: hidden;
+                    overflow-x: hidden;
+                    height: 100%;
+                    transition: ease .300s;
+                    &.editing .header .title.editing {
+                        margin-top: -7px;
                     }
-                    .title {
-                        font-weight: bold;
-                        text-align: center;
-                        a {
-                            display: block;
-                        }
+                    &.batchSelect {
+                        border: @batch-select-border;
+                        opacity: .5;
                     }
-                    .options {
-                        float: right;
-                        .dropdown {
-                            cursor: pointer;
-                            margin-right: 10px;
-                        }
+                    &.batchSelectHover:not(.batchSelect) {
+                        border: @batch-select-hover-border;
+                        opacity: .8;
                     }
-                }
-                .content {
-                    height: @note-content-height;
-                    //padding-top: @note-content-padding-top;
-                    .not-editing-text {
-                        padding: 10px 10px 0px 10px;
-                    }
-                }
-                .tags {
-                    height: @note-tags-height;
-                    padding-top: 2px;
-                    .no-wrap-text;
-                    //border-top: @default-border;
-                    tags {
-                        display: block;
-                        //padding: 0px 10px;
-                        height: 100%;
-                        .tag {
-                            white-space: normal;
-                            &:first-child {
-                                margin-left: 10px;
+                    .header {
+                        height: @note-header-height;
+                        padding-top: 7px;
+                        border-bottom: @note-header-border;
+                        .updated {
+                            padding-left: 10px;
+                            i {
+                                cursor: default;
                             }
                         }
-                        .tag-label:last-child {
-                            margin-right: 0;
+                        .title {
+                            font-weight: bold;
+                            text-align: center;
+                            a {
+                                display: block;
+                            }
                         }
-                        .tags-dropdown-toggle {
-                            margin: 0px 10px;
+                        .options {
+                            float: right;
+                            .dropdown {
+                                cursor: pointer;
+                                margin-right: 10px;
+                            }
+                        }
+                    }
+                    .content {
+                        height: @note-content-height;
+                        .not-editing-text {
+                            padding: 10px 10px 0px 10px;
+                        }
+                    }
+                    .tags {
+                        height: @note-tags-height;
+                        padding-top: 2px;
+                        .no-wrap-text;
+                        //border-top: @default-border;
+                        tags {
+                            display: block;
+                            //padding: 0px 10px;
+                            height: 100%;
+                            tag-selector {
+                                margin-right: 200px;
+                            }
+                            .tag {
+                                white-space: normal;
+                                &:first-child {
+                                    margin-left: 10px;
+                                }
+                            }
+                            .tag-label:last-child {
+                                margin-right: 0;
+                            }
+                            .tags-dropdown-toggle {
+                                margin: 0px 10px;
+                            }
                         }
                     }
                 }
             }
         }
-        &.stacked .note {
+        &.stacked .noteContainer {
             max-width: 100%;
             width: 1000px;
             margin: 10px auto 10px auto;
         }
-        &.tiled .note {
+        &.tiled .noteContainer {
             width: 32%;
             min-width: 250px;
             display: inline-block;
         }
-        &.title .note {
+        &.title .noteContainer {
             width: 32%;
             display: block;
             margin: auto;

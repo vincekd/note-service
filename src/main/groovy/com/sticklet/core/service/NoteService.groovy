@@ -137,6 +137,7 @@ class NoteService {
     }
 
     public static String trimTitle(String title) {
+        //TODO: use Setting
         if (title && title.length() > StickletConsts.MAX_TITLE_LENGTH) {
             return title.substring(0, StickletConsts.MAX_TITLE_LENGTH)
         }

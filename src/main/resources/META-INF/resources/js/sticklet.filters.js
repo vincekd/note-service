@@ -73,6 +73,24 @@ Sticklet
             return arr;
         };
     }])
+    .filter("InfiniteScrollLimit", [function() {
+        //get last displayed note (already sorted) and add X further notes to it
+        return _.memoize(function(notes, displayNotes, len) {
+            if (!notes || notes.length < 30) {
+                return notes;
+            }
+            var note = null,
+                i = notes.length - 1;
+            for (; i >= 0; i--) {
+                if (displayNotes.indexOf(notes[i].id) >= 0) {
+                    break;
+                }
+            }
+            return notes.slice(0, i + len);
+        }, function(notes, displayNotes, len) {
+            return notes.length + "-"+ displayNotes.length + "-" + _.last(displayNotes) + "-" + len;
+        });
+    }])
     .filter("TagsUsed", [function() {
         return function(tags, filtered) {
             if (filtered && filtered.length && tags && tags.length) {

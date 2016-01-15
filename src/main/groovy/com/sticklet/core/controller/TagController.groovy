@@ -106,7 +106,10 @@ class TagController extends BaseController {
 
     @RequestMapping(value="/tags", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getTags(@RequestParam(value="noteCount", required=false) boolean noteCount, HttpServletResponse resp) {
-        tagServ.getTagsByUser(curUser(), noteCount)
+        if (noteCount) {
+            return tagServ.getTagsAndCountsByUser(curUser())
+        }
+        tagServ.getTagsByUser(curUser())
     }
 
     @RequestMapping(value="/tag/{tagID}", method=RequestMethod.GET, produces="application/json")

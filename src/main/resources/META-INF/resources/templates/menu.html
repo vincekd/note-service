@@ -54,11 +54,11 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="uib-dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="single-button">
-                            <li><a ng-href="#!/tags" >Tag Manager</a></li>
-                            <li><a ng-href="#!/data">Data Manager</a></li>
-                            <li><a ng-href="#!/archive">Archive</a></li>
-                            <li><a ng-href="#!/trash" ng-if="opts.trashEnabled">Trash</a></li>
-                            <li><a ng-href="#!/settings">Settings</a></li>
+                            <li><a route-load="/tags" >Tag Manager</a></li>
+                            <li><a route-load="/data">Data Manager</a></li>
+                            <li><a route-load="/archive">Archive</a></li>
+                            <li><a route-load="/trash" ng-if="opts.trashEnabled">Trash</a></li>
+                            <li><a route-load="/settings">Settings</a></li>
                             <li class="divider"></li>
                             <li><a ng-click="logout()">Logout</a></li>
                       </ul>

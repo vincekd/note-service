@@ -12,7 +12,8 @@ Sticklet
         $scope.opts = {
             "display": "stacked",
             "sortBy": "created",
-            "order": "ASC"
+            "order": "ASC",
+            "batchSelect": false
         };
         $scope.current = {
             "online": true,
@@ -46,11 +47,17 @@ Sticklet
             }
         });
     }])
-    .controller("NotesCtrl", ["$scope", "NoteServ", function($scope, NoteServ) {
+    .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter",
+                              function($scope, NoteServ, filterNotes, sortNotes) {
         
         $scope.editable = true;
+        var allNotes = [];
         $scope.notes = [];
+        $scope.displayNotes = [];
         $scope.batchSelections = [];
+        $scope.viewableNote = function(note) {
+            return $scope.displayNotes.indexOf(note.id) >= 0;
+        };
         $scope.toggleBatchSelection = function(note) {
             if ($scope.batchSelections.indexOf(note) >= 0) {
                 $scope.batchSelections = _.without($scope.batchSelections, note);
@@ -70,7 +77,7 @@ Sticklet
             $scope.$broadcast("update-temp-color", notes, color);
         };
         $scope.noteClick = function($event, note) {
-            if ($event.ctrlKey || $scope.opts.batchSelect) {
+            if (($event.ctrlKey && !$scope.current.editing && !$scope.current.title) || $scope.opts.batchSelect) {
                 if ($event.ctrlKey && !$scope.opts.batchSelect) {
                     $scope.startBatchSelect();
                 }
@@ -87,12 +94,31 @@ Sticklet
         $scope.$on("notes-updated", function() {
             getNotes();
         });
+        $scope.$watchGroup([function() {
+            return $scope.current.filters.search;
+        }, function() {
+            return $scope.current.filters.tags.length;
+        }, function() {
+            return $scope.current.filters.colors.length;
+        }, function() {
+            return $scope.opts.order;
+        }, function() {
+            return $scope.opts.sortBy;
+        }], function() {
+            $scope.notes = filterAndSortNotes();
+        });
+
+        function filterAndSortNotes() {
+            return sortNotes(filterNotes(allNotes, $scope.current.filters),
+                    $scope.opts.sortBy, $scope.opts.order);
+        }
 
         getNotes();
         function getNotes() {
             //get data
             NoteServ.getNotes().then(function(notes) {
-                $scope.notes = notes;
+                allNotes = notes;
+                $scope.notes = filterAndSortNotes();
             });
         }
     }])
@@ -105,7 +131,11 @@ Sticklet
         $scope.filterOpened = function() {
             if ($scope.opts.isOpen) {
                 TagServ.getTags().then(function(tags) {
-                    $scope.tags = tags;
+                    $scope.tags = tags.filter(function(tag) {
+                        return _.some($scope.notes, function(note) {
+                            return TagServ.noteHasTag(note, tag);
+                        });
+                    });
                 });
             }
         };
@@ -143,7 +173,8 @@ Sticklet
             $scope.opts.isOpen = false;
         }
     }])
-    .controller("BatchEditCtrl", ["$scope", "NoteServ", "TagServ", function($scope, NoteServ, TagServ) {
+    .controller("BatchEditCtrl", ["$scope", "NoteServ", "TagServ", "Popup",
+                                  function($scope, NoteServ, TagServ, Popup) {
         $scope.tmp = { "isOpen": false, "search": "" };
         $scope.tags = [];
         $scope.tagsOpened = function() {
@@ -165,8 +196,10 @@ Sticklet
             });
         };
         $scope.deleteBatch = function() {
-            NoteServ.removeAll($scope.batchSelections).then(function() {
-                $scope.clearBatchSelect();
+            Popup.confirm("Are you sure you wish to delete these notes?", "Delete Notes").then(function() {
+                NoteServ.removeAll($scope.batchSelections).then(function() {
+                    $scope.clearBatchSelect();
+                });
             });
         };
         $scope.tagBatch = function(tag) {
@@ -195,7 +228,8 @@ Sticklet
             $scope.updateTempColor($scope.batchSelections);
         };
     }])
-    .controller("NoteListNoteCtrl", ["$scope", "NoteServ", "TagServ", function($scope, NoteServ, TagServ) {
+    .controller("NoteListNoteCtrl", ["$scope", "NoteServ", "TagServ", "Popup",
+                                     function($scope, NoteServ, TagServ, Popup) {
         $scope.editing = false;
         $scope.tmpColor = $scope.note.color;
         $scope.changeColor = function(color) {
@@ -228,7 +262,9 @@ Sticklet
             NoteServ.archive($scope.note);
         };
         $scope.deleteNote = function() {
-            NoteServ.remove($scope.note);
+            Popup.confirm("Are you sure you wish to delete this note?", "Delete Note").then(function() {
+                NoteServ.remove($scope.note);
+            });
         };
         $scope.updateNote = function() {
             if (!$scope.note.titleEdited && $scope.note.title === "" && $scope.note.content) {
@@ -277,17 +313,15 @@ Sticklet
             }, data, {trailing: true});
         });
 
-        Settings.get("socket.topic.noteUpdate").then(function(topic) {
-            STOMP.register(topic + topicAdd, function(note) {
-                if (note.id === $scope.note.id) {
-                    $scope.$apply(function() {
-                        _.extend($scope.note, note);
-                    });
-                }
-            });
-            $scope.$on("$destroy", function() {
-                STOMP.deregister(topic + topicAdd);
-            });
+        STOMP.registerSetting("noteUpdate", topicAdd, function(note) {
+            if (note.id === $scope.note.id) {
+                $scope.$apply(function() {
+                    _.extend($scope.note, note);
+                });
+            }
+        });
+        $scope.$on("$destroy", function() {
+            STOMP.deregisterSetting(topic, topicAdd);
         });
 
         function loadNote() {
@@ -344,17 +378,33 @@ Sticklet
             }
         });
     }])
-    .controller("TagsAdminCtrl", ["$scope", "TagServ", "HTTP",
-                                  function($scope, TagServ, HTTP) {
+    .controller("TagsAdminCtrl", ["$scope", "TagServ", "HTTP", "Popup",
+                                  function($scope, TagServ, HTTP, Popup) {
         $scope.tags = [];
         $scope.removeTag = function(tag) {
-            TagServ.remove(tag);
+            Popup.confirm("Are you sure you want to delete the tag from all notes?", "Delete Tag").then(function() {
+                TagServ.remove(tag);
+            });
         };
         $scope.archiveTaggedNotes = function(tag) {
-            TagServ.archiveTaggedNotes(tag);
+            Popup.confirm("Are you sure you want to archive all tagged notes?", "Archive Tagged Notes").then(function() {
+                TagServ.archiveTaggedNotes(tag).then(function() {
+                    getTags();
+                });
+            });
         };
         $scope.deleteTaggedNotes = function(tag) {
-            TagServ.deleteTaggedNotes(tag);
+            Popup.confirm("Are you sure you want to delete all tagged notes?", "Delete Tagged Notes").then(function() {
+                TagServ.deleteTaggedNotes(tag).then(function() {
+                    getTags();
+                });
+            });
+        };
+        $scope.checkShowArchive = function(tag) {
+            return (tag.noteCount > 0 && tag.archivedCount < (tag.noteCount - tag.deletedCount));
+        };
+        $scope.checkShowDelete = function(tag) {
+            return (tag.noteCount > 0 && tag.deletedCount < tag.noteCount);
         };
 
         getTags()
@@ -398,7 +448,8 @@ Sticklet
             }
         };
     }])
-    .controller("ArchiveCtrl", ["$scope", "Archive", "Settings", "NoteServ", function($scope, Archive, Settings, NoteServ) {
+    .controller("ArchiveCtrl", ["$scope", "Archive", "Settings", "NoteServ", "Popup",
+                                function($scope, Archive, Settings, NoteServ, Popup) {
         $scope.opts = {"trashEnabled": false};
         $scope.archived = [];
         $scope.restoreNote = function(note) {
@@ -409,9 +460,11 @@ Sticklet
             });
         };
         $scope.deleteNote = function(note) {
-            NoteServ.remove(note).then(function() {
-                $scope.archived = $scope.archived.filter(function(n) {
-                    return n.id !== note.id;
+            Popup.confirm("Are you sure you want to delete this note?", "Delete Note").then(function() {
+                NoteServ.remove(note).then(function() {
+                    $scope.archived = $scope.archived.filter(function(n) {
+                        return n.id !== note.id;
+                    });
                 });
             });
         };

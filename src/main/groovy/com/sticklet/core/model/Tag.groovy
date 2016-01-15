@@ -16,7 +16,4 @@ class Tag extends BaseModel {
 
     @Indexed(unique=true)
     public String name
-
-    @Transient
-    public Long noteCount
 }

@@ -5,15 +5,13 @@
     <div class="container-fluid" id="notes">
 
         <div class="row full-height no-row-padding">
-            <div id="notes-list" class="{{opts.display}} full-height col-sm-12" create-note-dblclick="">
+            <div id="notes-list" class="{{opts.display}} full-height col-sm-12" create-note-dblclick=""> <!-- notes-infinite-scroll> --> 
 
-                <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
+                <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3" notes-infinite-scroll>
                     <div class="notes">
-                        <div ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order | Limit:100" 
-                            ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': (tmpColor || note.color)}" 
-                            ng-class="{'editing': (current.editing === note || current.title === note), 'batchSelect': batchSelections.indexOf(note) >= 0}"
-                            note-context-menu="" ng-click="noteClick($event, note)">
-                            <div ng-include="'/templates/notes-note.html'"></div>
+                        <div class="noteContainer" ng-repeat="note in notes | InfiniteScrollLimit:displayNotes:15">
+<!--                             ng-repeat="note in notes | FilterNotes:current.filters | SortNotes:opts.sortBy:opts.order | InfiniteScrollLimit:displayNotes:15"> -->
+                            <div ng-if="viewableNote(note)" ng-include="'/templates/notes-note.html'"></div>
                         </div>
                     </div>
                 </perfect-scrollbar>

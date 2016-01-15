@@ -23,6 +23,12 @@
             "userUpdatable": false
         }
     },
+    "tag": {
+        "maxNameLength": {
+            "value": 50,
+            "userUpdatable": false
+        }
+    },
     "serviceWorker": {
         "enabled": {
             "value": true,
