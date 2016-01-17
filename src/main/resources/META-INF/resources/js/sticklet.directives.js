@@ -372,7 +372,6 @@ Sticklet
                     updateDisplayNotes();
                 }, 0);
                 $scope.$watchCollection('notes', function() {
-                    //updateDisplayNotes();
                     triggerScroll();
                 });
                 $scope.$watch('opts.display', function(disp, o) {

@@ -450,6 +450,7 @@ uib-accordion {
             .noteContainer {
                 height: @note-height;
                 margin: 10px;
+                //margin: 10px auto;
                 .note {
                     padding: 0px;
                     padding-top: @note-top-padding;
@@ -527,17 +528,17 @@ uib-accordion {
                 }
             }
         }
-        &.stacked .noteContainer {
+        &:not(.mobile).stacked .noteContainer {
             max-width: 100%;
             width: 1000px;
             margin: 10px auto 10px auto;
         }
-        &.tiled .noteContainer {
+        &:not(.mobile).tiled .noteContainer {
             width: 32%;
             min-width: 250px;
             display: inline-block;
         }
-        &.title .noteContainer {
+        &:not(.mobile).title .noteContainer {
             width: 32%;
             display: block;
             margin: auto;
