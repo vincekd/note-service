@@ -8,9 +8,9 @@ spring:
       port: 27017
       username: 
       password:
-    cache:
-      ehcache:
-        config: classpath:ehcache.xml
+#    cache:
+#      ehcache:
+#        config: classpath:ehcache.xml
 logging: 
   level:
     org.springframework: WARN

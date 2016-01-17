@@ -14,10 +14,6 @@
                 "userUpdatable": true
             }
         },
-        "createOnDblClick": {
-            "value": true,
-            "userUpdatable": true
-        },
         "autoSaveInterval": {
             "value": 1500,
             "userUpdatable": false

@@ -1,7 +1,9 @@
 package com.sticklet.core.constant
 
 class StickletConsts {
+    //for notes
     public static final Integer MAX_TITLE_LENGTH = 100
+    //for tags
     public static final Integer MAX_NAME_LENGTH = 50
 
     public static final boolean USE_TRASH = true

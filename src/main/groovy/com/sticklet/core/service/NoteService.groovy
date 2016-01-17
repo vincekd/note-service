@@ -18,8 +18,12 @@ class NoteService {
     private static final Logger logger = LoggerFactory.getLogger(NoteService.class)
     private static final List<String> userUpdatableProps = ["title", "content", "color"]
 
-    @Autowired NoteRepo noteRepo
-    @Autowired ResponseStatusService statusServ
+    @Autowired
+    private NoteRepo noteRepo
+    @Autowired 
+    private ResponseStatusService statusServ
+    @Autowired 
+    private SettingsService settingsServ
 
     public Note untagNote(Note note, Tag tag) {
         note.tags = note.tags.findAll {
@@ -57,7 +61,9 @@ class NoteService {
     }
 
     public List<Note> getDeletable() {
-        Long lessThan = (new Date()).getTime() - StickletConsts.EMPTY_TRASH_AFTER
+        Long emptyTrashAfter = (settingsServ.get("note.trash.daysBeforeEmpty") ?: StickletConsts.EMPTY_TRASH_AFTER)
+        emptyTrashAfter *= (1000L * 86400L)
+        Long lessThan = (new Date()).getTime() - emptyTrashAfter
         noteRepo.findAllByDeletedLessThan(lessThan)
     }
 
@@ -114,8 +120,12 @@ class NoteService {
         noteRepo.save(note)
     }
 
+    public void deleteNote(Note note) {
+        deleteNote(note, false)
+    }
     public void deleteNote(Note note, boolean hard) {
-        if (StickletConsts.USE_TRASH && !hard) {
+        boolean useTrash = settingsServ.get("note.trash.enabled")
+        if (useTrash && !hard) {
             note.deleted = (new Date()).getTime()
             noteRepo.save(note)
         } else {
@@ -126,10 +136,6 @@ class NoteService {
     public Note restoreNote(Note note) {
         note.deleted = null
         noteRepo.save(note)
-    }
-
-    public void deleteNote(Note note) {
-        deleteNote(note, false)
     }
 
     public static boolean userHasAccess(Note note, User user) {

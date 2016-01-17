@@ -22,6 +22,8 @@ class TagService {
     private NoteService noteServ
     @Autowired
     private ResponseStatusService statusServ
+    @Autowired
+    private SettingsService settingsServ
 
     public List<Tag> getTagsByUser(User user) {
         tagRepo.findAllByUser(user)
@@ -96,10 +98,10 @@ class TagService {
     public static boolean userHasAccess(Tag tag, User user) {
         tag && user && tag.user.id == user.id
     }
-    public static String trimName(String tagName) {
-        //TODO: use Setting
-        if (tagName && tagName.length() > StickletConsts.MAX_NAME_LENGTH) {
-            return tagName.substring(0, StickletConsts.MAX_NAME_LENGTH)
+    public String trimName(String tagName) {
+        Integer maxLen = settingsServ.get("tag.maxNameLength") ?: StickletConsts.MAX_NAME_LENGTH
+        if (tagName && tagName.length() > maxLen) {
+            return tagName.substring(0, maxLen)
         }
         tagName
     }

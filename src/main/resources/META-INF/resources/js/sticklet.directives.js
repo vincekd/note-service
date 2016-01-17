@@ -274,28 +274,6 @@ Sticklet
             }
         };
     }])
-//    .directive("createNoteDblclick", ["Settings", function(Settings) {
-//        return {
-//            "restrict": "A",
-//            "link": function($scope, $element, $attrs) {
-//                Settings.get("note.createOnDblClick").then(function(data) {
-//                    if (data === true) {
-//                        registerEvent();
-//                    }
-//                });
-//                function registerEvent() {
-//                    $element.on("dblclick.sticklet", function(ev) {
-//                        var $target = $(ev.target);
-//                        if (!$target.closest("#notes-options").length && !$target.closest(".note").length) {
-//                            $scope.$apply(function() {
-//                                $scope.createNote();
-//                            });
-//                        }
-//                    });
-//                }
-//            }
-//        };
-//    }])
     .directive("tagSelector", ["network", "TagServ", "Settings",
                                function(network, TagServ, Settings) {
         return {

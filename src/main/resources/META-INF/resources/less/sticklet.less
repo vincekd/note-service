@@ -3,6 +3,7 @@
 @light-background: #D4D4D4;
 @lightest-background: #EEE;
 @button-background:  #F3F3F3;
+@button-background-hover: #E6E6E6;
 @danger-button-background: #F0A0A0;
 
 @font-size: 12px;
@@ -31,7 +32,7 @@
 @note-bottom-padding: 0px;
 @note-border-size: 3px;
 @note-height: 250px + @note-border-size + @note-border-size;
-@note-header-height: 21px;
+@note-header-height: 25px;
 @note-mobile-height: 70px;
 @note-mobile-header-height: 25px;
 @note-content-height: 190px - (@note-top-padding + @note-bottom-padding);
@@ -201,6 +202,7 @@ uib-accordion {
     &:hover {
         color: #333;
         border-color: @border-hover-color;
+        background-color: @button-background-hover;
     }
     &:active {
         color: #000000;
@@ -290,6 +292,9 @@ uib-accordion {
     .top-bar {
         height: 100%;
         padding: @menu-padding;
+        #reset-filters {
+            padding: 5px;
+        }
         .current-filters {
             padding: 0px 10px;
         }
@@ -670,7 +675,7 @@ ul.tags-dropdown {
     .basic-page-main {
          position: relative;
          background: @light-background;
-        .close {
+        > .close {
             position: absolute;
             top: 3px;
             right: 10px;

@@ -45,6 +45,13 @@ class SettingsService {
         }
     }
 
+    public def get(String key) {
+        Setting set = getSetting(key)
+        if (set) {
+            return set.value
+        }
+        null
+    }
     public Setting getSetting(String key) {
         settingRepo.findByNameAndInitial(key, true)
     }
