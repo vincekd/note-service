@@ -1,8 +1,11 @@
 <div ng-controller="NoteListNoteCtrl" class="note" ng-style="{'background': (tmpColor || note.color)}" 
-    ng-class="{'batchSelect': batchSelections.indexOf(note) >= 0}" ng-click="noteClick($event, note)">
+    ng-class="{'batchSelect': batchSelections.indexOf(note) >= 0}" 
+    route-load="/note/{{note.id}}"
+    hm-hold="openNoteMenu($event)">
+<!--   long-press="openNoteMenu()"   -->
 
-    <div ng-bind="note.updated | DispDate"></div>
-    <div ng-bind="note.title"></div>
-    <div ng-bind-html="note.content | Html"></div>
+    <div class="title no-wrap-text" ng-bind="note.title"></div>
+    <div class="content" ng-bind-html="note.content | Html"></div>
+    <div class="updated" ng-bind="note.updated | DispDate"></div>
 
 </div>

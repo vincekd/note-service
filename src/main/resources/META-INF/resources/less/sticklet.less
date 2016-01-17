@@ -31,8 +31,9 @@
 @note-bottom-padding: 0px;
 @note-border-size: 3px;
 @note-height: 250px + @note-border-size + @note-border-size;
+@note-header-height: 21px;
 @note-mobile-height: 70px;
-@note-header-height: 25px;
+@note-mobile-header-height: 25px;
 @note-content-height: 190px - (@note-top-padding + @note-bottom-padding);
 @note-tags-height: 35px;
 @note-header-border: 1px solid @border-color;
@@ -171,6 +172,18 @@ ul.dropdown-menu {
         }
     }
 }
+uib-accordion {
+    .panel-heading {
+        padding: 0px;
+        a.accordion-toggle {
+            display: block;
+            padding: 10px 15px;
+        }
+    }
+    .panel-body {
+        min-height: 100px;
+    }
+}
 .btn {
     font-size: 1rem;
     padding: @default-padding;
@@ -242,6 +255,9 @@ ul.dropdown-menu {
     &:focus {
         outline: none;
     }
+    &.stklt-input-small {
+        width: 200px;
+    }
 }
 .stklt-label {
     padding: @default-padding;
@@ -262,6 +278,15 @@ ul.dropdown-menu {
     height: @menu-height;
     background: @light-background;
     border-bottom: @default-border;
+    position: relative;
+    overflow: visible;
+    &.mobile {
+        padding: 6px 10px;
+        #menu-open {
+            padding: 5px 10px;
+            font-size: 1.2rem;
+        }
+    }
     .top-bar {
         height: 100%;
         padding: @menu-padding;
@@ -271,6 +296,34 @@ ul.dropdown-menu {
         #batch-edit-btn {
             margin-right: 10px;
         }
+    }
+}
+#menu-dropdown {
+    background: @lightest-background;
+    //position: absolute;
+    //top: @menu-height;
+    //right: 0px;
+    //left: 0px;
+    min-height: ~"calc(30% - @{menu-height}px)";
+    //padding: 5px 10px;
+    padding: 10px;
+    //z-index: 100;
+    #sort-options {
+        margin-bottom: 10px;
+        text-align: center;
+        #order {
+            margin-left: 10px;
+        }
+    }
+    .current-filters {
+        margin-top: 10px;
+        .tag-label {
+            margin-bottom: 5px;
+        }
+    }
+    .links > div {
+        display: inline-block;
+        padding: 10px;
     }
 }
 
@@ -313,8 +366,8 @@ ul.dropdown-menu {
 /* color choices */
 .color-choices {
     display: block;
-    width: 120px;
-    margin: auto;
+    width: 100%;
+    text-align: center;
     .color-choice {
         display: inline-block;
         width: 20px;
@@ -328,6 +381,17 @@ ul.dropdown-menu {
         }
         a {
             display: block;
+            height: 100%;
+        }
+    }
+}
+.note-menu {
+    .color-choices {
+        .color-choice {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            margin: 10px 5px;
         }
     }
 }
@@ -344,7 +408,6 @@ ul.dropdown-menu {
             position: relative;
             .noteContainer {
                 padding: 0;
-                margin: 10px;
                 position: relative;
                 min-height: 25px;
                 .note {
@@ -357,8 +420,27 @@ ul.dropdown-menu {
         &.mobile .notes {
             .noteContainer {
                 height: @note-mobile-height;
+                margin: 5px;
                 .note {
                     padding: 0px;
+                    .title {
+                        padding: 3px 5px;
+                        //height: ~"calc(2rem + 10px)";
+                        height: @note-mobile-header-height;
+                        border-bottom: 1px solid #AAA;
+                        font-weight: bold;
+                    }
+                    .content {
+                        padding: 3px 5px;
+                        height: @note-mobile-height - @note-mobile-header-height - 12px;
+                        overflow: hidden;
+                    }
+                    .updated {
+                        height: 10px;
+                        font-weight: bold;
+                        font-size: @small-font;
+                        padding-left: 10px;
+                    }
                 }
             }
         }
@@ -367,6 +449,7 @@ ul.dropdown-menu {
             margin-bottom: @notification-menu-height + 3px;
             .noteContainer {
                 height: @note-height;
+                margin: 10px;
                 .note {
                     padding: 0px;
                     padding-top: @note-top-padding;
@@ -484,9 +567,13 @@ ul.tags-dropdown {
     height: 100%;
     width: 100%;
     background: @dark-background;
+    .basic-page-main {
+        padding: 0px;
+    }
     #note-container {
         background: @light-background;
         height: 100%;
+        padding: 0 15px;
         #note-controls {
             padding-top: 10px;
             #note-info {
@@ -586,6 +673,7 @@ ul.tags-dropdown {
             position: absolute;
             top: 3px;
             right: 10px;
+            z-index: 100;
         }
         .basic-page-content {
             height: 100%;
@@ -620,6 +708,9 @@ ul.tags-dropdown {
         }
         > a {
             padding: 3px;
+            &.wysihtml5-command-active {
+                color: #F00;
+            }
         }
     }
     .toolbar-extras {}
@@ -636,7 +727,7 @@ ul.tags-dropdown {
         .modal-footer {
             border: none;
         }
-        .modal-body {
+        &:not(.note-menu) .modal-body {
             padding: 40px 15px;
         }
     }

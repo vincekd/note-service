@@ -25,7 +25,7 @@
     if (location.pathname === "/login.html") {
         Sticklet = angular.module("Sticklet", []);
     } else {
-        Sticklet = angular.module("Sticklet", ["ngRoute", "ui.bootstrap", "perfect_scrollbar", "wysihtml"]);
+        Sticklet = angular.module("Sticklet", ["ngRoute", "hmTouchEvents", "ui.bootstrap", "perfect_scrollbar", "wysihtml"]);
 
         Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
                          function($routeProvider, $locationProvider, $provide) {

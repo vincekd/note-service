@@ -238,14 +238,14 @@ Sticklet
             "replace": true,
             "template": ('<div class="container-fluid row-full-height basic-page">' +
                             '<div class="row">' +
-                                '<div class="col-sm-3"></div>' +
+                                '<div class="col-md-3"></div>' +
                                 '<div class="col-sm-6 basic-page-main">' +
                                     '<a class="close" route-load="/">&times;</a>' +
                                     '<div class="basic-page-content">' +
                                         '<ng-transclude></ng-transclude>' +
                                     '</div>' +
                                 '</div>' +
-                                '<div class="col-sm-3"></div>' +
+                                '<div class="col-md-3"></div>' +
                             '</div>' +
                         '</div>')
         };
@@ -395,6 +395,38 @@ Sticklet
                         }
                     });
                 }
+            }
+        };
+    }])
+    .directive("longPress", ["$timeout", function($timeout) {
+        var duration = 800;
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                //TODO: prevent firing when scrolling
+                var timer,
+                    lockTimer;
+
+                function touchstart(ev) {
+                    console.log("touchstart", ev);
+//                    ev.preventDefault();
+//                    if (lockTimer){
+//                        return;
+//                    }
+//                    lockTimer = true;
+//                    timer = $timeout(longPress, duration); 
+                }
+                function touchend(ev) {
+                    console.log("touchend", ev);
+//                    $timeout.cancel(timer);
+//                    lockTimer = false;
+                }
+                function longPress() { 
+                    $scope.$eval($attrs.longPress);
+                };
+
+                $element.on("touchstart", touchstart);
+                $element.on("touchend", touchend);
             }
         };
     }])

@@ -304,6 +304,10 @@ Sticklet
             return promise;
         }
 
+        function getPopup(settings) {
+            return $modal.open(_.extend(getModalParams(), settings));
+        }
+
         return {
             "alert": function(text, name) {
                 return doPopup("alert", text, name);
@@ -313,12 +317,10 @@ Sticklet
             },
             "prompt": function(text, name) {
                 return doPopup("prompt", text, name);
-            }
+            },
+            "popup": getPopup
         };
     }])
-//    .service("ServiceWorker", ["Offline", function(Offline) {
-//
-//    }])
     .service("UserServ", ["STOMP", "Offline",
                           function(STOMP, Offline) {
         var user = getUser(),

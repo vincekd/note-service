@@ -14,7 +14,8 @@ Sticklet
             "display": "stacked",
             "sortBy": "created",
             "order": "ASC",
-            "batchSelect": false
+            "batchSelect": false,
+            "menuOpen": false
         };
         $scope.current = {
             "online": true,
@@ -56,8 +57,8 @@ Sticklet
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter",
                               function($scope, NoteServ, filterNotes, sortNotes) {
-        
-        $scope.editable = true;
+
+        $scope.opts.menuOpen = false; //reset this
         var allNotes = [];
         $scope.notes = [];
         $scope.displayNotes = [];
@@ -90,6 +91,9 @@ Sticklet
                 }
                 $scope.toggleBatchSelection(note);
             }
+        };
+        $scope.toggleMenu = function() {
+            $scope.opts.menuOpen = !$scope.opts.menuOpen;
         };
         $scope.createNote = function() {
             NoteServ.create();
@@ -129,10 +133,15 @@ Sticklet
             });
         }
     }])
-    .controller("TopBarCtrl", ["$scope", "TagServ", "HTTP", "Settings", function($scope, TagServ, HTTP, Settings) {
+    .controller("MenuCtrl", ["$scope", "TagServ", "HTTP", "Settings", function($scope, TagServ, HTTP, Settings) {
         $scope.cur = {
             "isOpen": false,
             "trashEnabled": false
+        };
+        $scope.status = {
+            "filterOpen": true,
+            "sortOpen": false,
+            "settingsOpen": false
         };
         $scope.tags = [];
         $scope.filterOpened = function() {
@@ -295,11 +304,59 @@ Sticklet
                 }
             }
         };
+        $scope.openNoteMenu = function($event) {
+            $event.preventDefault();
+            var $modalInst = Popup.popup({
+                "animation": true,
+                "templateUrl": "/templates/mobile/note-menu.html",
+                "controller": "NoteMenuCtrl",
+                "backdrop": true,
+                "keyboard": false,
+                "size": "sm",
+                "backdropClass": "sticklet-popup-backdrop",
+                "windowClass": "sticklet-popup-window",
+                "resolve": {
+                    "note": function() { return $scope.note; },
+                    "maxTitleLength": function() { return $scope.maxTitleLength; }
+                }
+            });
+            $modalInst.result.then(function(result) {
+                if (result === "save") {
+                    $scope.tmpColor = $scope.note.color;
+                    NoteServ.save($scope.note);
+                } else if (result === "delete") {
+                    NoteServ.remove($scope.note);
+                } else if (result === "archive") {
+                    NoteServ.archive($scope.note);
+                }
+            });
+        };
         $scope.$on("update-temp-color", function($event, notes, color) {
             if (notes.indexOf($scope.note) >= 0) {
                 $scope.tmpColor = (color || $scope.note.color);
             }
         });
+    }])
+    .controller("NoteMenuCtrl", ["$scope", "note", "maxTitleLength", "$uibModalInstance",
+                                 function($scope, note, maxTitleLength, $modalInst) {
+        $scope.maxTitleLength = maxTitleLength;
+        $scope.note = _.extend({}, note);
+        $scope.deleteNote = function() {
+            $modalInst.close("delete");
+        }
+        $scope.archiveNote = function() {
+            $modalInst.close("archive");
+        }
+        $scope.changeColor = function(color) {
+            $scope.note.color = color;
+        };
+        $scope.save = function() {
+            _.extend(note, $scope.note);
+            $modalInst.close("save");
+        };
+        $scope.cancel = function() {
+            $modalInst.dismiss("cancel");
+        };
     }])
     .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "Settings",
                              function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, Settings) {

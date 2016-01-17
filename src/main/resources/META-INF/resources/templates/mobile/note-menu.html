@@ -1,0 +1,24 @@
+<div class="note-menu sticklet-popup">
+    <div class="modal-header">
+        <h4 class="modal-title no-wrap-text" ng-bind="note.title"></h4>
+    </div>
+    <div class="modal-body">
+
+        <div>
+            <input type="text" class="stklt-input" ng-model="note.title" placeholder="Title" max-length="{{maxTitleLength}}" />
+        </div>
+
+        <div>
+            <color-choices on-change="changeColor(color)"></color-choices>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <div class="pull-left">
+            <button class="btn btn-danger" ng-click="deleteNote()">Delete</button>
+            <button class="btn btn-danger" ng-click="archiveNote()">Archive</button>
+        </div>
+        <button class="btn" ng-click="save()">Save</button>
+        <button class="btn" ng-click="cancel()">Cancel</button>
+    </div>
+</div>

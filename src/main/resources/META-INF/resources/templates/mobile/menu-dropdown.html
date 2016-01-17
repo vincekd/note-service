@@ -1,0 +1,73 @@
+<div ng-controller="MenuCtrl">
+    <uib-accordion close-others="true">
+
+        <uib-accordion-group heading="Filter" is-open="status.filterOpen" is-disabled="status.filterDisabled">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <div class="btn-group" uib-dropdown="" uib-keyboard-nav="" 
+                            on-toggle="filterOpened()" dropdown-append-to-body="" is-open="cur.isOpen">
+                            <button type="button" class="btn" uib-dropdown-toggle="">
+                                <span>Filters</span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
+                                <li><color-choices on-change="filterColor(color)"></color-choices></li>
+                                <li class="divider"></li>
+                                <li ng-repeat="tag in tags | TagsUsed:current.filters.tags">
+                                    <a ng-click="filterTag(tag)" ng-bind="tag.name"></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a ng-click="resetFilters()">Clear filters</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-9">
+                        <input type="text" placeholder="Search" class="stklt-input" ng-model="current.filters.search" maxlength="100" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="current-filters">
+                <span class="tag-label" ng-repeat="color in current.filters.colors" ng-style="{'background': color}">
+                    <span class="name" ng-bind="color"></span>
+                    <a class="pull-right close" ng-click="removeColorFilter(color)">&times;</a>
+                </span>
+                <span class="tag-label" ng-repeat="tag in current.filters.tags">
+                    <span ng-bind="tag.name" class="name"></span>
+                    <a class="pull-right close" ng-click="removeTagFilter(tag)">&times;</a>
+                </span>
+            </div>
+        </uib-accordion-group>
+
+        <uib-accordion-group heading="Sort" is-open="status.sortOpen" is-disabled="status.sortDisabled">
+            <div id="sort-options" ng-controller="SortCtrl">
+                <button class="btn" ng-class="{active: opts.sortBy === 'created'}" ng-click="updateSort('created')">Created</button>
+                <button class="btn" ng-class="{active: opts.sortBy === 'updated'}" ng-click="updateSort('updated')">Updated</button>
+                <button class="btn" ng-class="{active: opts.sortBy === 'title'}" ng-click="updateSort('title')">Title</button>
+                <button class="btn" ng-class="{active: opts.sortBy === 'color'}" ng-click="updateSort('color')">Color</button>
+                <span class="btn-group" id="order">
+                    <button class="btn" type="button" ng-click="updateOrder('ASC')" 
+                        ng-class="{active: opts.order === 'ASC'}" title="Ascending">
+                        <i class="oi oi-sort-ascending"></i>
+                    </button>
+                    <button class="btn" type="button" ng-click="updateOrder('DESC')"  
+                        ng-class="{active: opts.order === 'DESC'}" title="Descending">
+                        <i class="oi oi-sort-descending"></i>
+                    </button>
+                </span>
+            </div>
+        </uib-accordion-group>
+
+        <uib-accordion-group heading="Settings" is-open="status.settingsOpen" is-disabled="status.settingsDisabled">
+            <div class="links">
+                <div><a route-load="/tags" >Tag Manager</a></div>
+                <div><a route-load="/data">Data Manager</a></div>
+                <div><a route-load="/archive">Archive</a></div>
+                <div><a route-load="/trash" ng-if="cur.trashEnabled">Trash</a></div>
+                <div><a route-load="/settings">Settings</a></div>
+                <div><a ng-click="logout()">Logout</a></div>
+            </div>
+        </uib-accordion-group>
+    </uib-accordion>
+</div>

@@ -43,7 +43,7 @@ Sticklet
             var size = $(window).width();
             if (size > 1200) {
                 return "lg";
-            } else if (size > 992) {
+            } else if (size > 900) {
                 return "md";
             } else if (size > 768) {
                 return "sm";
