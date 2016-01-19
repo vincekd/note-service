@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,18 +22,25 @@ import com.sticklet.core.service.UserService
 class UserController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(UserController.class)
 
+    @Value("\${login.register")
+    private boolean registerAllowed
+
     @Autowired
     private UserService userServ
 
     @RequestMapping(value="/user/register", method=RequestMethod.POST, produces="application/json", consumes="application/json")
     public @ResponseBody def registerUser(@RequestBody Map json, HttpServletResponse resp) {
-        if (userServ.usernameIsFree(json.username)) {
-            User user = userServ.registerUser(json)
-            if (user) {
-                return user
+        if (registerAllowed) {
+            if (userServ.usernameIsFree(json.username)) {
+                User user = userServ.registerUser(json)
+                if (user) {
+                    return user
+                }
             }
+            statusServ.setStatusConflict(resp)
+        } else {
+            statusServ.setStatusUnauthorized(resp)
         }
-        statusServ.setStatusConflict(resp)
         emptyJson()
     }
 

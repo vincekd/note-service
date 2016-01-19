@@ -23,6 +23,7 @@ login:
   enabled: false
   admin:
     password: admin
+  register: true
 debug:
   enabled: true
 ---
@@ -41,5 +42,6 @@ server:
     keyAlias: mykey
 login:
   enabled: true
+  register: false
 debug:
   enabled: false
