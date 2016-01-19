@@ -1,7 +1,6 @@
 buildscript {
     ext {
         springBootVersion = '1.2.2.RELEASE'
-        //springBootVersion = '1.3.1.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -64,25 +63,28 @@ configurations {
 
 dependencies {
     //spring boot
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    compile("org.springframework.boot:spring-boot-starter-web")
-    //compile('org.springframework.data:spring-data-mongodb:1.7.0.RELEASE')
+    compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
 
     //Security
-    compile("org.springframework.boot:spring-boot-starter-security")
-    compile('org.springframework.security:spring-security-web:3.2.4.RELEASE')
-    compile('org.springframework.security:spring-security-core:3.2.4.RELEASE')
-    compile('org.springframework.security:spring-security-config:3.2.4.RELEASE')
+    //compile("org.springframework.boot:spring-boot-starter-security:3.2.4.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-security:${springBootVersion}")
+    //compile('org.springframework.security:spring-security-web:3.2.4.RELEASE')
+    compile('org.springframework.security:spring-security-web:${springBootVersion}')
+    //compile('org.springframework.security:spring-security-core:3.2.4.RELEASE')
+    compile('org.springframework.security:spring-security-core:${springBootVersion}')
+    //compile('org.springframework.security:spring-security-config:3.2.4.RELEASE')
+    compile('org.springframework.security:spring-security-config:${springBootVersion}')
 
     //data management
-    compile("org.springframework.boot:spring-boot-starter-data-rest")
-    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    compile("org.springframework.boot:spring-boot-starter-data-rest:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}")
     //compile("org.springframework.boot:spring-boot-starter-cache")
     //compile("org.springframework.boot:spring-context-support")
     //compile("org.springframework.cache:ehcache")
 
     //websockets
-    compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile("org.springframework.boot:spring-boot-starter-websocket:${springBootVersion}")
     compile("org.springframework:spring-messaging")
 
     //groovy
@@ -97,7 +99,7 @@ dependencies {
     compile("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
     compile('javax.mail:mail:1.4.7')
 
-    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}")
 }
 
 eclipse {

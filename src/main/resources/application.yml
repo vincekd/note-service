@@ -24,6 +24,8 @@ login:
   admin:
     password: admin
   register: true
+debug:
+  enabled: true
 ---
 spring:
   profiles: live
@@ -42,4 +44,5 @@ server:
 login:
   enabled: true
   register: false
-
+debug:
+  enabled: false

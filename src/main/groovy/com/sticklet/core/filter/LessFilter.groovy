@@ -23,7 +23,7 @@ class LessFilter implements Filter {
     private static final ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<String, String>()
 
     @Value("\${debug.enabled}")
-    private boolean debugEnabled = false
+    private boolean debugEnabled = true
 
     private final LessEngine lessEngine = new LessEngine()
     private ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader()

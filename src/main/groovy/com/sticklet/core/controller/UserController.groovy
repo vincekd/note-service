@@ -22,7 +22,7 @@ import com.sticklet.core.service.UserService
 class UserController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(UserController.class)
 
-    @Value("\${login.register")
+    @Value("\${login.register}")
     private boolean registerAllowed
 
     @Autowired
