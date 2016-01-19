@@ -24,17 +24,17 @@ class UserController extends BaseController {
     @Autowired
     private UserService userServ
 
-    //    @RequestMapping(value="/user/register", method=RequestMethod.POST, produces="application/json", consumes="application/json")
-    //    public @ResponseBody def registerUser(@RequestBody Map json, HttpServletResponse resp) {
-    //        if (userServ.usernameIsFree(json.username)) {
-    //            User user = userServ.registerUser(json)
-    //            if (user) {
-    //                return user
-    //            }
-    //        }
-    //        statusServ.setStatusConflict(resp)
-    //        emptyJson()
-    //    }
+    @RequestMapping(value="/user/register", method=RequestMethod.POST, produces="application/json", consumes="application/json")
+    public @ResponseBody def registerUser(@RequestBody Map json, HttpServletResponse resp) {
+        if (userServ.usernameIsFree(json.username)) {
+            User user = userServ.registerUser(json)
+            if (user) {
+                return user
+            }
+        }
+        statusServ.setStatusConflict(resp)
+        emptyJson()
+    }
 
     @RequestMapping(value="/user", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getCurrentUser() {

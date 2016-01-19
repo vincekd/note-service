@@ -1,24 +1,21 @@
 package com.sticklet.core.config
 
+import javax.servlet.DispatcherType
 import javax.servlet.MultipartConfigElement
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.context.embedded.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
-import org.springframework.http.MediaType
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
-import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
-import com.fasterxml.jackson.annotation.JsonInclude
+import com.sticklet.core.filter.LessFilter
 
 @Configuration
 //@EnableWebMvc
@@ -77,10 +74,32 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
     }
 
     @Bean
-    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
-        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-        builder.serializationInclusion(JsonInclude.Include.NON_NULL);
-        builder.createXmlMapper = true
-        return builder;
+    public FilterRegistrationBean filterRegistrationBean() {
+        FilterRegistrationBean registration = new FilterRegistrationBean()
+        registration.with {
+            setDispatcherTypes(DispatcherType.REQUEST)
+            setFilter(lessFilter())
+            addUrlPatterns("/less/*")
+        }
+        registration
     }
+
+    @Bean
+    public LessFilter lessFilter() {
+        new LessFilter()
+    }
+
+//    @Bean
+//    public WroFilter wroFilter() {
+//        //new Wro4jFilter(super.defaultWroProperties, new Wro4jManagerFactory(super.cacheManager), false);
+//        new WroFilter()
+//    }
+
+    //    @Bean
+    //    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
+    //        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
+    //        builder.serializationInclusion(JsonInclude.Include.NON_NULL)
+    //        builder.createXmlMapper = true
+    //        return builder
+    //    }
 }

@@ -3,7 +3,9 @@
     <head>
         <title>Sticklet</title>
 
-        <!-- disable cache (handled in ServiceWorker -->
+        <link rel="icon" type="image/png" href="/images/favicon.png">
+
+        <!-- disable cache (handled in ServiceWorker) -->
         <meta http-equiv="cache-control" content="no-store" />
         <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
         <meta http-equiv="pragma" content="no-cache" />
@@ -14,15 +16,16 @@
         <base href="/" />
 
         <!-- register service -->
-        <script type="text/javascript" src="js/sticklet.register.js"></script>
+        <script type="text/javascript" src="/js/sticklet.register.js"></script>
 
         <!-- library css -->
         <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
-        <link href="/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
+        <link type="text/css" rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
 
         <!-- sticklet css -->
-        <link type="text/css" rel="stylesheet" href="/less/css/sticklet.css" />
+<!--         <link type="text/css" rel="stylesheet" href="/less/css/sticklet.css" /> -->
+        <link type="text/css" rel="stylesheet" href="/less/sticklet.less" />
     </head>
 
     <body>

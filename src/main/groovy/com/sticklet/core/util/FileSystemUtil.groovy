@@ -14,12 +14,14 @@ class FileSystemUtil {
             url = cl.getResource(path)
             file = new File(url.toURI())
         } catch (URISyntaxException e) {
+            logger.debug "filt system UriSyntaException: ${e.message}"
             file = new File(url.getPath())
         } catch (Exception e) {
+            logger.debug "file system Exception: ${e.message}"
             try {
                 path = path.replaceFirst("^/", "")
                 url = cl.getResourceAsStream(path)
-                file = File.createTempFile("getResourceFile", "temp")
+                file = File.createTempFile("getResourceFile-" + path, ".temp")
                 file.bytes = url.bytes
             } catch (ex) {
                 ex.printStackTrace()

@@ -1,7 +1,7 @@
 "use strict";
 
 var self = this,
-    version = "v0.0.89",
+    version = "v0.0.91",
     LAST_UPDATE = -1,
     CACHE_NAME = 'sticklet-cache.' + version,
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + version,
@@ -12,7 +12,8 @@ var self = this,
 self.addEventListener('message', onMessage);
 self.addEventListener('fetch', function(event) {
     if (isFileGet(event)) {
-        event.respondWith(response(event));
+        //TODO: reenable when not annoying
+        //event.respondWith(response(event));
     }
 });
 self.addEventListener('activate', function(event) {
@@ -49,9 +50,11 @@ self.addEventListener('install', function(event) {
 function response(event) {
     return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(cached) {
         var network = fetch(event.request).then(function(resp) {
-            caches.open(CACHE_NAME).then(function(cache) {
-                cache.put(event.request, resp);
-            });
+            if (resp.status === 200) {
+                caches.open(CACHE_NAME).then(function(cache) {
+                    cache.put(event.request, resp);
+                });
+            }
             return resp.clone();
         }, function(err) {
             return new Response('<h1>Service Unavailable</h1>', {

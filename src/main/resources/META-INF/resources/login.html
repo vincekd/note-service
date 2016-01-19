@@ -5,8 +5,9 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
         <!-- css -->
-        <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="css/sticklet.login.css" />
+        <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="/less/css/sticklet.css" />
+        <link type="text/css" rel="stylesheet" href="/less/css/sticklet.login.css" />
     </head>
 
     <body ng-app="Sticklet">
@@ -14,7 +15,7 @@
         <div class="contentView container-fluid">
             <div class="row">
                 <div class="col-md-2"></div>
-                <div class="wrapper col-md-8" ng-controller="LoginCtrl">
+                <div class="wrapper col-sm-8" ng-controller="LoginCtrl" ng-cloak="">
                     <div class="col-md-3"></div>
 
                     <form class="login active col-md-6" method="POST" action="login.html" novalidate ng-if="!opts.register">
@@ -56,12 +57,6 @@
                                 <label class="control-label">Confirm Password</label>
                                 <input type="password" class="form-control" pattern=".{4,}" required ng-model="user.passwordRepeat" name="passwordRepeat"/>
                             </div>
-                            <!-- <div class="checkbox">
-                                <label class="">
-                                    <input type="checkbox" class="" ng-model="user.agreesToTerms" required name="agreesToTerms"/>
-                                    I agree to the <a href="terms-conditions.html" target="_blank">Terms &amp; Conditions</a>
-                                </label>
-                            </div> -->
                             <div>
                                 <egr-error-msg egr-class="loginError" message="errorMsg" open="registerError"></egr-error-msg>
                                 <button type="button" class="btn" ng-disabled="!checkRegister()" ng-click="register()">Signup</button>
@@ -86,5 +81,4 @@
     <!-- sticklet code -->
     <script type="text/javascript" src="js/sticklet.js"></script>
     <script type="text/javascript" src="js/sticklet.login.js"></script>
-    <script type="text/javascript" src="js/sticklet.services.js"></script>
 </html>

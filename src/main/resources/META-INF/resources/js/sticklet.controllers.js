@@ -178,8 +178,8 @@ Sticklet
             });
         };
         $scope.logout = function() {
-            HTTP.post("/custom-logout").success(function() {
-                window.location = "login.html";
+            HTTP.post("/custom-logout").then(function() {
+                window.location = "/login.html";
             });
         }
         Settings.get("note.trash.enabled").then(function(enabled) {

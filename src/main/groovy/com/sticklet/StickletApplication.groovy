@@ -15,14 +15,9 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableAsync
 @EnableScheduling
 @ComponentScan(basePackages=["com.sticklet"])
-//@ComponentScan(basePackageClasses=[
-//    com.sticklet.core.service.CustomUserDetailsService,
-//    com.sticklet.core.service.AjaxLogoutSuccessHandler,
-//    com.sticklet.AppConfig
-//])
 @SpringBootApplication
 class StickletApplication {
-    private static Logger logger = LoggerFactory.getLogger(StickletApplication.class);
+    private static Logger logger = LoggerFactory.getLogger(StickletApplication.class)
 
     public static void main(String[] args) {
         SpringApplication.run(StickletApplication, args)

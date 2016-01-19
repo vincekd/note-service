@@ -11,9 +11,11 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 import com.sticklet.core.constant.Roles
+import com.sticklet.core.exception.InvalidUserException
 import com.sticklet.core.model.User
 import com.sticklet.core.model.UserPreferences
 import com.sticklet.core.repository.UserPreferencesRepo
@@ -31,6 +33,8 @@ class UserService {
     private UserRepo repo
     @Autowired
     private UserPreferencesRepo userPrefsRepo
+    @Autowired
+    private PasswordEncoder passwordEncoder
 
     public org.springframework.security.core.userdetails.User getPrincipal() {
 
@@ -43,7 +47,7 @@ class UserService {
         }
         null
     }
-    
+
     public User updateUser(User user, Map data) {
         data.each { String key, def val ->
             if (userUpdatableProps.contains(key)) {
@@ -70,27 +74,38 @@ class UserService {
         }
     }
 
-    public User createUser(Map<String, Object> opts) {
+    public User getUserByUsername(String username) {
+        repo.findByUsername(username)
+    }
+
+    public User createUser(Map<String, Object> opts) throws InvalidUserException {
         User user = new User(opts)
         if (!user.prefs) {
             user.prefs = userPrefsRepo.save(new UserPreferences())
         }
-        repo.save(user)
+        if (user.username && user.password && user.email && user.role) {
+            user.password = getPassword(user.password)
+            try {
+                return repo.save(user)
+            } catch(Exception e) {
+                e.printStackTrace()
+            }
+        }
+        throw new InvalidUserException()
     }
 
     public boolean usernameIsFree(String username) {
         return (repo.findByUsername(username) == null)
     }
 
-    public User registerUser(Map u) {
+    public User registerUser(Map<String, String> u) {
         if (validatePassword(u.password, u.passwordRepeat) && validateUsername(u.username) && validateEmail(u.email)) {
-            User user = new User([
+            createUser([
                 "username": u.username.trim(),
-                "email": u.email.trim(),
                 "password": u.password.trim(),
+                "email": u.email.trim(),
                 "role": Roles.USER
             ])
-            repo.save(user)
         }
     }
 
@@ -117,5 +132,9 @@ class UserService {
             e.printStackTrace()
         }
         return false
+    }
+
+    private getPassword(String pass) {
+        passwordEncoder.encode(pass)
     }
 }

@@ -3,7 +3,7 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("LoginCtrl", ["$scope", "HTTP", "$timeout", function($scope, HTTP, $timeout) {
+    .controller("LoginCtrl", ["$scope", "$http", "$timeout", function($scope, $http, $timeout) {
 
         $scope.user = {};
         $scope.opts = {"register": false};
@@ -14,7 +14,7 @@ Sticklet
         };
         $scope.checkRegister = function() {
             var u = $scope.user;
-            return (u.username && u.password && u.password === u.passwordRepeat && u.email && u.agreesToTerms);
+            return (u.username && u.password && u.password === u.passwordRepeat && u.email);
         };
 
         $scope.login = function() {
@@ -29,8 +29,9 @@ Sticklet
         };
         $scope.register = function() {
             if ($scope.checkRegister()) {
-                HTTP.post("/user/register", $scope.user).success(function(user) {
+                $http.post("/user/register", $scope.user).success(function(user) {
                     $scope.user = {};
+                    $scope.opts.register = false;
                     $scope.loginVals = { "username": user.username };
                     $timeout(function() {
                         $("form.login input[name='username']").focus();
@@ -50,11 +51,6 @@ Sticklet
                 $scope.registerError = true;
                 $scope.errorMsg = "Invalid register submission.";
             }
-        };
-        $scope.logout = function() {
-            HTTP.post("/custom-logout").success(function() {
-                window.location = "login.html";
-            });
         };
     }])
 ;
