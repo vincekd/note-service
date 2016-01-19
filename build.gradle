@@ -5,11 +5,12 @@ buildscript {
     }
     repositories {
         mavenCentral()
-        maven { url 'http://dl.bintray.com/sbuettner/maven' }
-        //jcenter()
+        //maven { url 'http://dl.bintray.com/sbuettner/maven' }
+        jcenter()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        //classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.2.RELEASE")
     }
 }
 
@@ -17,11 +18,8 @@ version += ((!hasProperty("snapshot")) ? "" : "-SNAPSHOT")
 
 apply {
     plugin 'groovy'
-    plugin 'eclipse-wtp'
-    plugin 'idea'
-    plugin 'spring-boot'
     plugin 'java'
-    //plugin 'war'
+    plugin 'spring-boot'
 }
 
 jar {
@@ -30,13 +28,9 @@ jar {
     version = version
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 repositories {
     mavenCentral()
     maven { url 'http://dl.bintray.com/sbuettner/maven' }
-    //jcenter()
 }
 
 sourceSets {
@@ -68,10 +62,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
 
     //Security
-    compile("org.springframework.boot:spring-boot-starter-security:3.2.9.RELEASE")
-    compile('org.springframework.security:spring-security-web:3.2.9.RELEASE')
-    compile('org.springframework.security:spring-security-core:3.2.9.RELEASE')
-    compile('org.springframework.security:spring-security-config:3.2.9.RELEASE')
+    compile("org.springframework.boot:spring-boot-starter-security:${springBootVersion}")
 
     //data management
     compile("org.springframework.boot:spring-boot-starter-data-rest:${springBootVersion}")
@@ -99,15 +90,13 @@ dependencies {
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}")
 }
 
-eclipse {
-    classpath {
-        containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
-        containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
-    }
-}
+//eclipse {
+//    classpath {
+//        containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+//        containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+//    }
+//}
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
+    gradleVersion = '1.9'
 }
-
-
