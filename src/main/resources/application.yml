@@ -24,8 +24,6 @@ login:
   admin:
     password: admin
   register: true
-debug:
-  enabled: true
 ---
 spring:
   profiles: live
@@ -37,11 +35,11 @@ spring:
       #username:
       #password:
 server:
-  port: 443 #for ssl
+  port: 80
+  #port: 443 #for ssl
   ssl:
     keyAlias: mykey
 login:
   enabled: true
   register: false
-debug:
-  enabled: false
+
