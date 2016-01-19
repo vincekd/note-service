@@ -58,7 +58,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .csrf().disable()
                     .authorizeRequests()
                     .antMatchers("/js/sticklet.login.js*", "/js/sticklet.js*", "/bower_components/**/*",
-                        "/**/*.css", "/user/info", "/user/register", //"/templates/**/*.html"
+                    "/**/*.css", "/user/info", "/user/register", //"/templates/**/*.html"
                     ).permitAll()
                     .antMatchers("/**").hasAnyRole("ADMIN", "USER")
                     .anyRequest().authenticated()
