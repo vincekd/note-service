@@ -3,11 +3,12 @@ spring:
   data:
     mongodb:
       auditing: true
-      databaseName: sticklet_test
+      databaseName: sticklet
+      #uri: mongodb://localhost/sticklet
       host: 127.0.0.1
       port: 27017
-      username: 
-      password:
+      username: sticklet
+      password: sticklet
 #    cache:
 #      ehcache:
 #        config: classpath:ehcache.xml
