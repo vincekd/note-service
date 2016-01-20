@@ -36,7 +36,8 @@ class MongoApplicationConfig extends AbstractMongoConfiguration {
     @Override
     public Mongo mongo() throws Exception {
         logger.info "mongodb: $dbName, user: $dbUser"
-        MongoClientURI uri  = new MongoClientURI("mongodb://${dbUser}:${dbPass}@${dbHost}:${dbPort}")
+        //logger.debug "mongo uri: " + "mongodb://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}"
+        MongoClientURI uri  = new MongoClientURI("mongodb://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}")
         //new MongoClient(new ServerAddress(dbHost, dbPort),
         //     [MongoCredential.createCredential(dbUser, dbHost, dbPass.toCharArray())])
         new MongoClient(uri)
