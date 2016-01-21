@@ -72,11 +72,13 @@
             <div>
                 <div class="form-group">
                     <label class="control-label">Username</label>
-                    <input type="text" class="form-control" ng-model="loginVals.username" pattern="[a-zA-Z0-9]{4,}" required name="username" autofocus/>
+                    <input type="text" class="form-control" ng-keydown="typing($event)" 
+                        ng-model="loginVals.username" pattern="[a-zA-Z0-9]{4,}" required name="username" autofocus/>
                 </div>
                 <div class="form-group">
                     <label class="control-label">Password</label>
-                    <input type="password" class="form-control" required pattern=".{6,}" ng-model="loginVals.password" name="password"/>
+                    <input type="password" class="form-control" ng-keydown="typing($event)" 
+                        required pattern=".{6,}" ng-model="loginVals.password" name="password"/>
                 </div>
             </div>
         </form>

@@ -43,6 +43,11 @@ Sticklet
         $scope.checkLogin = function() {
             return $scope.loginVals.username && $scope.loginVals.password;
         };
+        $scope.typing = function($event) {
+            if ($event.keyCode === 13) {
+                $scope.login();
+            }
+        };
         $scope.login = function() {
             $("form#login").submit();
         };

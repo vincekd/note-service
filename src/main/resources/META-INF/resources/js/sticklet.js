@@ -78,7 +78,9 @@
         window.setOffline = net.setOffline;
         window.setOnline = net.setOnline;
 
-        STOMP.connect();
+        $(function() {
+            STOMP.connect();
+        });
     }]);
 
     _.mixin({

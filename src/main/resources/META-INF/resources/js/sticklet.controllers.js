@@ -367,15 +367,18 @@ Sticklet
         $scope.cur = {"content": "", "title": ""};
         $scope.note = null;
 
-        Settings.get("note.autoSaveInterval").then(function(data) {
-            $scope.update = _.throttle(function() {
-                if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
-                    $scope.note.title = $scope.cur.title;
-                    $scope.note.content = $scope.cur.content;
-                    NoteServ.save($scope.note);
-                }
-            }, data, {trailing: true});
+        Settings.get("note.autoSaveInterval").then(function(time) {
+            $scope.update = _.debounce(update, time);
+            //$scope.update = _.throttle(update, time, {trailing: true});
         });
+
+        function update() {
+            if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
+                $scope.note.title = $scope.cur.title;
+                $scope.note.content = $scope.cur.content;
+                NoteServ.save($scope.note);
+            }
+        }
 
         STOMP.registerSetting("noteUpdate", topicAdd, function(note) {
             if (note.id === $scope.note.id) {
