@@ -48,6 +48,9 @@ Sticklet
                 $scope.login();
             }
         };
+        $scope.cancel = function() {
+            $modalInst.dismiss("cancel");
+        };
         $scope.login = function() {
             $("form#login").submit();
         };
