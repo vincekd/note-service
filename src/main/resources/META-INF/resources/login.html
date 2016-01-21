@@ -6,68 +6,121 @@
 
         <!-- css -->
         <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="/less/sticklet.css" />
-        <link type="text/css" rel="stylesheet" href="/less/sticklet.login.css" />
+        <link type="text/css" rel="stylesheet" href="/less/sticklet.less" />
+        <link type="text/css" rel="stylesheet" href="/less/sticklet.login.less" />
     </head>
 
-    <body ng-app="Sticklet">
-        <h1 class="title">Sticklet Login</h1>
-        <div class="contentView container-fluid">
-            <div class="row">
-                <div class="col-md-2"></div>
-                <div class="wrapper col-sm-8" ng-controller="LoginCtrl" ng-cloak="">
-                    <div class="col-md-3"></div>
+    <body ng-app="StickletLogin">
+<!--         <div class="contentView container-fluid"> -->
+<!--             <div class="row"> -->
+<!--                 <div class="col-md-2"></div> -->
+<!--                 <div class="wrapper col-sm-8" ng-controller="LoginCtrl"> -->
+<!--                     <div class="col-md-3"></div> -->
 
-                    <form class="login active col-md-6" method="POST" action="login.html" novalidate ng-if="!opts.register">
-                        <div class="header">LOGIN</div>
-                        <div>
-                            <div class="form-group">
-                                <label class="control-label">Username</label>
-                                <input type="text" class="form-control" ng-model="loginVals.username" pattern="[a-zA-Z0-9]{4,}" required name="username" autofocus/>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Password</label>
-                                <input type="password" class="form-control" required pattern=".{4,}" ng-model="loginVals.password" name="password"/>
-                            </div>
-                            <div>
-                                <button type="submit" ng-disabled="!checkLogin()" class="btn" ng-click="login()">Login</button>
-                            </div>
-                            <div>
-                                <a ng-click="opts.register = true;">Register</a>
-                            </div>
-                        </div>
-                    </form>
                     
-                    <form class="register active col-md-6" novalidate ng-if="opts.register">
-                        <div class="header">SIGNUP</div>
+
+<!--                     <div class="col-md-3"></div> -->
+<!--                 </div> -->
+<!--                 <div class="col-md-2"></div> -->
+<!--             </div> -->
+<!--         </div> -->
+
+        <div id="info" class="container-fluid row-full-height">
+            <div class="row">
+                <div class="col-md-3 hidden-xs hidden-sm"></div>
+                <div class="col-md-6">
+                    <div id="infoContainer">
+                        <h1 class="title">Sticklet</h1>
                         <div>
-                            <div class="form-group">
-                                <label class="control-label">Username</label>
-                                <input type="text" class="form-control" pattern="[a-zA-Z0-9]{4,}" required ng-model="user.username" name="username"/>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Your Email</label>
-                                <input type="email" class="form-control" required ng-model="user.email" name="email"/>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Password</label>
-                                <input type="password" class="form-control" pattern=".{4,}" required ng-model="user.password" name="password"/>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Confirm Password</label>
-                                <input type="password" class="form-control" pattern=".{4,}" required ng-model="user.passwordRepeat" name="passwordRepeat"/>
-                            </div>
+                            <p>
+                                Sticklet.com aims to provide a quality note service at a reasonable price. 
+                                Failing that, here's something that shitty and free.
+                            </p>
+
                             <div>
-                                <egr-error-msg egr-class="loginError" message="errorMsg" open="registerError"></egr-error-msg>
-                                <button type="button" class="btn" ng-disabled="!checkRegister()" ng-click="register()">Signup</button>
+                                <p>
+                                    Current version (0.1) includes such features as note taking and other note related tasks:
+                                </p>
+                                <ul>
+                                    <li>Offline editing and syncing</li>
+                                    <li>Organize notes by tag</li>
+                                    <li>Organize notes by color</li>
+                                    <li>State of the art filtering tag/color/text system that allows you to... filter</li>
+                                    <li>Receive automatic updates when you edit the note on separate computers</li>
+                                    <li>Wine/coffee stain proof (Disclaimer: does not include your computer)</li>
+                                </ul>
+                            </div>
+
+                            <hr />
+                            <div ng-controller="LoginCtrl">
+                                <a ng-click="registerPage()">Register</a> or <a ng-click="loginPage()">Login</a>
                             </div>
                         </div>
-                    </form>
-                    <div class="col-md-3"></div>
+                    </div>
                 </div>
-                <div class="col-md-2"></div>
+                <div class="col-md-3 hidden-xs hidden-sm"></div>
             </div>
         </div>
+        
+        <script type="text/ng-template" id="loginPage.html">
+<div class="sticklet-popup">
+    <div class="modal-header">
+        <h4 class="modal-title">Login</h4>
+    </div>
+    <div class="modal-body">
+        <form class="login" id="login" method="POST" action="login.html" novalidate ng-if="!opts.register">
+            <div>
+                <div class="form-group">
+                    <label class="control-label">Username</label>
+                    <input type="text" class="form-control" ng-model="loginVals.username" pattern="[a-zA-Z0-9]{4,}" required name="username" autofocus/>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Password</label>
+                    <input type="password" class="form-control" required pattern=".{6,}" ng-model="loginVals.password" name="password"/>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger pull-left" ng-click="cancel()">Cancel</button>
+        <button type="button" ng-disabled="!checkLogin()" class="btn" ng-click="login()">Login</button>
+    </div>
+</div>
+        </script>
+        <script type="text/ng-template" id="registerPage.html">
+<div class="sticklet-popup">
+    <div class="modal-header">
+        <h4 class="modal-title">Register</h4>
+    </div>
+    <div class="modal-body">
+        <form class="register" novalidate>
+            <div>
+                <div class="form-group">
+                    <label class="control-label">Username</label>
+                    <input type="text" class="form-control" pattern="[a-zA-Z0-9]{4,}" required ng-model="user.username" name="username"/>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Your Email</label>
+                    <input type="email" class="form-control" required ng-model="user.email" name="email"/>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Password</label>
+                    <input type="password" class="form-control" pattern=".{6,}" required ng-model="user.password" name="password"/>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Confirm Password</label>
+                    <input type="password" class="form-control" pattern=".{6,}" required ng-model="user.passwordRepeat" name="passwordRepeat"/>
+                </div>
+            </div>
+       </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger pull-left" ng-click="cancel()">Cancel</button>
+        <button type="button" class="btn" ng-disabled="!checkRegister()" ng-click="register()">Signup</button>
+    </div>
+</div>
+        </script>
+
     </body>
 
     <!-- libraries -->
@@ -79,6 +132,5 @@
     <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 
     <!-- sticklet code -->
-    <script type="text/javascript" src="js/sticklet.js"></script>
     <script type="text/javascript" src="js/sticklet.login.js"></script>
 </html>

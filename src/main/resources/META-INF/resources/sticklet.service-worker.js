@@ -1,7 +1,7 @@
 "use strict";
 
 var self = this,
-    version = "v0.0.91",
+    version = "v0.0.92",
     LAST_UPDATE = -1,
     CACHE_NAME = 'sticklet-cache.' + version,
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + version,
@@ -35,7 +35,11 @@ self.addEventListener('install', function(event) {
         LAST_UPDATE = Date.now();
         return caches.open(CACHE_NAME).then(function(cache) {
             return fetch("/cache.json").then(function(resp) {
-                return resp.json();
+                try {
+                    return resp.json();
+                } catch (err) {
+                    console.error(err);
+                }
             }).then(function(resp) {
                 console.log("service worker installed.");
                 sendMessage({

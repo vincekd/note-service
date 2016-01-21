@@ -1,49 +1,67 @@
 (function($, angular, undefined) { 'use strict';
 
-var Sticklet = angular.module("Sticklet");
+var Sticklet = angular.module("StickletLogin", ["ui.bootstrap"]);
 
 Sticklet
-    .controller("LoginCtrl", ["$scope", "$http", "$timeout", function($scope, $http, $timeout) {
+    .controller("LoginCtrl", ["$scope", "$uibModal",
+                              function($scope, $modal) {
+        $scope.opt = {};
+        $scope.loginPage = function() {
+            $modal.open({
+                "animation": true,
+                "templateUrl": "loginPage.html",
+                "controller": "LoginPageCtrl",
+                "backdrop": "static",
+                "keyboard": false,
+                "backdropClass": "sticklet-popup-backdrop",
+                "windowClass": "sticklet-popup-window",
+                "resolve": {
+                    "username": function() { return $scope.opt.username; }
+                }
+            });
+        };
 
-        $scope.user = {};
-        $scope.opts = {"register": false};
-        $scope.loginVals = {};
-
+        $scope.registerPage = function() {
+            var $modalInst = $modal.open({
+                "animation": true,
+                "templateUrl": "registerPage.html",
+                "controller": "RegisterPageCtrl",
+                "backdrop": "static",
+                "keyboard": false,
+                "backdropClass": "sticklet-popup-backdrop",
+                "windowClass": "sticklet-popup-window"
+            });
+            $modalInst.result.then(function(username) {
+                $scope.opt.username = username;
+            });
+        };
+    }])
+    .controller("LoginPageCtrl", ["$scope", "$uibModalInstance", "$http", "username", function($scope, $modalInst, $http, username) {
+        $scope.loginVals = {
+            "username": username
+        };
         $scope.checkLogin = function() {
             return $scope.loginVals.username && $scope.loginVals.password;
         };
+        $scope.login = function() {
+            $("form#login").submit();
+        };
+    }])
+    .controller("RegisterPageCtrl", ["$scope", "$uibModalInstance", "$http", function($scope, $modalInst, $http) {
+        $scope.user = {};
         $scope.checkRegister = function() {
             var u = $scope.user;
             return (u.username && u.password && u.password === u.passwordRepeat && u.email);
         };
-
-        $scope.login = function() {
-            if ($scope.checkLogin()) {
-                $("form.login").submit();
-            } else {
-                //error
-                $scope.loginError = true;
-                $scope.registerError = false;
-                $scope.errorMsg = "Invalid login submission.";
-            }
-        };
         $scope.register = function() {
             if ($scope.checkRegister()) {
                 $http.post("/user/register", $scope.user).success(function(user) {
-                    $scope.user = {};
-                    $scope.opts.register = false;
-                    $scope.loginVals = { "username": user.username };
-                    $timeout(function() {
-                        $("form.login input[name='username']").focus();
-                    });
+                    $modalInst.close(user.username);
                 }).error(function(resp, status) {
-                    $scope.loginError = false;
-                    $scope.registerError = true;
-
                     if (status === 409) {
                         $scope.errorMsg = "User with that username already exists.";
                     } else {
-                        $scope.errorMsg = "Please be sure the username and password has at least 4 characters, no spaces.";
+                        $scope.errorMsg = "Please ensure your username has at least 4 characters and password has at least 6 characters, no spaces.";
                     }
                 });
             } else {
@@ -52,6 +70,9 @@ Sticklet
                 $scope.errorMsg = "Invalid register submission.";
             }
         };
+        $scope.cancel = function() {
+            $modalInst.dismiss("cancel");
+        }
     }])
 ;
 }(jQuery, angular));

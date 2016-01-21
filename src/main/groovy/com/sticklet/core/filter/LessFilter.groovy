@@ -2,7 +2,6 @@ package com.sticklet.core.filter
 
 import java.util.concurrent.ConcurrentHashMap
 
-import javax.servlet.Filter
 import javax.servlet.FilterChain
 import javax.servlet.FilterConfig
 import javax.servlet.ServletRequest
@@ -15,8 +14,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 
 import com.asual.lesscss.LessEngine
+import com.sticklet.core.filter.base.BaseContentFilter
+import com.sticklet.core.filter.base.BaseContentFilter.CharResponseWrapper
 
-class LessFilter implements Filter {
+class LessFilter implements BaseContentFilter {
     private static final Logger logger = LoggerFactory.getLogger(LessFilter.class)
     private FilterConfig config
 
@@ -33,36 +34,56 @@ class LessFilter implements Filter {
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+        CharResponseWrapper wrappedResponse = new CharResponseWrapper((HttpServletResponse) response)
+        chain.doFilter(request, wrappedResponse)
         try {
-            HttpServletRequest req = (HttpServletRequest) request
-            HttpServletResponse resp = (HttpServletResponse) response
-
-            OutputStream os = resp.getOutputStream()
-            resp.resetBuffer()
-
-            String uri = req.getRequestURI()
-            String less = cache[uri]
-            if (less == null || debugEnabled) {
-                less = compileLessResource(uri)
-                cache[uri] = less
+            byte[] bytes = wrappedResponse.getByteArray()
+            String out = new String(bytes)
+            String less = getCssFromURI(((HttpServletRequest) request).getRequestURI())
+            if (less != null) {
+                byte[] lessBytes = less.getBytes()
+                response.setContentLength(less.size())
+                response.setContentType("text/css")
+                response.getOutputStream().write(lessBytes)
             }
-
-            PrintWriter pw = new PrintWriter(os)
-            pw.write(less)
-            pw.flush()
-
-            resp.setContentType("text/css")
         } catch (Exception e) {
             e.printStackTrace()
         }
-        chain.doFilter(request, response)
     }
 
     public void destroy() {
         //nothing
     }
-    
+
+    private String getCssFromURI(String uri) {
+        String less = cache[uri]
+        if (less == null || debugEnabled) {
+            less = compileLessResource(uri)
+            cache[uri] = less
+        }
+        less
+    }
+
+    //    private String getCssFromURI(String uri, String str) {
+    //        //String uri = req.getRequestURI()
+    //        String less = cache[uri]
+    //        if (less == null || debugEnabled) {
+    //            if (str) {
+    //                compileLessString(str)
+    //            } else {
+    //                less = compileLessResource(uri)
+    //            }
+    //            cache[uri] = less
+    //        }
+    //        less
+    //    }
+
     private String compileLessResource(String uri) {
         lessEngine.compile(clazzLoader.getResource("META-INF/resources" + uri))
     }
+
+    //    private String compileLessString(String less) {
+    //        logger.debug "less string: $less"
+    //        lessEngine.compile(less)
+    //    }
 }

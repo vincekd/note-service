@@ -1,91 +1,85 @@
 (function() { "use strict";
-    var Sticklet,
-        network = {
-            "online": false,
-            "setOnline": function($scope) {
-                if (network.online !== true) {
-                    network.online = true;
-                    if ($scope) {
-                        $scope.$broadcast("network-state-change");
-                        $scope.$apply();
-                    }
-                }
-            },
-            "setOffline": function($scope) {
-                if (network.online !== false) {
-                    network.online = false;
-                    if ($scope) {
-                        $scope.$broadcast("network-state-change");
-                        $scope.$apply();
-                    }
+    var network = {
+        "online": false,
+        "setOnline": function($scope) {
+            if (network.online !== true) {
+                network.online = true;
+                if ($scope) {
+                    $scope.$broadcast("network-state-change");
+                    $scope.$apply();
                 }
             }
+        },
+        "setOffline": function($scope) {
+            if (network.online !== false) {
+                network.online = false;
+                if ($scope) {
+                    $scope.$broadcast("network-state-change");
+                    $scope.$apply();
+                }
+            }
+        }
+    };
+
+    var Sticklet = angular.module("Sticklet", ["ngRoute", "hmTouchEvents", "ui.bootstrap", "perfect_scrollbar", "wysihtml"]);
+    Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
+                     function($routeProvider, $locationProvider, $provide) {
+
+        $locationProvider.hashPrefix("!");
+        $routeProvider.when("/notes", {
+            "templateUrl": "/templates/notes.html",
+            "controller": "NotesCtrl"
+        }).when("/note/:noteID", {
+            "templateUrl": "/templates/note.html",
+            "controller": "NoteCtrl"
+        }).when("/settings", {
+            "templateUrl": "/templates/settings.html",
+            "controller": "SettingsCtrl"
+        }).when("/tags", {
+            "templateUrl": "/templates/tags-admin.html",
+            "controller": "TagsAdminCtrl"
+        }).when("/data", {
+            "templateUrl": "/templates/data.html",
+            "controller": "DataCtrl"
+        }).when("/archive", {
+            "templateUrl": "/templates/archive.html",
+            "controller": "ArchiveCtrl"
+        }).when("/trash", {
+            "templateUrl": "/templates/trash.html",
+            "controller": "TrashCtrl"
+        }).otherwise({
+            "redirectTo": "/notes"
+        });
+
+        $provide.value("network", {
+            get online() {
+                return network.online;
+            },
+            setOnline: function() {
+                //how to indicate to root scope ?
+                network.online = true;
+            },
+            setOffline: function() {
+                network.online = false;
+            }
+        });
+    }]);
+
+    Sticklet.run(["STOMP", "Settings", "Offline", "network", "$rootScope", "ServiceWorker",
+                  function(STOMP, Settings, Offline, net, $rootScope, ServiceWorker) {
+        net.setOnline = function() {
+            network.setOnline($rootScope);
+        };
+        net.setOffline = function() {
+            network.setOffline($rootScope);
         };
 
-    if (location.pathname === "/login.html") {
-        Sticklet = angular.module("Sticklet", []);
-    } else {
-        Sticklet = angular.module("Sticklet", ["ngRoute", "hmTouchEvents", "ui.bootstrap", "perfect_scrollbar", "wysihtml"]);
+        //remove when done testing
+        window.setOffline = net.setOffline;
+        window.setOnline = net.setOnline;
 
-        Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
-                         function($routeProvider, $locationProvider, $provide) {
-
-            $locationProvider.hashPrefix("!");
-            $routeProvider.when("/notes", {
-                "templateUrl": "/templates/notes.html",
-                "controller": "NotesCtrl"
-            }).when("/note/:noteID", {
-                "templateUrl": "/templates/note.html",
-                "controller": "NoteCtrl"
-            }).when("/settings", {
-                "templateUrl": "/templates/settings.html",
-                "controller": "SettingsCtrl"
-            }).when("/tags", {
-                "templateUrl": "/templates/tags-admin.html",
-                "controller": "TagsAdminCtrl"
-            }).when("/data", {
-                "templateUrl": "/templates/data.html",
-                "controller": "DataCtrl"
-            }).when("/archive", {
-                "templateUrl": "/templates/archive.html",
-                "controller": "ArchiveCtrl"
-            }).when("/trash", {
-                "templateUrl": "/templates/trash.html",
-                "controller": "TrashCtrl"
-            }).otherwise({
-                "redirectTo": "/notes"
-            });
-
-            $provide.value("network", {
-                get online() {
-                    return network.online;
-                },
-                setOnline: function() {
-                    //how to indicate to root scope ?
-                    network.online = true;
-                },
-                setOffline: function() {
-                    network.online = false;
-                }
-            });
-        }]);
-
-        Sticklet.run(["STOMP", "Settings", "Offline", "network", "$rootScope", "ServiceWorker",
-                      function(STOMP, Settings, Offline, net, $rootScope, ServiceWorker) {
-            net.setOnline = function() {
-                network.setOnline($rootScope);
-            };
-            net.setOffline = function() {
-                network.setOffline($rootScope);
-            };
-
-            //remove when done testing
-            window.setOffline = net.setOffline;
-            window.setOnline = net.setOnline;
-
-            STOMP.connect();
-        }]);
-    }
+        STOMP.connect();
+    }]);
 
     _.mixin({
         "reverse": function(arr) {
