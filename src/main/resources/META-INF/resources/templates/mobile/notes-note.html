@@ -2,10 +2,9 @@
     ng-class="{'batchSelect': batchSelections.indexOf(note) >= 0}" 
     route-load="/note/{{note.id}}"
     hm-hold="openNoteMenu($event)">
-<!--   long-press="openNoteMenu()"   -->
 
     <div class="title no-wrap-text" ng-bind="note.title"></div>
     <div class="content" ng-bind-html="note.content | Html"></div>
-    <div class="updated" ng-bind="note.updated | DispDate"></div>
+    <div class="updated" ng-bind="note | CreatedOrUpdated:opts.sortBy | DispDate"></div>
 
 </div>

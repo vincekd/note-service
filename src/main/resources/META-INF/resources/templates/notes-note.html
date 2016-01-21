@@ -6,12 +6,15 @@
         <div class="row no-row-padding">
             <div class="updated col-sm-{{opts.display === 'tiled' ? 1 : 2}}">
                 <i ng-if="opts.display === 'tiled' || opts.display === 'title'" class="oi oi-clock" 
-                    uib-tooltip="{{note.updated | DispDate}}" tooltip-placement="right" 
+                    uib-tooltip="{{note | CreatedOrUpdated:opts.sortBy | DispDate}}" tooltip-placement="right" 
                     tooltip-append-to-body="true"></i>
-                <span ng-if="opts.display === 'stacked'" ng-bind="note.updated | DispDate"></span>
+                <span ng-if="opts.display === 'stacked'" ng-bind="note | CreatedOrUpdated:opts.sortBy | DispDate"></span>
             </div>
             <div class="title col-sm-{{opts.display === 'tiled' ? 9 : 8}} no-wrap-text" ng-class="{'editing': current.title === note}">
-                <a ng-if="current.title !== note" ng-bind="note.title" ng-dblclick="editTitle($event)"></a>
+                <a ng-if="current.title !== note" ng-dblclick="editTitle($event)">
+                    <span ng-if="note.title" ng-bind="note.title"></span>
+                    <span ng-if="!note.title">&nbsp;</span>
+                </a>
                 <div ng-if="current.title === note">
                     <editable-area model="note" prop="title" on-update="updateNote()" on-close="closeEditor()" type="input" />
                 </div>

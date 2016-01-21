@@ -31,6 +31,9 @@ class UserService {
     @Value("\${login.enabled}")
     boolean loginEnabled
 
+    @Value("\${email.enabled}")
+    boolean emailEnabled
+
     @Autowired
     private UserRepo repo
 
@@ -114,8 +117,10 @@ class UserService {
                     "email": u.email.trim(),
                     "role": Roles.USER
                 ])
-                emailServ.send(user.email, StickletConsts.REGISTRATION_SUBJECT,
-                        StickletConsts.REGISTRATION_CONTENT.replaceAll("%id%", user.id))
+                if (emailEnabled) {
+                    emailServ.send(user.email, StickletConsts.REGISTRATION_SUBJECT,
+                            StickletConsts.REGISTRATION_CONTENT.replaceAll("%id%", user.id))
+                }
                 return user
             } catch (EmailFailedException e) {
                 logger.warn "failed to send registration email, ${e.message}"

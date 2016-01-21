@@ -63,11 +63,31 @@ class NoteController extends BaseController {
         emptyJson()
     }
 
+    @RequestMapping(value="/notes/sync", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def syncOfflineNotes(@RequestBody Map noteData, HttpServletResponse resp) {
+        User user = curUser()
+        boolean synced = noteServ.syncOfflineNotes(noteData, user, resp)
+        if (synced) {
+            //assume that the site will call getNotes again after this sync
+            //TODO: what about other applications that weren't offline?
+//            if (notes.created) {
+//                socketServ.sendToUser(user, SocketTopics.NOTE_CREATE, notes.created)
+//            }
+//            if (notes.updated) {
+//                socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, notes.updated)
+//            }
+//            if (notes.deleted) {
+//                socketServ.sendToUser(user, SocketTopics.NOTE_DELETE, notes.deleted)
+//            }
+        }
+        emptyJson()
+    }
+
     @RequestMapping(value="/notes", method=RequestMethod.PUT, produces="application/json")
     public @ResponseBody def updateNotes(@RequestBody List<Map> noteData, HttpServletResponse resp) {
         User user = curUser()
-        List<Note> notes = noteServ.getNotesByIds(user, noteData.collect { it.id }, resp)
-        if (notes) {
+        List<Note> notes = noteServ.getNotesByIds(user, noteData.collect { it.id}, resp)
+        if (notes != null) {
             notes.each { Note note ->
                 Map data = noteData.find { it.id == note.id }
                 if (data) {

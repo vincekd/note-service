@@ -19,7 +19,6 @@ class Note extends BaseModel {
     public boolean titleEdited = false
     public boolean contentEdited = false
 
-
     public boolean archived = false
     public Long deleted = null
 

@@ -22,13 +22,14 @@ server:
   port: 80
   session-timeout: 864000
 login:
-  enabled: true
+  enabled: false
   admin:
     password: admin
   register: true
 debug:
   enabled: true
 email:
+  enabled: false
   from: "admin@sticklet.com"
   password: 
   port: 587
@@ -45,12 +46,16 @@ spring:
       password:
 server:
   session-timeout: 864000
-  port: 80
-  #port: 443 #for ssl
+  port: 443 #for ssl
   #ssl:
-  #  keyAlias: mykey
+  #  keyAlias:
 login:
   enabled: true
-  register: false
+  register: true
 debug:
   enabled: false
+email:
+  enabled: true
+  from: "admin@sticklet.com"
+  password:
+  port: 587

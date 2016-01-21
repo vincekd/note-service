@@ -104,5 +104,10 @@ Sticklet
             return ((str && _.isString(str)) ? str.substring(0, len || 400) : str);
         };
     }])
+    .filter("CreatedOrUpdated", [function() {
+        return function(note, sortBy) {
+            return (sortBy === "created" ? note.created : note.updated);
+        };
+    }])
 ;
 }(jQuery));

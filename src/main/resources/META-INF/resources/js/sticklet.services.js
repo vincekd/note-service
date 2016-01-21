@@ -321,8 +321,7 @@ Sticklet
             "popup": getPopup
         };
     }])
-    .service("UserServ", ["STOMP", "Offline",
-                          function(STOMP, Offline) {
+    .service("UserServ", ["STOMP", "Offline", function(STOMP, Offline) {
         var user = getUser(),
             namespace = "UserServ";
 
@@ -345,9 +344,10 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline",
-                          function(HTTP, STOMP, $rootScope, $q, Offline) {
-        var notesGet = "/notes",
+    .service("NoteServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline", "Settings",
+                          function(HTTP, STOMP, $rootScope, $q, Offline, Settings) {
+        var offlineID = 0,
+            notesGet = "/notes",
             colorsGet = "/colors",
             notes = getNotes(),
             colors = getColors(),
@@ -371,25 +371,33 @@ Sticklet
             updateNote(note);
         });
 
-        //offline sync callbacks
+        //offline sync register
         Offline.onSync("note", function(data) {
-            return Service.saveAll(data);
-        }).onSync("delete-note", function(data) {
-            var notes = _.map(data, function(del, id) {
-                return { "id": id };
-            });
-            return Service.removeAll(notes);
-        }).onSync("archive-note", function(data) {
-            var notes = _.map(data, function(arch, id) {
-                return { "id": id };
-            });
-            return Service.archiveAll(notes);
+            return HTTP.put("/notes/sync", data);
         }).onNetworkChange(namespace, function(online) {
             notes = getNotes();
             colors = getColors();
         });
 
-        function createNote(note) {
+        function getOfflineNoteID() {
+            return $q(function(resolve, reject) {
+                Settings.get("note.offline.baseName").then(function(base) {
+                    console.log("base", base);
+                    notes.then(function(ns) {
+                        var ids = ns.filter(function(n) { 
+                            return n.id.indexOf(base) !== -1;
+                        }).map(function(n) { return n.id; });
+                        
+                        var id = base + (offlineID++);
+                        while (ids.indexOf(id) > -1) {
+                            id = base + (offlineID++);
+                        }
+                        resolve(id);
+                    });
+                });
+            });
+        }
+        function createNote(note, offline) {
             notes = notes.then(function(data) {
                 data.push(note);
                 storeNotes(data);
@@ -464,7 +472,7 @@ Sticklet
                 }).catch(function(msg) {
                     if (msg === "offline") {
                         //Store offline for sync
-                        Offline.sync("note." + note.id, data);
+                        Offline.sync("note." + note.id + ".update", data);
                         updateNote(note);
                     }
                 });
@@ -476,7 +484,7 @@ Sticklet
                         resolve(d);
                     }).catch(function(msg) {
                         if (msg === "offline") {
-                            Offline.sync("delete-note." + note.id, true);
+                            Offline.sync("note." + note.id + ".delete", true);
                             deleteNote(note.id);
                         }
                     });
@@ -485,7 +493,7 @@ Sticklet
             "archive": function(note) {
                 return Offline.put("/note/archive/" + note.id).catch(function(msg) {
                     if (msg === "offline") {
-                        Offline.sync("archive-note." + note.id, true);
+                        Offline.sync("note." + note.id + ".archive", true);
                         note.archived = true;
                         updateNote(note);
                     }
@@ -497,7 +505,7 @@ Sticklet
                     if (msg === "offline") {
                         _.each(notes, function(note) {
                             note.archived = true;
-                            Offline.sync("archive-note." + note.id, true);
+                            Offline.sync("note." + note.id + ".archive", true);
                         });
                         updateNotes(notes);
                     }
@@ -511,7 +519,7 @@ Sticklet
                     }).catch(function(msg) {
                         if (msg === "offline") {
                             _.each(notes, function(note) {
-                                Offline.sync("delete-note." + note.id, true);
+                                Offline.sync("note." + note.id + ".delete", true);
                             });
                             deleteNotes(data);
                             resolve(data);
@@ -523,7 +531,9 @@ Sticklet
                 var data = _.map(notes, safe);
                 return Offline.put("/notes", data).catch(function(msg) {
                     if (msg === "offline") {
-                        Offline.syncAll("note", "id", data);
+                        _.each(notes, function(note) {
+                            Offline.sync("note." + note.id + ".update", note);
+                        });
                         updateNotes(data);
                     }
                 });
@@ -541,8 +551,17 @@ Sticklet
             "create": function() {
                 return Offline.post("/note").catch(function(msg) {
                     if (msg === "offline") {
-                        console.log("TODO: handle note creation when offline.");
-                        //this will be harder, since we need note ids to do tagging, coloring, etc once created
+                        getOfflineNoteID().then(function(id) {
+                            var now = Date.now();
+                            createNote({
+                                "id": id,
+                                "created": now,
+                                "updated": now,
+                                "titleEdited": false,
+                                "tags": []
+                            }, true);
+                            Offline.sync("note." + id + ".create", id);
+                        });
                     }
                 });
             },
@@ -562,15 +581,7 @@ Sticklet
                 notify();
             });
         }
-        Offline.onSync("tag", function(data) {
-            return $q.all(_.map(fromData(data), function(notes, tagID) {
-                return TagServ.tagAll(notes, {"id": tagID});
-            }));
-        }).onSync("untag", function(data) {
-            return $q.all(_.map(fromData(data), function(notes, tagID) {
-                return TagServ.untagAll(notes, {"id": tagID});
-            }));
-        }).onNetworkChange("TagServ", function(online) {
+        Offline.onNetworkChange("TagServ", function(online) {
             tags = getTags();
         });
 
@@ -592,9 +603,6 @@ Sticklet
         });
         function notify() {
             $rootScope.$broadcast("tags-updated");
-        }
-        function notifyNotes() {
-            $rootScope.$broadcast("notes-updated");
         }
         function tagNote(note, tag) {
             note.tags.push(tag);
@@ -639,7 +647,7 @@ Sticklet
             "tag": function(note, tag) {
                 return Offline.put("/tag/" + note.id + "/" + tag.id).catch(function(msg) {
                     if (msg === "offline") {
-                        Offline.sync("tag." + note.id + "-" + tag.id, getStoreData(note, tag));
+                        Offline.sync("note." + note.id + ".tag." + tag.id, true);
                         tagNote(note, tag);
                     }
                 });
@@ -647,7 +655,7 @@ Sticklet
             "untag": function(note, tag) {
                 return Offline.remove("/untag/" + note.id + "/" + tag.id).catch(function(msg) {
                     if (msg === "offline") {
-                        Offline.sync("untag." + note.id + "-" + tag.id, getStoreData(note, tag));
+                        Offline.sync("note." + note.id + ".tag." + tag.id, false);
                         untagNote(note, tag);
                     }
                 });
@@ -657,22 +665,10 @@ Sticklet
                 return Offline.put("/tag/" + tag.id, data).catch(function(msg) {
                     if (msg === "offline") {
                         _.each(notes, function(note) {
-                            Offline.sync("tag." + note.id + "-" + tag.id, getStoreData(note, tag));
+                            Offline.sync("note." + note.id + ".tag." + tag.id, true);
                         });
                         tagNotes(notes, tag);
                     }
-                });
-            },
-            //only used for syncing after offline session
-            "untagAll": function(notes, tag) {
-                var data = _.getIDs(notes);
-                return Offline.put("/untag/" + tag.id, data).catch(function(msg) {
-//                    if (msg === "offline") {
-//                        _.each(notes, function(note) {
-//                            Offline.sync("untag." + note.id + "-" + tag.id, getStoreData(note, tag));
-//                        });
-//                        untagNotes(notes, tag);
-//                    }
                 });
             },
             "archiveTaggedNotes": function(tag) {
@@ -717,7 +713,7 @@ Sticklet
 
         return {
             "set": function(path, val) {
-                //pass object of key/value pairs
+                //pass object of key/value pairs (preferred: less read/write with localstorage
                 if (_.isObject(path)) {
                     _.each(path, function(v, k) {
                         _.val(obj, k, v);
@@ -782,7 +778,12 @@ Sticklet
                     var promises = _.map(sync, function(data, base) {
                         if (syncs[base]) {
                             var prom = syncs[base].call(null, data);
-                            delete sync[base];
+                            if (prom) {
+                                prom.then(function() {
+                                    console.log("deleting sync", base);
+                                    delete sync[base];
+                                });
+                            }
                             return prom;
                         } 
                         console.warn("no sync registered for", base);
@@ -818,14 +819,6 @@ Sticklet
             },
             "sync": function(path, data) {
                 Storage.set("sync." + path, data);
-            },
-            "syncAll": function(base, prop, data) {
-                var path = "sync." + base + ".",
-                    save = {};
-                _.each(data, function(d) {
-                    save[path + d[prop]] = d; 
-                });
-                Storage.set(save);
             },
             "get": function(url) {
                 var path = "get." + url;

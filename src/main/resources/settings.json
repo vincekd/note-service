@@ -4,6 +4,12 @@
             "value": 100,
             "userUpdatable": false
         },
+        "offline": {
+            "baseName": {
+                "value": "stklt-note-id-",
+                "userUpdatable": false
+            }
+        },
         "trash": {
             "enabled": {
                 "value": true,

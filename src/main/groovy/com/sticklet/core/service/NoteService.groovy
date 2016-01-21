@@ -1,5 +1,6 @@
 package com.sticklet.core.service
 
+import javax.annotation.PostConstruct
 import javax.servlet.http.HttpServletResponse
 
 import org.slf4j.Logger
@@ -12,6 +13,7 @@ import com.sticklet.core.model.Note
 import com.sticklet.core.model.Tag
 import com.sticklet.core.model.User
 import com.sticklet.core.repository.NoteRepo
+import com.sticklet.core.repository.TagRepo
 
 @Service
 class NoteService {
@@ -20,24 +22,121 @@ class NoteService {
 
     @Autowired
     private NoteRepo noteRepo
-    @Autowired 
+
+    @Autowired
     private ResponseStatusService statusServ
-    @Autowired 
+
+    @Autowired
     private SettingsService settingsServ
 
-    public Note untagNote(Note note, Tag tag) {
-        note.tags = note.tags.findAll {
-            it.id != tag.id
+    @Autowired
+    private TagRepo tagRepo
+
+    private int maxLength //= (settingsServ.get("note.maxTitleLength") ?: StickletConsts.MAX_TITLE_LENGTH)
+    private String offlineName //= (settingsServ.get("note.offline.baseName") ?: "stklt-note-id-")
+
+    @PostConstruct
+    public void init() {
+        maxLength = (settingsServ.get("note.maxTitleLength") ?: StickletConsts.MAX_TITLE_LENGTH)
+        offlineName = (settingsServ.get("note.offline.baseName") ?: "stklt-note-id-")
+    }
+
+    public boolean syncOfflineNotes(Map noteData, User user, HttpServletResponse resp) {
+        List<Map<String, Object>> saveOpts = []
+        boolean run = noteData.every { String id, def data ->
+            boolean isCreated = isOfflineNoteID(id)
+            Map<String, Object> opts = [:]
+            Note note
+
+            if (isCreated) {
+                note = new Note(["user": user])
+                opts.save = true
+            } else {
+                note = getNote(id, user, resp)
+                if (!note) {
+                    //no access
+                    return false
+                }
+            }
+
+            if (data.update) {
+                note.content = data.update.content
+                note.title = data.update.title
+                note.color = data.update.color
+                if (note.title) {
+                    note.titleEdited = true
+                }
+                opts.save = true
+            }
+
+            if (data.delete) {
+                opts.delete = true
+            }
+            if (data.archive) {
+                opts.archive = true
+            }
+
+            if (data.tag) {
+                data.tag.each { String tagID, boolean tagged ->
+                    Tag tag = tagRepo.findOne(tagID)
+                    //ensure user has access to the tag, if not, uh oh
+                    if (TagService.userHasAccess(tag, user)) {
+                        if (tagged) {
+                            if (canAddTag(note, tag)) {
+                                note.tags << tag
+                            }
+                        } else {
+                            note.tags = removeTag(note, tag)
+                        }
+                        opts.save = true
+                    }
+                }
+            }
+
+            opts.note = note
+            saveOpts << opts
+
+            true
         }
+
+        if (run) {
+            saveOpts.each {
+                Note note = it.note
+                if (it.save) {
+                    note = save(note)
+                }
+                if (it.archive) {
+                    note = archiveNote(note)
+                }
+                if (it.delete) {
+                    note = deleteNote(note)
+                }
+            }
+        }
+        true
+    }
+
+    public Note untagNote(Note note, Tag tag) {
+        note.tags = removeTag(note, tag)
         noteRepo.save(note)
     }
 
     public Note tagNote(Note note, Tag tag) {
-        if (!note.tags.any { it.id == tag.id }) {
+        if (canAddTag(note, tag)) {
             note.tags << tag
             note = noteRepo.save(note)
         }
         note
+    }
+
+    public List<Tag> removeTag(Note note, Tag tag) {
+        note.tags.findAll {
+            it.id != tag.id
+        }
+    }
+
+    public boolean canAddTag(Note note, Tag tag) {
+        !note.tags.any { it.id == tag.id }
     }
 
     public List<Note> getNotes(User user) {
@@ -45,7 +144,7 @@ class NoteService {
     }
     public List<Note> getNotesByIds(User user, List<String> ids, HttpServletResponse resp) {
         List<Note> notes = noteRepo.findAll(ids)
-        Note notAccessible = notes.find { Note note ->
+        boolean notAccessible = notes.any { Note note ->
             !response(note, user, resp)
         }
         if (!notAccessible) {
@@ -81,7 +180,7 @@ class NoteService {
         if (response(note, user, resp)) {
             return note
         }
-        return null
+        null
     }
 
     public boolean response(Note note, User user, HttpServletResponse resp) {
@@ -142,11 +241,15 @@ class NoteService {
         note && user && note.user.id == user.id
     }
 
-    public static String trimTitle(String title) {
-        //TODO: use Setting
-        if (title && title.length() > StickletConsts.MAX_TITLE_LENGTH) {
-            return title.substring(0, StickletConsts.MAX_TITLE_LENGTH)
+    public String trimTitle(String title) {
+
+        if (title && title.length() > maxLength) {
+            return title.substring(0, maxLength)
         }
         title
+    }
+
+    public boolean isOfflineNoteID(String id) {
+        (id =~ ("^" + offlineName))
     }
 }
