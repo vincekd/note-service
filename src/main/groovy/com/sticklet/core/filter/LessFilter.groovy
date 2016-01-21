@@ -79,7 +79,11 @@ class LessFilter implements BaseContentFilter {
     //    }
 
     private String compileLessResource(String uri) {
-        lessEngine.compile(clazzLoader.getResource("META-INF/resources" + uri))
+        URL url = clazzLoader.getResource("META-INF/resources" + uri)
+        if (url) {
+            return lessEngine.compile(url)
+        }
+        ""
     }
 
     //    private String compileLessString(String less) {

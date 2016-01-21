@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 import com.sticklet.core.constant.Roles
+import com.sticklet.core.constant.StickletConsts
+import com.sticklet.core.exception.EmailFailedException
 import com.sticklet.core.exception.InvalidUserException
 import com.sticklet.core.model.User
 import com.sticklet.core.model.UserPreferences
@@ -31,10 +33,15 @@ class UserService {
 
     @Autowired
     private UserRepo repo
+
     @Autowired
     private UserPreferencesRepo userPrefsRepo
+
     @Autowired
     private PasswordEncoder passwordEncoder
+
+    @Autowired
+    private EmailService emailServ
 
     public org.springframework.security.core.userdetails.User getPrincipal() {
 
@@ -100,13 +107,30 @@ class UserService {
 
     public User registerUser(Map<String, String> u) {
         if (validatePassword(u.password, u.passwordRepeat) && validateUsername(u.username) && validateEmail(u.email)) {
-            createUser([
-                "username": u.username.trim(),
-                "password": u.password.trim(),
-                "email": u.email.trim(),
-                "role": Roles.USER
-            ])
+            try {
+                User user = createUser([
+                    "username": u.username.trim(),
+                    "password": u.password.trim(),
+                    "email": u.email.trim(),
+                    "role": Roles.USER
+                ])
+                emailServ.send(user.email, StickletConsts.REGISTRATION_SUBJECT,
+                        StickletConsts.REGISTRATION_CONTENT.replaceAll("%id%", user.id))
+                return user
+            } catch (EmailFailedException e) {
+                logger.warn "failed to send registration email, ${e.message}"
+            }
         }
+    }
+
+    public boolean register(String uid) {
+        User user = repo.findOne(uid)
+        if (user) {
+            user.registered = true
+            repo.save(user)
+            return true
+        }
+        false
     }
 
     public boolean validatePassword(String pass1, String pass2) {

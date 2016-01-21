@@ -59,6 +59,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers("/js/sticklet.login.js", "/bower_components/**/*", "/**/*.less",
                     "/sticklet.service-worker.js", "/**/*.css", "/user/info", "/user/register",
+                    "/user/registration/*"
                     //"/templates/**/*.html" , "/js/sticklet.js*"
                     ).permitAll()
                     .antMatchers("/**").hasAnyRole("ADMIN", "USER")

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -28,13 +29,23 @@ class UserController extends BaseController {
     @Autowired
     private UserService userServ
 
+    @RequestMapping(value="/user/registration/{id}", method=RequestMethod.GET, produces="application/json")
+    public @ResponseBody def registration(@PathVariable("id") String id, HttpServletResponse resp) {
+        if (userServ.register(id)) {
+            resp.sendRedirect("/login.html")
+            return emptyJson()
+        }
+        statusServ.setStatusError(resp)
+        return emptyJson()
+    }
+
     @RequestMapping(value="/user/register", method=RequestMethod.POST, produces="application/json", consumes="application/json")
     public @ResponseBody def registerUser(@RequestBody Map json, HttpServletResponse resp) {
         if (registerAllowed) {
             if (userServ.usernameIsFree(json.username)) {
                 User user = userServ.registerUser(json)
                 if (user) {
-                    return user
+                    return emptyJson()
                 }
             }
             statusServ.setStatusConflict(resp)

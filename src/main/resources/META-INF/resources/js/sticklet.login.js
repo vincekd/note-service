@@ -60,8 +60,8 @@ Sticklet
         };
         $scope.register = function() {
             if ($scope.checkRegister()) {
-                $http.post("/user/register", $scope.user).success(function(user) {
-                    $modalInst.close(user.username);
+                $http.post("/user/register", $scope.user).success(function(msg) {
+                    $modalInst.close($scope.user.username);
                 }).error(function(resp, status) {
                     if (status === 409) {
                         $scope.errorMsg = "User with that username already exists.";

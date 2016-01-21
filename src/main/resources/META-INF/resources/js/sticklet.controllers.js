@@ -105,9 +105,12 @@ Sticklet
         $scope.$on("notes-updated", function() {
             getNotes();
         });
+        $scope.onSearch = _.debounce(function() {
+            $scope.$apply(function() {
+                $scope.notes = filterAndSortNotes();
+            });
+        }, 250);
         $scope.$watchGroup([function() {
-            return $scope.current.filters.search;
-        }, function() {
             return $scope.current.filters.tags.length;
         }, function() {
             return $scope.current.filters.colors.length;
