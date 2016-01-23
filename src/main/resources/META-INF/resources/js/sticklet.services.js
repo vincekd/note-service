@@ -348,7 +348,6 @@ Sticklet
                           function(HTTP, STOMP, $rootScope, $q, Offline, Settings) {
         var offlineID = 0,
             notesGet = "/notes",
-            colorsGet = "/colors",
             notes = getNotes(),
             colors = getColors(),
             namespace = "NoteServ";
@@ -359,7 +358,7 @@ Sticklet
             });
         }
         function getColors() {
-            return Offline.get(colorsGet);
+            return Settings.get("note.colors");
         }
 
         //websocket callbacks

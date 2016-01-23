@@ -21,12 +21,6 @@ import com.sticklet.core.service.NoteService
 class NoteController extends BaseController {
     @Autowired NoteService noteServ
 
-    @RequestMapping(value="/colors", method=RequestMethod.GET, produces="application/json")
-    public @ResponseBody def getColors(HttpServletResponse resp) {
-        //TODO: store this or something
-        AppConfig.colors
-    }
-
     @RequestMapping(value="/notes", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getNotes(HttpServletResponse resp) {
         noteServ.getNotes(curUser())

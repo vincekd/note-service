@@ -15,6 +15,6 @@ class UserPreferences extends BaseModel {
     SortPref sortBy = SortPref.created
     OrderPref order = OrderPref.ASC
 
-    //custom colors
+    //custom colors (handled in settings)
     //email alerts
 }

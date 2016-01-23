@@ -23,6 +23,17 @@
         "autoSaveInterval": {
             "value": 1500,
             "userUpdatable": false
+        },
+        "colors": {
+            "value": [
+                "#F7977A", 
+                "#C5E3BF",
+                "#C1F0F6",
+                "#FFF79A",
+                "#FDC68A",
+                "#D8BFD8"
+            ],
+            "userUpdatable": true
         }
     },
     "tag": {

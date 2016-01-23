@@ -23,8 +23,6 @@ import com.sticklet.core.util.StringUtil
 @Component
 public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class)
-    private static final List<String> colors = ["#F7977A", "#C5E3BF", "#C1F0F6", "#FFF79A", "#FDC68A", "#D8BFD8"]
-    //private final LessEngine lessEngine = new LessEngine()
 
     @Value("\${login.admin.password}")
     String adminPassword
@@ -44,20 +42,6 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
             e.printStackTrace()
         }
 
-//        try {
-//            loadDefaultColors()
-//        } catch (DuplicateKeyException e) {
-//            logger.debug "default colors already created"
-//        } catch (Exception e) {
-//            e.printStackTrace()
-//        }
-//        try {
-//            compileLessCss()
-//        } catch(Exception e) {
-//            logger.warn "failed to compile less files"
-//            e.printStackTrace()
-//        }
-
         try {
             loadSettings()
         } catch(Exception e) {
@@ -73,35 +57,6 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
                 role: Roles.ADMIN, "email": "admin@sticklet.com"])
         }
     }
-
-//    private void loadDefaultColors() {
-//        int i = 0
-//        String text = lessEngine.compile(colors.collect {
-//            ".color${++i} { background: ${it}; }"
-//        }.join(" "))
-//        File lessDir = FileSystemUtil.getResourceFile("META-INF/resources/less")
-//        File cssDir = new File(lessDir.canonicalPath + "/css/")
-//        cssDir.mkdir()
-//        File file = new File(cssDir.canonicalPath + File.separator + "note-colors.css")
-//        file.text = text
-//    }
-
-//    private void compileLessCss() {
-//        File lessDir = FileSystemUtil.getResourceFile("META-INF/resources/less")
-//        if (lessDir.exists()) {
-//            File cssDir = FileSystemUtil.getResourceFile("META-INF/resources/less/css")
-//            cssDir.mkdir()
-//            lessDir.listFiles().each { File it ->
-//                if (it.isFile()) {
-//                    String name = it.name.replaceFirst(/\.less$/, ".css")
-//                    logger.debug "saving compiled less file to: ${cssDir.canonicalPath + File.separator + name}"
-//                    lessEngine.compile(it, new File(cssDir.canonicalPath + File.separator + name))
-//                }
-//            }
-//        } else {
-//            logger.warn "could not find less directory to compile"
-//        }
-//    }
 
     private void loadSettings() {
         logger.debug "loading app settings"
