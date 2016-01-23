@@ -3,29 +3,31 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .factory("ServiceWorker", ["Offline", function(Offline) {
+    .factory("ServiceWorker", ["$rootScope", "network", function($rootScope, network) {
         var supported = ('serviceWorker' in navigator);
         if (supported) {
             navigator.serviceWorker.addEventListener("message", function(ev) {
-                //console.log("ServiceWorker message", ev);
                 if (ev.data.command === "install") {
                     
                 }
             });
-            
         }
         function sendMessage(message) {
             if (supported && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage(message);
             }
         }
-        Offline.onNetworkChange("ServiceWorker", function(online) {
-            sendMessage({
-                "command": "networkStatus",
-                "online": online === true
-            });
+        $rootScope.$on("network-state-change", function(event) {
+            //sendMessage({
+            //    "command": "networkStatus",
+            //    "online": network.online
+            //});
         });
+
         return {
+            get enabled() {
+                return supported && navigator.serviceWorker.controller;
+            },
             "onMessage": function() {},
             "sendMessage": function(){}
         };
@@ -65,7 +67,6 @@ Sticklet
             },
             template: _.memoize(function(temp) {
                 temp = (/^\//.test(temp) ? temp : "/" + temp);
-                console.log("getting temp: ", (baseTemp + (Design.size > 1 ? temp : "/mobile" + temp)));
                 return (baseTemp + (Design.size > 1 ? temp : "/mobile" + temp));
             }, function(temp) {
                 return temp + "-" + Design.size;

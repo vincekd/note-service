@@ -53,9 +53,9 @@ Sticklet
     .service("HTTP", ["$http", "Notify", function($http, Notify) {
         function getRealUrl(url) {
             if (/^[^\/]/.test(url)) {
-                return "/" + url;
+                url = "/" + url;
             }
-            return url;
+            return location.origin + url;
         }
         function doPromise(prom, notif) {
             return prom.then(function(resp) {
@@ -753,8 +753,8 @@ Sticklet
             }
         };
     }])
-    .service("Offline", ["$rootScope", "network", "$q", "HTTP", "$http",
-                         function($rootScope, network, $q, HTTP, $http) {
+    .service("Offline", ["$rootScope", "network", "$q", "HTTP", "$http", "ServiceWorker",
+                         function($rootScope, network, $q, HTTP, $http, ServiceWorker) {
 
         var registers = {};
 
@@ -770,13 +770,10 @@ Sticklet
 
         function runCachedRequests() {
             return $q(function(resolve, reject) {
-                if (network.online) {
-                    return $http({
-                        "method": "PUT",
+                if (network.online && ServiceWorker.enabled) {
+                    return $http.put("/serviceworker/do-sync", {
                         "url": HTTP.getRealUrl("/notes/sync"),
-                        "headers": {
-                            "sticklet-cache": "do-sync"
-                        }
+                        "method": "PUT"
                     }).then(function(resp) {
                         if (resp.status === 200) {
                             resolve(resp.data);
@@ -786,24 +783,21 @@ Sticklet
                     }, function(err) {
                         reject(err);
                     });
-                } 
-                reject();
+                } else {
+                    reject();
+                }
             });
         }
 
         var Offline = {
             "sync": function(path, data) {
-                return $http({
-                    "method": "PUT",
-                    "url": HTTP.getRealUrl("/notes/sync"),
-                    "headers": {
-                        "sticklet-cache": "sync"
-                    },
-                    "data": {
+                if (ServiceWorker.enabled) {
+                    return $http.put("/serviceworker/sync", {
                         "path": path,
                         "data": data
-                    }
-                });
+                    });
+                } 
+                return $q.when("no service worker");
             },
             "onNetworkChange": function(path, callback) {
                 if (_.isString(path) && _.isFunction(callback)) {
@@ -813,8 +807,11 @@ Sticklet
             },
             "storeRequest": function(method, url, data) {
                 if (method && url) {
-                    //Storage.set(method + "." + url, data);
-                    console.log("store in offline mode")
+                    $http.put("/serviceworker/update-cache", {
+                        "method": method,
+                        "url": HTTP.getRealUrl(url),
+                        "data": data
+                    });
                 }
             },
             "get": function(url) {

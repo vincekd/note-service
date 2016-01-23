@@ -2,15 +2,15 @@
 
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
-var DEV = false,
+var DEV = true,
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
-    VERSION = "v0.1.03",
+    VERSION = "v0.1.08",
     CACHE_NAME = 'sticklet-cache.' + VERSION,
     SECONDARY_CACHE_NAME = 'sticklet-secondary-cache.' + VERSION,
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + VERSION,
-    CACHE_WHITELIST = [CACHE_NAME, OFFLINE_CACHE_NAME],
-    fileRegex = /\.(?:html|js|css|woff|ttf|map|woff2|otf)$/i,
+    CACHE_WHITELIST = [CACHE_NAME, SECONDARY_CACHE_NAME, OFFLINE_CACHE_NAME],
+    fileRegex = /\.(?:html|js|less|css|woff|ttf|map|woff2|otf)$/i,
     uriRegex = /https?:\/\/[^\/]+(\/[^#?]+).*/i;
 
 self.addEventListener('message', onMessage);
@@ -30,14 +30,17 @@ self.addEventListener('fetch', function(event) {
             } else if (event.request.headers.has("sticklet-cache")) {
                 //neither in cache nor get, check headers for sticklet cache header
                 return doPromise(stickletCache(event));
+            } else if (uri.indexOf("/serviceworker") > -1) {
+                console.log("service worker uri", uri);
+                return doPromise(serviceWorkerRequest(event, uri));
             }
             return doPromise(myFetch(event));
         }, function() {
-            reject();
+            reject(getErrorResp("could not open localforage storage"));
         });
         function doPromise(prom) {
             prom.then(function(resp) {
-                resolve(resp)
+                resolve(resp);
             }, function(err) {
                 reject(err);
             });
@@ -128,66 +131,85 @@ function eventuallyFresh(event) {
 }
 function stickletCache(event) {
     var head = event.request.headers.get("sticklet-cache");
+    if (head === "get-store") {
+        return myFetch(event).then(function(resp) {
+            if (resp.status === 200) {
+                caches.open(OFFLINE_CACHE_NAME).then(function(cache) {
+                    cache.put(event.request, resp);
+                });
+            }
+            return resp.clone();
+        }, function(err) {
+            getErrorResp("failed to fetch request");
+        });
+    } else if (head === "get-fetch") {
+        //TODO: could also try to make request, even if we're supposedly offline (eventually fresh)
+        var errorMsg = "could not locate item in cache";
+        return caches.match(event.request, {"cacheName": OFFLINE_CACHE_NAME}).then(function(cachedResp) {
+            return cachedResp || getErrorResp(errorMsg);
+        }, function() {
+            return getErrorResp(errorMsg);
+        });
+    }
+    return getErrorResp("invalid sticklet-cache value");
+}
+function serviceWorkerRequest(event, uri) {
     return localforage.getItem(SYNCED_STORAGE_NAME).then(function(syncObj) {
         syncObj = syncObj || {};
-        if (head === "sync") {
-            return event.request.json().then(function(data) {
+        return event.request.json().then(function(data) {
+            if (uri === "/serviceworker/sync") {
                 getVal(syncObj, data.path, data.data)
                 localforage.setItem(SYNCED_STORAGE_NAME, syncObj);
                 return getOKResp("sync stored");
-            }, function() {
-                return getErrorResp("failed to load request json");
-            });
-        } else if (head === "do-sync") {
-            if (Object.keys(syncObj).length === 0) {
-                return getOKResp("no requests to sync");
+            } else if (uri === "/serviceworker/do-sync") {
+                if (Object.keys(syncObj).length === 0) {
+                    return getOKResp("no requests to sync");
+                }
+
+                var req = new Request(data.url, {
+                    "method": data.method,
+                    "cache": "default",
+                    "headers": new Headers({
+                        "Content-Type": "application/json;charset=utf-8"
+                    }),
+                    "body": JSON.stringify(syncObj)
+                });
+
+                return fetch(req).then(function(resp) {
+                    if (resp.status === 200) {
+                        localforage.setItem(SYNCED_STORAGE_NAME, {});
+                    }
+                    return resp;
+                }, function() {
+                    return getErrorResp("failed to sync requests to server");
+                });
+            } else if (uri === "/serviceworker/update-cache") {
+                var req = new Request(data.url, {
+                    "method": data.method
+                });
+                var resp = new Response(JSON.stringify(data.data), {
+                    "status": 200,
+                    "statusText": "OK",
+                    "headers": new Headers({
+                        "Content-Type": "application/json"
+                    })
+                });
+                return caches.open(OFFLINE_CACHE_NAME).then(function(cache) {
+                    cache.put(req, resp);
+                    return getOKResp("cache updated");
+                });
             }
-
-            var headers = new Headers();
-            headers.append("Content-Type", "application/json;charset=utf-8");
-            var req = new Request(event.request.url.toString(), {
-                "method": event.request.method.toString(),
-                "cache": "default",
-                "headers": headers,
-                "body": JSON.stringify(syncObj)
-            });
-
-            return fetch(req).then(function(resp) {
-                if (resp.status === 200) {
-                    localforage.setItem(SYNCED_STORAGE_NAME, {});
-                    return getOKResp("requests synced to server");
-                }
-                return resp.clone();
-            }, function() {
-                return getErrorResp("failed to sync requests to server");
-            });
-        }  else if (head === "get-store") {
-            return myFetch(event).then(function(resp) {
-                if (resp.status === 200) {
-                    caches.open(OFFLINE_CACHE_NAME).then(function(cache) {
-                        cache.put(event.request, resp);
-                    });
-                }
-                return resp.clone();
-            }, function(err) {
-                getErrorResp("failed to fetch request");
-            });
-        } else if (head === "get-fetch") {
-            //TODO: could also try to make request, even if we're supposedly offline
-            return caches.match(event.request, {"cacheName": OFFLINE_CACHE_NAME}).then(function(cachedResp) {
-                return cachedResp || getErrorResp("could not locate item in cache");
-            }, function() {
-                return getErrorResp("could not locate item in cache");
-            });
-        }
-        return getErrorResp("invalid sticklet-cache value");
+            return getErrorResp("invalid serviceworker request: " + uri);
+        }, function() {
+            return getErrorResp("failed to load request json");
+        });
     });
 }
 function onMessage(m) {
-    console.log("message from client", m.data);
-    if (m.data.command === "networkStatus") {
-        //ONLINE = (m.data.online === true);
-    }
+//    console.log("message from client", m.data);
+//    if (m.data.command === "networkStatus") {
+//        //ONLINE = (m.data.online === true);
+//    }
 }
 function sendMessage(msg) {
     self.clients.matchAll().then(function(res) {
@@ -208,7 +230,7 @@ function getUri(url) {
 function getOKResp(statusText) {
     return new Response('{}', {
         "status": 200,
-        "statusText": (statusText || "ok"),
+        "statusText": (statusText || "OK"),
         "headers": new Headers({
             "Content-Type": "application/json"
         })
