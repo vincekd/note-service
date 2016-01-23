@@ -46,6 +46,7 @@
                 "value": "="
             },
             "template": '<div ng-bind-html="content | Html"> </div>',
+            //"template": '<textarea ng-model="content"> </textarea>',
             "link": function($scope, $element, $attrs) {
                 $scope.content = $scope.value;
                 var id = $element.attr("id");
@@ -57,7 +58,7 @@
                     "toolbar": toolbarName,
                     //"parserRules": wysihtml5ParserRules,
                     "parserRules": parserRules,
-                    "useLineBreaks": false
+                    //"useLineBreaks": false
                 });
                 editor.on("load", function() {
                     editor.focus();

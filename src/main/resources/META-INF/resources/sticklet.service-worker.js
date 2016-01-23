@@ -1,19 +1,50 @@
 "use strict";
 
-var self = this,
-    version = "v0.0.92",
-    LAST_UPDATE = -1,
-    CACHE_NAME = 'sticklet-cache.' + version,
-    OFFLINE_CACHE_NAME = "sticklet-offline-cache." + version,
+self.importScripts('/bower_components/localforage/dist/localforage.min.js');
+
+var DEV = false,
+    CACHED_STORAGE_NAME = "sticklet.cache",
+    SYNCED_STORAGE_NAME = "sticklet.sync",
+    VERSION = "v0.1.03",
+    CACHE_NAME = 'sticklet-cache.' + VERSION,
+    SECONDARY_CACHE_NAME = 'sticklet-secondary-cache.' + VERSION,
+    OFFLINE_CACHE_NAME = "sticklet-offline-cache." + VERSION,
     CACHE_WHITELIST = [CACHE_NAME, OFFLINE_CACHE_NAME],
-    fetchOpts = {},
-    fileRegex = /\.(?:html|js|css|woff|ttf|map|woff2|otf)$/i;
+    fileRegex = /\.(?:html|js|css|woff|ttf|map|woff2|otf)$/i,
+    uriRegex = /https?:\/\/[^\/]+(\/[^#?]+).*/i;
 
 self.addEventListener('message', onMessage);
 self.addEventListener('fetch', function(event) {
-    if (isFileGet(event)) {
-        //TODO: reenable when not annoying
-        //event.respondWith(response(event));
+    var uri = getUri(event.request.url);
+    var ret = new Promise(function(resolve, reject) {
+        //get cached uri to determine how to treat different things
+        localforage.getItem(CACHED_STORAGE_NAME).then(function(cached) {
+            if (cached.indexOf(uri) !== -1) {
+                //return from catch, don't refetch
+                return doPromise(getFromCache(event));
+            } else if (isFileGet(event.request.method, uri)) {
+                //return cache if available, but still fetch ('eventually fresh')
+                if (!DEV) {
+                    return doPromise(eventuallyFresh(event));
+                } //skip and do fetch if debugging
+            } else if (event.request.headers.has("sticklet-cache")) {
+                //neither in cache nor get, check headers for sticklet cache header
+                return doPromise(stickletCache(event));
+            }
+            return doPromise(myFetch(event));
+        }, function() {
+            reject();
+        });
+        function doPromise(prom) {
+            prom.then(function(resp) {
+                resolve(resp)
+            }, function(err) {
+                reject(err);
+            });
+        }
+    });
+    if (uri.indexOf("/registerSocket") === -1) {
+        event.respondWith(ret);
     }
 });
 self.addEventListener('activate', function(event) {
@@ -32,7 +63,6 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('install', function(event) {
     function install() {
         console.log("installing service worker...")
-        LAST_UPDATE = Date.now();
         return caches.open(CACHE_NAME).then(function(cache) {
             return fetch("/cache.json").then(function(resp) {
                 try {
@@ -45,34 +75,116 @@ self.addEventListener('install', function(event) {
                 sendMessage({
                     "command": "install"
                 });
-                return cache.addAll(resp.libraries.concat(resp.sticklet));
+                var toCache;
+                if (!DEV) {
+                    toCache = resp.libraries.concat(resp.sticklet);
+                } else {
+                    toCache = resp.libraries;
+                }
+                localforage.setItem(CACHED_STORAGE_NAME, toCache);
+                return cache.addAll(toCache);
             });
         });
     }
     event.waitUntil(install());
 });
-function response(event) {
-    return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(cached) {
+
+
+function myFetch(event) {
+    return fetch(event.request);
+}
+function getFromCache(event) {
+    return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(cachedResp) {
+        if (!cachedResp) {
+            return fetch(event.request).then(function(resp) {
+                if (resp.status === 200) {
+                    caches.open(CACHE_NAME).then(function(cache) {
+                        cache.put(event.request, resp);
+                    });
+                }
+                return resp.clone();
+            }, function(err) {
+                return getErrorResp(err);
+            });
+        }
+        //console.log("got from cache", event.request.url);
+        return cachedResp;
+    });
+}
+function eventuallyFresh(event) {
+    return caches.match(event.request, {"cacheName": SECONDARY_CACHE_NAME}).then(function(cachedResp) {
         var network = fetch(event.request).then(function(resp) {
             if (resp.status === 200) {
-                caches.open(CACHE_NAME).then(function(cache) {
+                caches.open(SECONDARY_CACHE_NAME).then(function(cache) {
                     cache.put(event.request, resp);
                 });
             }
             return resp.clone();
         }, function(err) {
-            return new Response('<h1>Service Unavailable</h1>', {
-                "status": 503,
-                "statusText": 'Service Unavailable',
-                "headers": new Headers({
-                    "Content-Type": "text/html"
-                })
-            });
+            return getErrorResp(err);
         });
-        return cached || network;
+        return cachedResp || network;
+    });
+}
+function stickletCache(event) {
+    var head = event.request.headers.get("sticklet-cache");
+    return localforage.getItem(SYNCED_STORAGE_NAME).then(function(syncObj) {
+        syncObj = syncObj || {};
+        if (head === "sync") {
+            return event.request.json().then(function(data) {
+                getVal(syncObj, data.path, data.data)
+                localforage.setItem(SYNCED_STORAGE_NAME, syncObj);
+                return getOKResp("sync stored");
+            }, function() {
+                return getErrorResp("failed to load request json");
+            });
+        } else if (head === "do-sync") {
+            if (Object.keys(syncObj).length === 0) {
+                return getOKResp("no requests to sync");
+            }
+
+            var headers = new Headers();
+            headers.append("Content-Type", "application/json;charset=utf-8");
+            var req = new Request(event.request.url.toString(), {
+                "method": event.request.method.toString(),
+                "cache": "default",
+                "headers": headers,
+                "body": JSON.stringify(syncObj)
+            });
+
+            return fetch(req).then(function(resp) {
+                if (resp.status === 200) {
+                    localforage.setItem(SYNCED_STORAGE_NAME, {});
+                    return getOKResp("requests synced to server");
+                }
+                return resp.clone();
+            }, function() {
+                return getErrorResp("failed to sync requests to server");
+            });
+        }  else if (head === "get-store") {
+            return myFetch(event).then(function(resp) {
+                if (resp.status === 200) {
+                    caches.open(OFFLINE_CACHE_NAME).then(function(cache) {
+                        cache.put(event.request, resp);
+                    });
+                }
+                return resp.clone();
+            }, function(err) {
+                getErrorResp("failed to fetch request");
+            });
+        } else if (head === "get-fetch") {
+            //TODO: could also try to make request, even if we're supposedly offline
+            return caches.match(event.request, {"cacheName": OFFLINE_CACHE_NAME}).then(function(cachedResp) {
+                return cachedResp || getErrorResp("could not locate item in cache");
+            }, function() {
+                return getErrorResp("could not locate item in cache");
+            });
+        }
+        return getErrorResp("invalid sticklet-cache value");
     });
 }
 function onMessage(m) {
+    console.log("message from client", m.data);
     if (m.data.command === "networkStatus") {
         //ONLINE = (m.data.online === true);
     }
@@ -87,6 +199,62 @@ function sendMessage(msg) {
         });
     });
 }
-function isFileGet(event) {
-    return (/GET/i.test(event.request.method) && fileRegex.test(event.request.url));
+function isFileGet(method, uri) {
+    return method === "GET" && fileRegex.test(uri);
+}
+function getUri(url) {
+    return url.replace(uriRegex, "$1");
+}
+function getOKResp(statusText) {
+    return new Response('{}', {
+        "status": 200,
+        "statusText": (statusText || "ok"),
+        "headers": new Headers({
+            "Content-Type": "application/json"
+        })
+    });
+}
+function getHtmlErrorResp(statusText) {
+    return new Response('<h1>Service Unavailable</h1>', {
+        "status": 503,
+        "statusText": statusText || 'Service Unavailable',
+        "headers": new Headers({
+            "Content-Type": "text/html"
+        })
+    });
+}
+function getErrorResp(statusText) {
+    return new Response('{}', {
+        "status": 503,
+        "statusText": statusText || "Service Unavailable",
+        "headers": new Headers({
+            "Content-Type": "application/json"
+        })
+    });
+}
+function getVal(context, name, value) {
+    var create = (typeof value !== "undefined"),
+        namespaces = name.split("."),
+        last = namespaces.pop();
+
+    if (!context) {
+        return context;
+    }
+
+    for (var i = 0; i < namespaces.length; i++) {
+        var ns = namespaces[i];
+        if (Object.prototype.hasOwnProperty.call(context, ns) && context[ns]) {
+            context = context[ns];
+        } else if (create) {
+            context = context[ns] = {};
+        } else {
+            return void(0);
+        }
+    }
+
+    if (create) {
+        context[last] = value;
+        return context;
+    }
+    return ((context !== null && typeof context !== "undefined") ? context[last] : void(0));
 }

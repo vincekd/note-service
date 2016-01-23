@@ -63,22 +63,24 @@ class NoteController extends BaseController {
         emptyJson()
     }
 
-    @RequestMapping(value="/notes/sync", method=RequestMethod.PUT, produces="application/json")
-    public @ResponseBody def syncOfflineNotes(@RequestBody Map noteData, HttpServletResponse resp) {
+    @RequestMapping(value="/notes/sync", method=RequestMethod.PUT)
+    public @ResponseBody def syncOfflineNotes(@RequestBody(required = false) Map noteData, HttpServletResponse resp) {
         User user = curUser()
-        boolean synced = noteServ.syncOfflineNotes(noteData, user, resp)
-        if (synced) {
-            //assume that the site will call getNotes again after this sync
-            //TODO: what about other applications that weren't offline?
-//            if (notes.created) {
-//                socketServ.sendToUser(user, SocketTopics.NOTE_CREATE, notes.created)
-//            }
-//            if (notes.updated) {
-//                socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, notes.updated)
-//            }
-//            if (notes.deleted) {
-//                socketServ.sendToUser(user, SocketTopics.NOTE_DELETE, notes.deleted)
-//            }
+        if (noteData) {
+            boolean synced = noteServ.syncOfflineNotes(noteData.note, user, resp)
+            if (synced) {
+                //assume that the site will call getNotes again after this sync
+                //TODO: what about other applications that weren't offline?
+                //            if (notes.created) {
+                //                socketServ.sendToUser(user, SocketTopics.NOTE_CREATE, notes.created)
+                //            }
+                //            if (notes.updated) {
+                //                socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, notes.updated)
+                //            }
+                //            if (notes.deleted) {
+                //                socketServ.sendToUser(user, SocketTopics.NOTE_DELETE, notes.deleted)
+                //            }
+            }
         }
         emptyJson()
     }

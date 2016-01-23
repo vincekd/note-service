@@ -1,5 +1,6 @@
 {
     "libraries": [
+        "/bower_components/localforage/dist/localforage.min.js",
         "/bower_components/bootstrap/dist/css/bootstrap.min.css",
         "/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css",
         "/bower_components/jquery/dist/jquery.min.js",
@@ -50,7 +51,7 @@
         "/templates/mobile/note-menu.html",
         "/templates/mobile/notes-note.html",
 
-        "/less/css/sticklet.css",
+        "/less/sticklet.less",
 
         "/js/sticklet.js",
         "/js/sticklet.controllers.js",

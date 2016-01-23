@@ -45,7 +45,8 @@ spring:
       username:
       password:
 server:
-  session-timeout: 864000
+  #session-timeout: 864000
+  session-timeout: 10000 #~3 hours
   port: 443 #for ssl
   #ssl:
   #  keyAlias:

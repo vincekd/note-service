@@ -32,7 +32,7 @@ Sticklet
     }])
     .factory("Design", ["$rootScope", function($rootScope) {
         var screen = resize(),
-            baseTemp = "/templates/",
+            baseTemp = "/templates",
             nums = {
                 "xs": 0,
                 "sm": 1,
@@ -63,10 +63,13 @@ Sticklet
             get size() {
                 return nums[screen];
             },
-            template: function(temp) {
-                temp = /^\//.test(temp) ? temp : "/" + temp;
-                return (baseTemp + (Design.size > 1 ? temp : "mobile" + temp));
-            }
+            template: _.memoize(function(temp) {
+                temp = (/^\//.test(temp) ? temp : "/" + temp);
+                console.log("getting temp: ", (baseTemp + (Design.size > 1 ? temp : "/mobile" + temp)));
+                return (baseTemp + (Design.size > 1 ? temp : "/mobile" + temp));
+            }, function(temp) {
+                return temp + "-" + Design.size;
+            })
         };
 
         return Design;

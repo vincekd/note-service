@@ -372,9 +372,7 @@ Sticklet
         });
 
         //offline sync register
-        Offline.onSync("note", function(data) {
-            return HTTP.put("/notes/sync", data);
-        }).onNetworkChange(namespace, function(online) {
+        Offline.onNetworkChange(namespace, function(online) {
             notes = getNotes();
             colors = getColors();
         });
@@ -755,11 +753,10 @@ Sticklet
             }
         };
     }])
-    .service("Offline", ["$rootScope", "network", "Storage", "$q", "HTTP",
-                         function($rootScope, network, Storage, $q, HTTP) {
+    .service("Offline", ["$rootScope", "network", "$q", "HTTP", "$http",
+                         function($rootScope, network, $q, HTTP, $http) {
 
-        var registers = {},
-            syncs = {};
+        var registers = {};
 
         $rootScope.$on("network-state-change", function($event) {
             runCachedRequests().finally(function() {
@@ -774,37 +771,39 @@ Sticklet
         function runCachedRequests() {
             return $q(function(resolve, reject) {
                 if (network.online) {
-                    var sync = Storage.get("sync");
-                    var promises = _.map(sync, function(data, base) {
-                        if (syncs[base]) {
-                            var prom = syncs[base].call(null, data);
-                            if (prom) {
-                                prom.then(function() {
-                                    console.log("deleting sync", base);
-                                    delete sync[base];
-                                });
-                            }
-                            return prom;
-                        } 
-                        console.warn("no sync registered for", base);
-                    }).filter(_.identity);
-                    Storage.set("sync", sync);
-
-                    $q.all(promises).finally(function() {
-                        resolve();
+                    return $http({
+                        "method": "PUT",
+                        "url": HTTP.getRealUrl("/notes/sync"),
+                        "headers": {
+                            "sticklet-cache": "do-sync"
+                        }
+                    }).then(function(resp) {
+                        if (resp.status === 200) {
+                            resolve(resp.data);
+                        } else {
+                            reject(resp);
+                        }
+                    }, function(err) {
+                        reject(err);
                     });
-                } else {
-                    reject();
-                }
+                } 
+                reject();
             });
         }
 
         var Offline = {
-            "onSync": function(base, callback) {
-                if (_.isString(base) && _.isFunction(callback)) {
-                    syncs[base] = callback;
-                }
-                return Offline;
+            "sync": function(path, data) {
+                return $http({
+                    "method": "PUT",
+                    "url": HTTP.getRealUrl("/notes/sync"),
+                    "headers": {
+                        "sticklet-cache": "sync"
+                    },
+                    "data": {
+                        "path": path,
+                        "data": data
+                    }
+                });
             },
             "onNetworkChange": function(path, callback) {
                 if (_.isString(path) && _.isFunction(callback)) {
@@ -814,27 +813,19 @@ Sticklet
             },
             "storeRequest": function(method, url, data) {
                 if (method && url) {
-                    Storage.set(method + "." + url, data);
+                    //Storage.set(method + "." + url, data);
+                    console.log("store in offline mode")
                 }
-            },
-            "sync": function(path, data) {
-                Storage.set("sync." + path, data);
             },
             "get": function(url) {
-                var path = "get." + url;
-                if (network.online) {
-                    return HTTP.get(url).then(function(data) {
-                        Storage.set(path, data);
-                        return data;
-                    });
-                }
-                return $q(function(resolve, reject) {
-                    var d = Storage.get(path);
-                    if (d) {
-                        resolve(d);
-                    } else {
-                        reject(d);
+                return $http({
+                    "method": "GET",
+                    "url": HTTP.getRealUrl(url),
+                    "headers": {
+                        "sticklet-cache": (network.online ? "get-store" : "get-fetch")
                     }
+                }).then(function(resp) {
+                    return resp.data
                 });
             },
             "put": function(url, data) {
