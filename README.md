@@ -10,15 +10,14 @@
 </ul>
 <h2>TODO:</h2>
 <ol>
-    <li>figure out how to load massive numbers of notes/keep them in sync
-style</li>
     <li>(tags/archive/settings/trash pages, color scheme, Chrome & FF (Edge?)</li>
-    <li>tag manager - hide buttons based on how many notes are archived/deleted</li>
     <li>second level caching</li>
-    <li>import from keep, OneNote</li>
+    <li>import from keep, OneNote, sticklet</li>
     <li>encrypted database</li>
-    <li>Mobile interface (dedicated apps?)</li>
     <li>second level caching?</li>
-    <li>upload to googleapps for testing</li>
-    <li>get users working with google</li>
+    <li>Improve mobile interface</li>
+    <li>Implement SSL</li>
+    <li>Filter by dates/NOT tags</li>
+    <li>handle logging out/in with offline data</li>
+    <li>BETTER STYLE, MAN</li>
 </ol>
