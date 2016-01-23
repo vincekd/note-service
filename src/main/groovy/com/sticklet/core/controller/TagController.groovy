@@ -126,6 +126,8 @@ class TagController extends BaseController {
         if (tag) {
             socketServ.sendToUser(user, SocketTopics.TAG_CREATE, tag)
             return tag
+        } else {
+            statusServ.setStatusBadRequest(resp)
         }
         emptyJson()
     }

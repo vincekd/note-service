@@ -28,6 +28,7 @@ class StickletRequestInterceptor implements HandlerInterceptor {
         if (ex) {
             logger.error("error in request: ${req.getServletPath()}" + getQueryStr(req) + "    exp message: " + ex.message)
             logger.error("with data: ${req.getParameterMap()}")
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
         }
     }
 

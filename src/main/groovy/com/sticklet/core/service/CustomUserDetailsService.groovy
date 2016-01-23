@@ -3,6 +3,7 @@ package com.sticklet.core.service
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -19,6 +20,9 @@ import com.sticklet.core.model.User
 class CustomUserDetailsService implements UserDetailsService {
     private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class)
 
+    @Value("\${login.register.confirmation}")
+    private boolean registerEnabled
+
     @Autowired
     private UserService userServ
 
@@ -31,9 +35,9 @@ class CustomUserDetailsService implements UserDetailsService {
         User user = userServ.getUserByUsername(username)
 
         if (user) {
-            if (user.registered) {
+            if (user.registered || !registerEnabled) {
                 return new org.springframework.security.core.userdetails.User(user.username,
-                    user.password, true, true, true, true, getAuthorities(user.role))
+                        user.password, true, true, true, true, getAuthorities(user.role))
             } else {
                 //this might be a bad way to do this...
                 throw new UserNotRegisteredException(username)

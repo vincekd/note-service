@@ -45,9 +45,10 @@ class DataService {
                 "created": it.created,
                 "updated": it.updated,
                 "tags": it.tags.collect {
-                    Tag tag = tagServ.findTag(user, it)
+                    String name = tagServ.trimName(it)
+                    Tag tag = tagServ.findTag(user, name)
                     if (!tag) {
-                        tag = tagServ.createTag(user, it)
+                        tag = tagServ.createTag(user, name)
                     }
                     tag
                 }

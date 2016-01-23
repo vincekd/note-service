@@ -29,10 +29,13 @@ class UserService {
     private static final List<String> userUpdatableProps = ["name", "bio", "prefs"]
 
     @Value("\${login.enabled}")
-    boolean loginEnabled
+    private boolean loginEnabled
 
     @Value("\${email.enabled}")
-    boolean emailEnabled
+    private boolean emailEnabled
+    
+    @Value("\${login.register.confirmation}")
+    private boolean registerConfirmation
 
     @Autowired
     private UserRepo repo
@@ -85,10 +88,11 @@ class UserService {
     }
 
     public User getUserByUsername(String username) {
-        repo.findByUsername(username)
+        repo.findByUsername(username.toLowerCase())
     }
 
     public User createUser(Map<String, Object> opts) throws InvalidUserException {
+        opts.username = opts.username?.toLowerCase()
         User user = new User(opts)
         if (!user.prefs) {
             user.prefs = userPrefsRepo.save(new UserPreferences())
@@ -105,17 +109,18 @@ class UserService {
     }
 
     public boolean usernameIsFree(String username) {
-        return (repo.findByUsername(username) == null)
+        return (repo.findByUsername(username.toLowerCase()) == null)
     }
 
     public User registerUser(Map<String, String> u) {
         if (validatePassword(u.password, u.passwordRepeat) && validateUsername(u.username) && validateEmail(u.email)) {
             try {
                 User user = createUser([
-                    "username": u.username.trim(),
+                    "username": u.username.trim().toLowerCase(),
                     "password": u.password.trim(),
                     "email": u.email.trim(),
-                    "role": Roles.USER
+                    "role": Roles.USER,
+                    "registered": (registerConfirmation == false)
                 ])
                 if (emailEnabled) {
                     emailServ.send(user.email, StickletConsts.REGISTRATION_SUBJECT,

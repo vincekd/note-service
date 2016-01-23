@@ -25,7 +25,9 @@ login:
   enabled: false
   admin:
     password: admin
-  register: true
+  register:
+    enabled: true
+    confirmation: false
 debug:
   enabled: true
 email:
@@ -52,7 +54,9 @@ server:
   #  keyAlias:
 login:
   enabled: true
-  register: true
+  register:
+    enabled: true
+    confirmation: false
 debug:
   enabled: false
 email:

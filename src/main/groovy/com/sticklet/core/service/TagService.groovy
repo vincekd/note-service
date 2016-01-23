@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+import com.mongodb.DuplicateKeyException
 import com.sticklet.core.constant.StickletConsts
 import com.sticklet.core.model.Note
 import com.sticklet.core.model.Tag
@@ -48,12 +49,21 @@ class TagService {
     }
 
     public Tag createTag(User user, String name) {
-        Tag tag = new Tag(["user": user, "name": trimName(name)])
-        tagRepo.save(tag)
+        name = trimName(name)
+        if (name && user && tagAvailable(user, name)) {
+            Tag tag = new Tag(["user": user, "name": name, "upperCaseName": name.toUpperCase()])
+            return tagRepo.save(tag)
+        }
+        null
+    }
+
+    public boolean tagAvailable(User user, String name) {
+        tagRepo.findByUpperCaseNameAndUser(name.toUpperCase(), user) == null
     }
 
     public Tag findTag(User user, String name) {
-        tagRepo.findByNameAndUser(name, user)
+        //tagRepo.findByNameAndUser(name, user)
+        tagRepo.findByUpperCaseNameAndUser(name.toUpperCase(), user)
     }
 
     public Tag getTag(String tagID, User user, HttpServletResponse resp) {

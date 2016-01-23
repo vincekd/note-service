@@ -308,7 +308,7 @@ Sticklet
 
                 function noExactMatches() {
                     return _.every(tags ? tags : $scope.tags, function(tag) {
-                        return tag.name !== $scope.search;
+                        return tag.name.toUpperCase() !== $scope.search.toUpperCase();
                     });
                 }
             }
