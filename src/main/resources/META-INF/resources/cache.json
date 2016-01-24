@@ -29,6 +29,7 @@
     ],
     "sticklet": [
         "/index.html",
+        "/login.html",
         "/404.html",
         "/templates/notes.html", 
         "/templates/note.html",
@@ -53,8 +54,10 @@
         "/templates/mobile/notes-note.html",
 
         "/less/sticklet.less",
+        "/less/sticklet.login.less",
 
         "/js/sticklet.js",
+        "/js/sticklet.login.js",
         "/js/sticklet.controllers.js",
         "/js/sticklet.services.js",
         "/js/sticklet.directives.js",

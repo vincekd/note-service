@@ -31,6 +31,9 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomUserDetailsService customUserService
 
+    @Autowired
+    private StickletAuthenticationEntryPoint authenticationEntryPoint
+
     @Bean
     public DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider()
@@ -54,14 +57,14 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         logger.info "LOGIN: ${(loginEnabled == true)}"
         if (loginEnabled == true) {
+            
+            //http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
             http
-                    .csrf().disable()
-                    .authorizeRequests()
-                    .antMatchers("/js/sticklet.login.js", "/bower_components/**/*", "/**/*.less",
-                    "/sticklet.service-worker.js", "/**/*.css", "/user/info", "/user/register",
-                    "/user/registration/*", "/templates/**/*.html", "/js/**/*.js", "/cache.json",
-                    "/index.html", "/login.html"
-                    //"/templates/**/*.html" , "/js/sticklet.js*"
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/bower_components/**/*", "/less/*.less", "/user/register", "/user/registration/*",
+                    "/templates/*.html", "/templates/mobile/*.html", "/js/*.js", "/cache.json", "/login.html", "/index.html", "/", 
+                    "/login", "/custom-logout"
                     ).permitAll()
                     .antMatchers("/**").hasAnyRole("ADMIN", "USER")
                     .anyRequest().authenticated()

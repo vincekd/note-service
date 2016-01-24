@@ -29,6 +29,11 @@ class UserController extends BaseController {
     @Autowired
     private UserService userServ
 
+    @RequestMapping(value="/authenticate", method=RequestMethod.GET)
+    public @ResponseBody def authenticate() {
+        emptyJson()
+    }
+
     @RequestMapping(value="/user/registration/{id}", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def registration(@PathVariable("id") String id, HttpServletResponse resp) {
         if (userServ.register(id)) {
@@ -36,7 +41,7 @@ class UserController extends BaseController {
             return emptyJson()
         }
         statusServ.setStatusError(resp)
-        return emptyJson()
+        emptyJson()
     }
 
     @RequestMapping(value="/user/register", method=RequestMethod.POST, produces="application/json", consumes="application/json")

@@ -3,13 +3,14 @@
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
 var DEV = false,
-    VERSION = "v0.1.10",
+    VERSION = "v0.1.12",
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
     CACHE_NAME = 'sticklet-cache.' + VERSION,
     SECONDARY_CACHE_NAME = 'sticklet-secondary-cache.' + VERSION,
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + VERSION,
     CACHE_WHITELIST = [CACHE_NAME, SECONDARY_CACHE_NAME, OFFLINE_CACHE_NAME],
+    fetchOpts = {"credentials": "include"},
     fileRegex = /\.(?:html|js|less|css|woff|ttf|map|woff2|otf)$/i,
     uriRegex = /https?:\/\/[^\/]+(\/[^#?]+).*/i;
 
@@ -31,7 +32,6 @@ self.addEventListener('fetch', function(event) {
                 //neither in cache nor get, check headers for sticklet cache header
                 return doPromise(stickletCache(event));
             } else if (uri.indexOf("/serviceworker") > -1) {
-                console.log("service worker uri", uri);
                 return doPromise(serviceWorkerRequest(event, uri));
             }
             return doPromise(myFetch(event));
@@ -71,18 +71,16 @@ self.addEventListener('install', function(event) {
                 "method": "GET",
                 "cache": "no-store"
             });
-            return fetch(req).then(function(resp) {
+            return fetch(req, fetchOpts).then(function(resp) {
                 return resp.json().then(function(r) {
-                    console.log("response", r);
                     return r;
                 }, function(err) {
                     console.error("error parsing json", err);
                 });
             }).then(function(resp) {
-                console.log("service worker installed.");
-                sendMessage({
-                    "command": "install"
-                });
+                //sendMessage({
+                //    "command": "install"
+                //});
                 var toCache;
                 if (!DEV) {
                     toCache = resp.libraries.concat(resp.sticklet);
@@ -90,6 +88,7 @@ self.addEventListener('install', function(event) {
                     toCache = resp.libraries;
                 }
                 localforage.setItem(CACHED_STORAGE_NAME, toCache);
+                console.log("service worker installed.");
                 return cache.addAll(toCache);
             });
         });
@@ -99,12 +98,12 @@ self.addEventListener('install', function(event) {
 
 
 function myFetch(event) {
-    return fetch(event.request);
+    return fetch(event.request, fetchOpts);
 }
 function getFromCache(event) {
     return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(cachedResp) {
         if (!cachedResp) {
-            return fetch(event.request).then(function(resp) {
+            return myFetch(event).then(function(resp) {
                 if (resp.status === 200) {
                     caches.open(CACHE_NAME).then(function(cache) {
                         cache.put(event.request, resp);
@@ -121,7 +120,7 @@ function getFromCache(event) {
 }
 function eventuallyFresh(event) {
     return caches.match(event.request, {"cacheName": SECONDARY_CACHE_NAME}).then(function(cachedResp) {
-        var network = fetch(event.request).then(function(resp) {
+        var network = myFetch(event).then(function(resp) {
             if (resp.status === 200) {
                 caches.open(SECONDARY_CACHE_NAME).then(function(cache) {
                     cache.put(event.request, resp);
@@ -180,7 +179,7 @@ function serviceWorkerRequest(event, uri) {
                     "body": JSON.stringify(syncObj)
                 });
 
-                return fetch(req).then(function(resp) {
+                return fetch(req, fetchOpts).then(function(resp) {
                     if (resp.status === 200) {
                         localforage.setItem(SYNCED_STORAGE_NAME, {});
                     }
