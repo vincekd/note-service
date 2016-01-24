@@ -22,7 +22,7 @@ server:
   port: 80
   session-timeout: 864000
 login:
-  enabled: false
+  enabled: true
   admin:
     password: admin
   register:
