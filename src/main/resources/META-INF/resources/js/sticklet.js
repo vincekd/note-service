@@ -70,9 +70,9 @@
                   function(STOMP, Settings, Offline, net, $rootScope, ServiceWorker, HTTP) {
         HTTP.get("/authenticate").then(function() {}, function(resp) {
             console.log("authenticate error resp", resp.status);
-            if (resp.status === 401) {
-                //location.href = HTTP.getRealUrl("/login.html");
-            }
+            //if (resp.status === 401) {
+            location.href = HTTP.getRealUrl("/login.html");
+            //}
         });
         net.setOnline = function() {
             network.setOnline($rootScope);
