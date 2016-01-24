@@ -57,13 +57,13 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         logger.info "LOGIN: ${(loginEnabled == true)}"
         if (loginEnabled == true) {
-            
-            //http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+
+            http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
             http
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/bower_components/**/*", "/less/*.less", "/user/register", "/user/registration/*",
-                    "/templates/*.html", "/templates/mobile/*.html", "/js/*.js", "/cache.json", "/login.html", "/index.html", "/", 
+                    .csrf().disable()
+                    .authorizeRequests()
+                    .antMatchers("/bower_components/**/*", "/less/*.less", "/user/register", "/user/registration/*",
+                    "/templates/*.html", "/templates/mobile/*.html", "/js/*.js", "/cache.json", "/login.html", "/index.html", "/",
                     "/login", "/custom-logout"
                     ).permitAll()
                     .antMatchers("/**").hasAnyRole("ADMIN", "USER")
