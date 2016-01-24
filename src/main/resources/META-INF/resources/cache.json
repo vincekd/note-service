@@ -53,6 +53,8 @@
         "/templates/mobile/note-menu.html",
         "/templates/mobile/notes-note.html",
 
+        "/images/favicon.png",
+
         "/less/sticklet.less",
         "/less/sticklet.login.less",
 
