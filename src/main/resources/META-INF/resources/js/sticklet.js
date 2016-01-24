@@ -21,7 +21,8 @@
         }
     };
 
-    var Sticklet = angular.module("Sticklet", ["ngRoute", "hmTouchEvents", "ui.bootstrap", "perfect_scrollbar", "wysihtml"]);
+    var Sticklet = angular.module("Sticklet", ["ngRoute", "hmTouchEvents", "ui.bootstrap", 
+                                               "perfect_scrollbar", "wysihtml", "ngAnimate"]);
     Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
                      function($routeProvider, $locationProvider, $provide) {
 
@@ -156,6 +157,18 @@
                 } //else over a year
                 return "over a year ago";
             };
-        }())
+        }()),
+        "searchObjList": function(list, prop, searchStr) {
+            if (!list || !prop || !searchStr) {
+                return list;
+            }
+            var regex = new RegExp(searchStr, "i");
+            return list.filter(function(o) {
+                return search(o[prop]);
+            });
+            function search(str) {
+                return regex.test(str);
+            }
+        }
     });
 }());

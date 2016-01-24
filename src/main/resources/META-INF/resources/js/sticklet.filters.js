@@ -2,20 +2,31 @@
 
 var Sticklet = angular.module("Sticklet");
 Sticklet
-    .filter("FilterNotes", [function() {
+    .filter("FilterNotes", ["TagServ", function(TagServ) {
         return function(notes, filters) {
             var reg = new RegExp(filters.search, "i");
             return notes.filter(function(n) {
-                return (!n.archived && !n.deleted && ((_.isEmpty(filters.colors) || (filters.colors.indexOf(n.color) > -1)) && 
-                        (_.isEmpty(filters.tags) || findTags(filters.tags, n)) && 
-                        (!filters.search || reg.test(n.content) || reg.test(n.title))));
+                if (n.archived || n.deleted) {
+                    return false;
+                } else if (!filters.tags && !filters.colors && !filters.search) {
+                    return true;
+                }
+
+                var tags = _.difference(filters.tags, filters.notTags);
+                return ((_.isEmpty(filters.colors) || (filters.colors.indexOf(n.color) > -1)) && 
+                        (_.isEmpty(tags) || findTags(tags, n)) &&
+                        (_.isEmpty(filters.notTags) || findNotTags(filters.notTags, n)) &&
+                        (!filters.search || reg.test(n.content) || reg.test(n.title)));
             });
         };
+        function findNotTags(tags, note) {
+            return _.every(tags, function(t) {
+                return !TagServ.noteHasTag(note, t);
+            });
+        }
         function findTags(tags, note) {
-            return _.every(tags, function(t) { 
-                return _.some(note.tags, function(tt) {
-                    return tt.id === t.id; 
-                }); 
+            return _.every(tags, function(t) {
+                return TagServ.noteHasTag(note, t);
             });
         }
     }])
@@ -42,15 +53,8 @@ Sticklet
         };
     }])
     .filter("FilterTags", [function() {
-        //TODO: make this smarter
         return function(tags, search) {
-            if (!search) {
-                return tags;
-            }
-            var reg = new RegExp(search, "i");
-            return tags.filter(function(tag) {
-                return reg.test(tag.name);
-            });
+            return _.searchObjList(tags, "name", search);
         };
     }])
     .filter("DispDate", ["$filter", function($filter) {

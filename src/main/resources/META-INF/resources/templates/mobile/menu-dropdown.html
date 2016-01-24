@@ -34,6 +34,9 @@
                     <a class="pull-right close" ng-click="removeColorFilter(color)">&times;</a>
                 </span>
                 <span class="tag-label" ng-repeat="tag in current.filters.tags">
+                    <a class="pull-left" ng-click="toggleNotTag(tag)">
+                        <i class="oi {{current.filters.notTags.indexOf(tag) === -1 ? 'oi-chevron-bottom' : 'oi-chevron-top'}}"></i>
+                    </a>
                     <span ng-bind="tag.name" class="name"></span>
                     <a class="pull-right close" ng-click="removeTagFilter(tag)">&times;</a>
                 </span>

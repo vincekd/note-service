@@ -3,8 +3,8 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify", "Design",
-                             function($scope, UserServ, Settings, Offline, Notify, Design) {
+    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify", "Design", "$route",
+                             function($scope, UserServ, Settings, Offline, Notify, Design, $route) {
         $scope.user;
         Settings.get("note.maxTitleLength").then(function(data) {
             $scope.maxTitleLength = data;
@@ -23,12 +23,13 @@ Sticklet
             "title": null,
             "filters": {
                 "colors": [],
+                "notTags": [],
                 "tags": [],
                 "search": ""
             }
         };
         $scope.resetFilters = function() {
-            $scope.current.filters = {"colors": [], "tags": [], "search": ""};
+            $scope.current.filters = {"colors": [], "tags": [], "search": "", "notTags": []};
         };
         $scope.$watch(function() {
             return Design.size;
@@ -54,6 +55,16 @@ Sticklet
                 notification = Notify.add("Cannot connect to the server....", true, false);
             }
         });
+        var blurTime;
+        $(window).on("focus", function(ev) {
+            if (blurTime && Date.now() - blurTime > 600000) { //10 minutes
+                console.log("reloading page after long unfocus");
+                $route.reload();
+            }
+            blurTime = null;
+        }).on("blur", function(ev) {
+            blurTime = Date.now();
+        }).focus();
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter",
                               function($scope, NoteServ, filterNotes, sortNotes) {
@@ -112,6 +123,8 @@ Sticklet
         }, 250);
         $scope.$watchGroup([function() {
             return $scope.current.filters.tags.length;
+        }, function() {
+            return $scope.current.filters.notTags.length;
         }, function() {
             return $scope.current.filters.colors.length;
         }, function() {
@@ -179,6 +192,13 @@ Sticklet
             $scope.current.filters.tags = $scope.current.filters.tags.filter(function(t) {
                 return t.id !== tag.id;
             });
+        };
+        $scope.toggleNotTag = function(tag) {
+            if ($scope.current.filters.notTags.indexOf(tag) === -1) {
+                $scope.current.filters.notTags.push(tag);
+            } else {
+                $scope.current.filters.notTags = _.without($scope.current.filters.notTags, tag);
+            }
         };
         $scope.logout = function() {
             HTTP.post("/custom-logout").then(function() {
@@ -428,8 +448,8 @@ Sticklet
             $scope.opts.order = val;
         };
     }])
-    .controller("SettingsCtrl", ["$scope", "$route", "$location", "HTTP",
-                                 function($scope, $route, $location, HTTP) {
+    .controller("SettingsCtrl", ["$scope", "$location", "HTTP",
+                                 function($scope, $location, HTTP) {
 
         $scope.sortOptions = ["created", "updated", "title", "color"];
         $scope.mockUser;
