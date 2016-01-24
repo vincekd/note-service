@@ -16,22 +16,15 @@ public class IndexErrorController extends BaseController implements ErrorControl
     private static final Logger logger = LoggerFactory.getLogger(IndexErrorController.class)
     private static final String PATH = "/error"
 
-    @RequestMapping(value="/")
-    public String index(HttpServletRequest req, HttpServletResponse resp) {
-        resp.sendRedirect("/index.html")
-        ""
+    @RequestMapping(value="/error")
+    public String error(HttpServletRequest req, HttpServletResponse resp) {
+        statusServ.setStatusNotFound(resp)
+        "error"
     }
 
-//    @RequestMapping(value="/error")
-//    public String error(HttpServletRequest req, HttpServletResponse resp) {
-//        statusServ.setStatusNotFound(resp)
-//        resp.sendRedirect("/404.html")
-//        ""
-//    }
-
-    @RequestMapping(value="/ping")
-    public String ping(HttpServletRequest req, HttpServletResponse resp) {
-        emptyJson()
+    @RequestMapping(value="/throw")
+    public def throwError() {
+        throw new Exception()
     }
 
     @Override

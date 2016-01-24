@@ -1,26 +1,4 @@
 (function() { "use strict";
-    var network = {
-        "online": false,
-        "setOnline": function($scope) {
-            if (network.online !== true) {
-                network.online = true;
-                if ($scope) {
-                    $scope.$broadcast("network-state-change");
-                    $scope.$apply();
-                }
-            }
-        },
-        "setOffline": function($scope) {
-            if (network.online !== false) {
-                network.online = false;
-                if ($scope) {
-                    $scope.$broadcast("network-state-change");
-                    $scope.$apply();
-                }
-            }
-        }
-    };
-
     var Sticklet = angular.module("Sticklet", ["ngRoute", "hmTouchEvents", "ui.bootstrap", 
                                                "perfect_scrollbar", "wysihtml", "ngAnimate"]);
     Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
@@ -54,36 +32,23 @@
 
         $provide.value("network", {
             get online() {
-                return network.online;
-            },
-            setOnline: function() {
-                //how to indicate to root scope ?
-                network.online = true;
-            },
-            setOffline: function() {
-                network.online = false;
+                return window.__sticklet.network.online;
             }
         });
     }]);
 
-    Sticklet.run(["STOMP", "Settings", "Offline", "network", "$rootScope", "ServiceWorker", "HTTP",
-                  function(STOMP, Settings, Offline, net, $rootScope, ServiceWorker, HTTP) {
-        HTTP.get("/authenticate").then(function() {}, function(resp) {
-            console.log("authenticate error resp", resp.status);
-            //if (resp.status === 401) {
-            location.href = HTTP.getRealUrl("/login.html");
-            //}
-        });
-        net.setOnline = function() {
-            network.setOnline($rootScope);
+    Sticklet.run(["STOMP", "Settings", "Offline", "network", "$rootScope",
+                  function(STOMP, Settings, Offline, network, $rootScope) {
+        network.setOnline = function() {
+            window.__sticklet.network.setOnline($rootScope);
         };
-        net.setOffline = function() {
-            network.setOffline($rootScope);
+        network.setOffline = function() {
+            window.__sticklet.network.setOffline($rootScope);
         };
 
         //remove when done testing
-        window.setOffline = net.setOffline;
-        window.setOnline = net.setOnline;
+        window.setOffline = network.setOffline;
+        window.setOnline = network.setOnline;
 
         $(function() {
             STOMP.connect();

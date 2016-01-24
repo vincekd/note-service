@@ -16,8 +16,7 @@ logging:
   level:
     org.springframework: WARN
     org.springframework.beans: INFO
-    org.hibernate: INFO
-    org.egr.authorware: DEBUG
+    com.sticklet: TRACE
 server:
   port: 80
   session-timeout: 864000

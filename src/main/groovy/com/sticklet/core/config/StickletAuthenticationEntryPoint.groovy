@@ -15,7 +15,7 @@ public class StickletAuthenticationEntryPoint implements AuthenticationEntryPoin
     
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        logger.debug "not authenticated: ${request}"
+        logger.debug "auth exception: $authException"
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
     }
 }

@@ -12,6 +12,5 @@
   
   <logger name="org.springframework" level="WARN" />
   <logger name="org.springframework.beans" level="INFO" />
-  <logger name="org.hibernate" level="INFO" />
   <logger name="com.sticklet" level="DEBUG" />
 </configuration>
