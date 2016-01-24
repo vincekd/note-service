@@ -67,12 +67,17 @@ self.addEventListener('install', function(event) {
     function install() {
         console.log("installing service worker...")
         return caches.open(CACHE_NAME).then(function(cache) {
-            return fetch("/cache.json").then(function(resp) {
-                try {
-                    return resp.json();
-                } catch (err) {
-                    console.error(err);
-                }
+            var req = new Request("cache.json", {
+                "method": "GET",
+                "cache": "no-store"
+            });
+            return fetch(req).then(function(resp) {
+                return resp.json().then(function(r) {
+                    console.log("response", r);
+                    return r;
+                }, function(err) {
+                    console.error("error parsing json", err);
+                });
             }).then(function(resp) {
                 console.log("service worker installed.");
                 sendMessage({
