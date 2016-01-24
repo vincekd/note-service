@@ -46,7 +46,7 @@ self.addEventListener('fetch', function(event) {
             });
         }
     });
-    if (uri.indexOf("/registerSocket") === -1) {
+    if (uri.indexOf("/registerSocket") === -1 && uri.indexOf("/authenticate") === -1) {
         event.respondWith(ret);
     }
 });
