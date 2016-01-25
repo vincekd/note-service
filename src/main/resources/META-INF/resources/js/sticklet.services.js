@@ -567,8 +567,8 @@ Sticklet
         };
         return Service;
     }])
-    .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Storage", "Offline", "NoteServ",
-                         function(HTTP, STOMP, $rootScope, $q, Storage, Offline, NoteServ) {
+    .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline", "NoteServ",
+                         function(HTTP, STOMP, $rootScope, $q, Offline, NoteServ) {
         var tagsGet = "/tags",
             tags = getTags(),
             namespace = "TagServ";
@@ -693,35 +693,6 @@ Sticklet
         return {
             "get": function() {
                 return HTTP.get("/trash");
-            }
-        };
-    }])
-    .service("Storage", [function() {
-        var storage = window.localStorage,
-            name = "sticklet",
-            obj = get();
-
-        function get() {
-            return JSON.parse(storage.getItem(name) || "{}");
-        }
-        function set() {
-            storage.setItem(name, JSON.stringify(obj));
-        }
-
-        return {
-            "set": function(path, val) {
-                //pass object of key/value pairs (preferred: less read/write with localstorage
-                if (_.isObject(path)) {
-                    _.each(path, function(v, k) {
-                        _.val(obj, k, v);
-                    });
-                } else {
-                    _.val(obj, path, val);
-                }
-                set();
-            },
-            "get": function(path) {
-                return _.val(obj, path);
             }
         };
     }])

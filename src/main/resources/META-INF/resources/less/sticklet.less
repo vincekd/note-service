@@ -498,6 +498,11 @@ uib-accordion {
             max-width: 100%;
             width: 1000px;
             margin: 10px auto 10px auto;
+            height: auto;
+            .note .content {
+                height: auto;
+                min-height: @note-content-height;
+            }
         }
         &:not(.mobile).tiled .noteContainer {
             width: 32%;

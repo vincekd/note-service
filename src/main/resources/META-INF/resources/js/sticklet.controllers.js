@@ -454,9 +454,13 @@ Sticklet
         $scope.sortOptions = ["created", "updated", "title", "color"];
         $scope.mockUser;
         $scope.saveSettings = function() {
-            HTTP.put("/user", $scope.mockUser).then(function() {
-                $location.path("/notes");
-            });
+            if (!$scope.mockUser.password || ($scope.mockUser.password === $scope.mockUser.password2)) {
+                HTTP.put("/user", $scope.mockUser).then(function() {
+                    $location.path("/notes");
+                });
+            } else {
+                console.log("passwords don't match");
+            }
         };
 
         var sw = $scope.$watch(function() {

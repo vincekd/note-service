@@ -64,6 +64,11 @@ class DataService {
         //TODO: implement
         throw new ImportNotSupportedException()
     }
+    
+    public void importSticklet(User user, MultipartFile file) {
+        //TODO: implement
+        throw new ImportNotSupportedException()
+    }
 
     public void importOneNote(User user, MultipartFile file) {
         //TODO: implement

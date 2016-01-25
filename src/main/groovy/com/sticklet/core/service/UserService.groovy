@@ -18,6 +18,7 @@ import com.sticklet.core.constant.Roles
 import com.sticklet.core.constant.StickletConsts
 import com.sticklet.core.exception.EmailFailedException
 import com.sticklet.core.exception.InvalidUserException
+import com.sticklet.core.exception.PasswordMismatchException
 import com.sticklet.core.model.User
 import com.sticklet.core.model.UserPreferences
 import com.sticklet.core.repository.UserPreferencesRepo
@@ -72,6 +73,13 @@ class UserService {
                 } else {
                     user[key] = val
                 }
+            }
+        }
+        if (data.password && data.password2) {
+            if (data.password == data.password2) {
+                user.password = getPassword(data.password)
+            } else {
+                throw new PasswordMismatchException()
             }
         }
         repo.save(user)
