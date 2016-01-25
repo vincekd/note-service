@@ -46,6 +46,8 @@ class LessFilter implements BaseContentFilter {
                 response.setContentType("text/css")
                 response.getOutputStream().write(lessBytes)
             }
+        } catch (IOException e) {
+            logger.debug e.message
         } catch (Exception e) {
             e.printStackTrace()
         }
@@ -64,20 +66,6 @@ class LessFilter implements BaseContentFilter {
         less
     }
 
-    //    private String getCssFromURI(String uri, String str) {
-    //        //String uri = req.getRequestURI()
-    //        String less = cache[uri]
-    //        if (less == null || debugEnabled) {
-    //            if (str) {
-    //                compileLessString(str)
-    //            } else {
-    //                less = compileLessResource(uri)
-    //            }
-    //            cache[uri] = less
-    //        }
-    //        less
-    //    }
-
     private String compileLessResource(String uri) {
         URL url = clazzLoader.getResource("META-INF/resources" + uri)
         if (url) {
@@ -85,9 +73,4 @@ class LessFilter implements BaseContentFilter {
         }
         ""
     }
-
-    //    private String compileLessString(String less) {
-    //        logger.debug "less string: $less"
-    //        lessEngine.compile(less)
-    //    }
 }

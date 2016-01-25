@@ -47,7 +47,7 @@ Sticklet
         });
         var notification;
         Offline.onNetworkChange("PageCtrl", function(online) {
-            console.log("network online", online);
+            console.info("network online", online);
             $scope.current.online = online;
             if (online) {
                 Notify.remove(notification);
@@ -57,8 +57,8 @@ Sticklet
         });
         var blurTime;
         $(window).on("focus", function(ev) {
-            if (blurTime && Date.now() - blurTime > 600000) { //10 minutes
-                console.log("reloading page after long unfocus");
+            if (blurTime && Date.now() - blurTime > 1200000) { //20 minutes
+                console.info("reloading page after long unfocus");
                 $route.reload();
             }
             blurTime = null;
@@ -459,7 +459,7 @@ Sticklet
                     $location.path("/notes");
                 });
             } else {
-                console.log("passwords don't match");
+                console.warn("passwords don't match");
             }
         };
 

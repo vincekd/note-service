@@ -126,13 +126,13 @@ Sticklet
             namespaceRegex = /(\/.+)(?:\.([^\/]+))/,
             jsonRegex = /application\/json/,
             topicBase = "/user/topic",
-            //topicBase = "/topic",
             namespaces = {},
             subscribed = {},
             attempts = 0,
             retryEvery = 3000,
             maxInterval = 30000,
             connected = false,
+            connecting = false,
             sendBase = "/socket"
         ;
 
@@ -181,16 +181,18 @@ Sticklet
         }
 
         function onConnect(frame) {
-            console.log("websocket connected");
+            console.info("websocket connected");
             connected = true;
+            connecting = false;
             attempts = 0;
             network.setOnline();
             initialRegisterAll();
         }
         function onDisconnect(msg) {
-            console.log("disconnected", msg);
+            console.info("disconnected", msg);
             reconnect();
             connected = false;
+            connecting = false;
             network.setOffline();
         }
         
@@ -228,7 +230,9 @@ Sticklet
             return STOMP;
         }
         function connect() {
-            if (!connected) {
+            if (!connected && !connecting) {
+                connecting = true;
+                connecting = true;
                 socket = new SockJS(HTTP.getRealUrl("/registerSocket"));
                 stompClient = Stomp.over(socket);
 
@@ -379,7 +383,6 @@ Sticklet
         function getOfflineNoteID() {
             return $q(function(resolve, reject) {
                 Settings.get("note.offline.baseName").then(function(base) {
-                    console.log("base", base);
                     notes.then(function(ns) {
                         var ids = ns.filter(function(n) { 
                             return n.id.indexOf(base) !== -1;

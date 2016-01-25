@@ -137,10 +137,6 @@ uib-accordion {
     }
     .panel-collapse {
         transition-duration: .250s;
-        //&.ng-add,
-        //&.ng-remove {
-        //    transition: ease 2s;
-        //}
         .panel-body {
             min-height: 100px;
         }
@@ -502,6 +498,7 @@ uib-accordion {
             .note .content {
                 height: auto;
                 min-height: @note-content-height;
+                max-height: 600px;
             }
         }
         &:not(.mobile).tiled .noteContainer {

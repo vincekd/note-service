@@ -23,9 +23,9 @@ class Note extends BaseModel {
     public Long deleted = null
 
     public Map<String, Integer> position = [
-        "x": "",
-        "y": "",
-        "z": ""
+        "x": null,
+        "y": null,
+        "z": null
     ]
 
     @DBRef

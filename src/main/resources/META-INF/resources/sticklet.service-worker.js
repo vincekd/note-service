@@ -3,7 +3,7 @@
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
 var DEV = false,
-    VERSION = "v0.1.12",
+    VERSION = "v0.1.16",
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
     CACHE_NAME = 'sticklet-cache.' + VERSION,
@@ -17,42 +17,44 @@ var DEV = false,
 self.addEventListener('message', onMessage);
 self.addEventListener('fetch', function(event) {
     var uri = getUri(event.request.url);
-    var ret = new Promise(function(resolve, reject) {
-        //get cached uri to determine how to treat different things
-        localforage.getItem(CACHED_STORAGE_NAME).then(function(cached) {
-            if (cached.indexOf(uri) !== -1) {
-                //return from catch, don't refetch
-                return doPromise(getFromCache(event));
-            } else if (isFileGet(event.request.method, uri)) {
-                //return cache if available, but still fetch ('eventually fresh')
-                if (!DEV) {
-                    return doPromise(eventuallyFresh(event));
-                } //skip and do fetch if debugging
-            } else if (event.request.headers.has("sticklet-cache")) {
-                //neither in cache nor get, check headers for sticklet cache header
-                return doPromise(stickletCache(event));
-            } else if (uri.indexOf("/serviceworker") > -1) {
-                return doPromise(serviceWorkerRequest(event, uri));
-            }
-            return doPromise(myFetch(event));
-        }, function() {
-            reject(getErrorResp("could not open localforage storage"));
-        });
-        function doPromise(prom) {
-            prom.then(function(resp) {
-                resolve(resp);
-            }, function(err) {
-                reject(err);
-            });
-        }
-    });
     if (uri.indexOf("/registerSocket") === -1 && uri.indexOf("/authenticate") === -1) {
+        var ret = new Promise(function(resolve, reject) {
+            //get cached uri to determine how to treat different things
+            localforage.getItem(CACHED_STORAGE_NAME).then(function(cached) {
+                if (cached.indexOf(uri) !== -1) {
+                    //return from catch, don't refetch
+                    return doPromise(getFromCache(event));
+                } else if (isFileGet(event.request.method, uri)) {
+                    //return cache if available, but still fetch ('eventually fresh')
+                    if (!DEV) {
+                        return doPromise(eventuallyFresh(event));
+                    } //skip and do fetch if debugging
+                } else if (event.request.headers.has("sticklet-cache")) {
+                    //neither in cache nor get, check headers for sticklet cache header
+                    return doPromise(stickletCache(event));
+                } else if (uri.indexOf("/serviceworker") > -1) {
+                    return doPromise(serviceWorkerRequest(event, uri));
+                }
+                return doPromise(myFetch(event));
+            }, function() {
+                reject(getErrorResp("could not open localforage storage"));
+            });
+            function doPromise(prom) {
+                prom.then(function(resp) {
+                    resolve(resp);
+                }, function(err) {
+                    reject(err);
+                });
+            }
+        });
         event.respondWith(ret);
+    } else {
+        //console.log("skipping ServiceWorker intercept for: ", event.request.url);
     }
 });
 self.addEventListener('activate', function(event) {
     function activate() {
-        console.log("service working activating...");
+        console.info("service working activating...");
         return caches.keys().then(function(keyList) {
             return Promise.all(keyList.map(function(key, i) {
                 if (CACHE_WHITELIST.indexOf(key) === -1) {
@@ -65,7 +67,7 @@ self.addEventListener('activate', function(event) {
 });
 self.addEventListener('install', function(event) {
     function install() {
-        console.log("installing service worker...")
+        console.info("installing service worker...")
         return caches.open(CACHE_NAME).then(function(cache) {
             var req = new Request("cache.json", {
                 "method": "GET",
@@ -88,7 +90,7 @@ self.addEventListener('install', function(event) {
                     toCache = resp.libraries;
                 }
                 localforage.setItem(CACHED_STORAGE_NAME, toCache);
-                console.log("service worker installed.");
+                console.info("service worker installed.");
                 return cache.addAll(toCache);
             });
         });
@@ -114,7 +116,6 @@ function getFromCache(event) {
                 return getErrorResp(err);
             });
         }
-        //console.log("got from cache", event.request.url);
         return cachedResp;
     });
 }

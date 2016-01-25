@@ -28,6 +28,7 @@
         "/bower_components/angular-hammer/angular-hammer.js"
     ],
     "sticklet": [
+        "/",
         "/index.html",
         "/login.html",
         "/404.html",
