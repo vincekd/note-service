@@ -3,7 +3,7 @@
         "authenticated": null,
         "serviceWorker": true,
         "network": {
-            "online": null,
+            "online": false,
             "setOnline": function($scope) {
                 if (__sticklet.network.online !== true) {
                     __sticklet.network.online = true;
@@ -27,26 +27,33 @@
 
     //register service worker
     if ('serviceWorker' in navigator && 'fetch' in window) {
-        console.log("fetching '/authenticate'");
         fetch("/authenticate", {"credentials": "include"}).then(function(resp) {
             console.log("autenticated", resp.status);
-            if (resp.status === 200) {
+            if (resp.status === 401) {
+                do401();
+            } else if (resp.status === 200) {
                 __sticklet.authenticated = true;
-//                navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
-//                    console.log("Service worker registered on scope:", reg.scope);
-//                }).catch(function(error) {
-//                    console.warn('Service worker registration failed with ' + error);
-//                });
-            }
+            } 
         }, function(resp) {
             console.log("authenticate error status", resp.status);
-            //TODO: fix this for offline access
-            __sticklet.authenticated = false;
             if (resp.status === 401) {
-                location.href = HTTP.getRealUrl("/login.html");
+                do401();
             }
+        });
+        
+        navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
+            __sticklet.serviceWorker = true;
+            console.log("Service worker registered on scope:", reg.scope);
+        }).catch(function(error) {
+            __sticklet.serviceWorker = false;
+            console.warn('Service worker registration failed with ' + error);
         });
     } else {
         console.warn("this site requires a modern browser.");
+    }
+
+    function do401() {
+        __sticklet.authenticated = false;
+        location.href = "/login.html";
     }
 }());

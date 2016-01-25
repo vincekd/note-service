@@ -71,7 +71,6 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         if (loginEnabled == true) {
             //configs
             http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-            http.exceptionHandling().accessDeniedHandler(new AccessDeniedExceptionHandler())
             http.csrf().disable()
 
             ExpressionInterceptUrlRegistry registry = http.authorizeRequests()
@@ -79,32 +78,22 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 registry.antMatchers(it).permitAll()
             }
             registry.antMatchers("/**").hasAnyRole("ADMIN", "USER")
-            //registry.anyRequest().authenticated()
-            //                    .and()
-            //                    .formLogin()
-            //                    .loginPage("/login.html")
-            //                    .defaultSuccessUrl("/index.html", true)
-            //                    .permitAll()
-            //                    .and()
-            //                    .logout()
-            //                    .deleteCookies("remove")
-            //                    .deleteCookies("JSESSIONID")
-            //                    .invalidateHttpSession(false)
-            //                    .logoutUrl("/custom-logout")
-            //                    .logoutSuccessUrl("/login.html")
-            //                    .permitAll()
+            registry.anyRequest().authenticated()
+            ((HttpSecurity)((HttpSecurity)registry.and()).formLogin()
+                .loginPage("/login.html")
+                .defaultSuccessUrl("/index.html", true)
+                .permitAll()
+                .and())
+                    .logout()
+                    .deleteCookies("remove")
+                    .deleteCookies("JSESSIONID")
+                    .invalidateHttpSession(false)
+                    .logoutUrl("/custom-logout")
+                    .logoutSuccessUrl("/login.html")
+                    .permitAll()
         } else {
             http.csrf().disable()
             http.authorizeRequests().anyRequest().permitAll()
-        }
-    }
-
-    public static class AccessDeniedExceptionHandler implements AccessDeniedHandler {
-        @Override
-        public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex) {
-            //response.sendRedirect(errorPage);
-            logger.debug "access denied: $request"
-            response.setStatus(response.SC_UNAUTHORIZED)
         }
     }
 }

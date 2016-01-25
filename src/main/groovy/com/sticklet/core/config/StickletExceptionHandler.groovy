@@ -20,13 +20,14 @@ public class StickletExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler([Throwable.class, Exception.class, RuntimeException.class])
     public ResponseEntity<Object> handleNonSpringException(Exception e, WebRequest req) {
-        logger.debug "in handleNonSpringException: $e"
+        logger.debug "handleNonSpringException: $e"
         return new ResponseEntity<Object>("{}", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        logger.debug "in handleExceptionInternal: $ex"
+        //logger.debug "in handleExceptionInternal: $ex"
+        //this is just a copy of the original... for future reference
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)
         }
