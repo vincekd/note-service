@@ -412,12 +412,11 @@ uib-accordion {
             .noteContainer {
                 height: @note-height;
                 margin: 10px;
-                //margin: 10px auto;
+                transition: ease .300s;
                 .note {
                     padding: 0px;
                     padding-top: @note-top-padding;
                     padding-bottom: @note-bottom-padding;
-                    transition: ease .300s;
                     border: @note-border-size solid transparent;
                     &.editing .header .title.editing {
                         margin-top: -7px;
