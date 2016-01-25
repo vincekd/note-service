@@ -12,10 +12,8 @@ import org.springframework.stereotype.Component
 @Component
 public class StickletAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private static final Logger logger = LoggerFactory.getLogger(StickletAuthenticationEntryPoint.class)
-    
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        logger.debug "auth exception: $authException"
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
     }
 }

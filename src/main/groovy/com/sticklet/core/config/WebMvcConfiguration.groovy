@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import com.sticklet.core.filter.LessFilter
 
 @Configuration
-//@EnableWebMvc
+@EnableWebMvc
 class WebMvcConfiguration extends WebMvcConfigurationSupport {
     private static final Logger logger = LoggerFactory.getLogger(WebMvcConfiguration.class)
 

@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.access.AccessDeniedHandler
@@ -27,6 +28,11 @@ import com.sticklet.core.service.CustomUserDetailsService
 @EnableWebSecurity
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class)
+    private static final ALLOWED_RESOURCES = [
+        "/bower_components/**/*", "/less/*.less", "/user/register", "/user/registration/*",
+        "/templates/*.html", "/templates/mobile/*.html", "/js/*.js", "/cache.json", "/login.html",
+        "/index.html", "/", "/login", "/custom-logout"
+    ]
 
     @Value("\${login.enabled}")
     boolean loginEnabled
@@ -63,44 +69,42 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         logger.info "LOGIN: ${(loginEnabled == true)}"
         if (loginEnabled == true) {
+            //configs
             http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-            //http.exceptionHandling().accessDeniedHandler(new AccessDeniedExceptionHandler())
-            http
-                    .csrf().disable()
-                    .authorizeRequests()
-                    .antMatchers("/bower_components/**/*", "/less/*.less", "/user/register", "/user/registration/*",
-                    "/templates/*.html", "/templates/mobile/*.html", "/js/*.js", "/cache.json", "/login.html", "/index.html", "/",
-                    "/login", "/custom-logout"
-                    ).permitAll()
-                    .antMatchers("/**").hasAnyRole("ADMIN", "USER")
-                    .anyRequest().authenticated()
-                    .and()
-                    .formLogin()
-                    .loginPage("/login.html")
-                    .defaultSuccessUrl("/index.html", true)
-                    .permitAll()
-                    .and()
-                    .logout()
-                    .deleteCookies("remove")
-                    .deleteCookies("JSESSIONID")
-                    .invalidateHttpSession(false)
-                    .logoutUrl("/custom-logout")
-                    .logoutSuccessUrl("/login.html")
-                    .permitAll()
+            http.exceptionHandling().accessDeniedHandler(new AccessDeniedExceptionHandler())
+            http.csrf().disable()
+
+            ExpressionInterceptUrlRegistry registry = http.authorizeRequests()
+            ALLOWED_RESOURCES.each {
+                registry.antMatchers(it).permitAll()
+            }
+            registry.antMatchers("/**").hasAnyRole("ADMIN", "USER")
+            //registry.anyRequest().authenticated()
+            //                    .and()
+            //                    .formLogin()
+            //                    .loginPage("/login.html")
+            //                    .defaultSuccessUrl("/index.html", true)
+            //                    .permitAll()
+            //                    .and()
+            //                    .logout()
+            //                    .deleteCookies("remove")
+            //                    .deleteCookies("JSESSIONID")
+            //                    .invalidateHttpSession(false)
+            //                    .logoutUrl("/custom-logout")
+            //                    .logoutSuccessUrl("/login.html")
+            //                    .permitAll()
         } else {
-            http
-                    .csrf().disable()
-                    .authorizeRequests()
-                    .anyRequest().permitAll()
+            http.csrf().disable()
+            http.authorizeRequests().anyRequest().permitAll()
         }
     }
 
-    //    public class AccessDeniedExceptionHandler implements AccessDeniedHandler {
-    //        @Override
-    //        public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex) {
-    //            //response.sendRedirect(errorPage);
-    //            logger.debug "access denied: $request"
-    //            response.setStatus(response.SC_UNAUTHORIZED)
-    //        }
-    //    }
+    public static class AccessDeniedExceptionHandler implements AccessDeniedHandler {
+        @Override
+        public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex) {
+            //response.sendRedirect(errorPage);
+            logger.debug "access denied: $request"
+            response.setStatus(response.SC_UNAUTHORIZED)
+        }
+    }
 }

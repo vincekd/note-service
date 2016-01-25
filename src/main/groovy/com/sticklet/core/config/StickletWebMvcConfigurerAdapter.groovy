@@ -10,14 +10,14 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
-//@EnableWebMvc
+@EnableWebMvc
 @Configuration
 class StickletWebMvcConfigurerAdapter extends WebMvcConfigurerAdapter {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/login").setViewName("login")
-        //registry.addViewController("/").setViewName("forward:/index.html")
+        registry.addViewController("/").setViewName("forward:/index.html")
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE)
     }
 
@@ -31,15 +31,15 @@ class StickletWebMvcConfigurerAdapter extends WebMvcConfigurerAdapter {
         registry.addInterceptor(new StickletRequestInterceptor())
     }
 
-//    @Override
-//    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-//        //configurer.enable("stickletDefaultServlet")
-//        configurer.enable()
-//    }
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        //configurer.enable("stickletDefaultServlet")
+        configurer.enable()
+    }
 
-//    @Override
-//    public void configurePathMatch(PathMatchConfigurer configurer) {
-//        super.configurePathMatch(configurer)
-//        configurer.setUseSuffixPatternMatch(false)
-//    }
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        super.configurePathMatch(configurer)
+        configurer.setUseSuffixPatternMatch(false)
+    }
 }

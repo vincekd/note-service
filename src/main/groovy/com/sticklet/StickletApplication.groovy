@@ -14,9 +14,9 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 
-//@Configuration
+@Configuration
 //@EnableCaching
-//@EnableWebMvc
+@EnableWebMvc
 @EnableAutoConfiguration(exclude = RepositoryRestMvcAutoConfiguration.class)
 @EnableAsync
 @EnableScheduling
