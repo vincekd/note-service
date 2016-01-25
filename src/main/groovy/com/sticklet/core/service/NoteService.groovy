@@ -206,6 +206,11 @@ class NoteService {
                 note[key] = val
             }
         }
+        if (params.position) {
+            note.position.x = params.position.x
+            note.position.y = params.position.y
+            note.position.z = params.position.z
+        }
         noteRepo.save(note)
     }
 

@@ -81,7 +81,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             registry.anyRequest().authenticated()
             ((HttpSecurity)((HttpSecurity)registry.and()).formLogin()
                 .loginPage("/login.html")
-                .defaultSuccessUrl("/index.html", true)
+                .defaultSuccessUrl("/", true)
                 .permitAll()
                 .and())
                     .logout()

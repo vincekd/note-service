@@ -74,26 +74,6 @@ Sticklet
             }
         };
     }])
-    .directive("showHideTimer", ["$timeout", function($timeout) {
-        return {
-            "restrict": "A",
-            "link": function($scope, $element, $attrs) {
-                var timer;
-                $element.on("mousemove.sticklet", _.debounce(function() {
-                    var $el = $element.find($attrs.element).show();
-                    $timeout.cancel(timer);
-                    timer = $timeout(function() {
-                        $el.hide();
-                    }, _.toInt($attrs.time || 6) * 1000);
-                }, 200, {leading: true}))
-                .on("mouseleave.sticklet", function() {
-                    $element.find($attrs.element).hide();
-                    $timeout.cancel(timer);
-                    timer = null;
-                });
-            }
-        };
-    }])
     .directive("colorChoices", ["NoteServ", function(NoteServ) {
         return {
             "restrict": "E",
@@ -333,7 +313,10 @@ Sticklet
                             top = $el.position().top;
                         
                         if ((top + $el.outerHeight()) >= (scrollTop - leeway) && top <= ((scrollTop + portal) + leeway)) {
+                            $el.addClass("stklt-shown");
                             arr.push($el.scope().note.id);
+                        } else {
+                            $el.removeClass("stklt-shown");
                         }
                     }
 
@@ -375,38 +358,73 @@ Sticklet
             }
         };
     }])
-//    .directive("longPress", ["$timeout", function($timeout) {
-//        var duration = 800;
-//        return {
-//            "restrict": "A",
-//            "link": function($scope, $element, $attrs) {
-//                //TODO: prevent firing when scrolling
-//                var timer,
-//                    lockTimer;
-//
-//                function touchstart(ev) {
-//                    console.log("touchstart", ev);
-////                    ev.preventDefault();
-////                    if (lockTimer){
-////                        return;
-////                    }
-////                    lockTimer = true;
-////                    timer = $timeout(longPress, duration); 
-//                }
-//                function touchend(ev) {
-//                    console.log("touchend", ev);
-////                    $timeout.cancel(timer);
-////                    lockTimer = false;
-//                }
-//                function longPress() { 
-//                    $scope.$eval($attrs.longPress);
-//                };
-//
-//                $element.on("touchstart", touchstart);
-//                $element.on("touchend", touchend);
-//            }
-//        };
-//    }])
+    .directive("tiledStickies", [function() {
+        var namespace = ".stickies ";
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                function updatePosition() {
+                    $element.css({
+                        "left": $scope.note.position.x,
+                        "top": $scope.note.position.y,
+                        "z-index": $scope.note.position.z
+                    });
+                }
+
+                function bindDrag() {
+                    //TODO: finish this
+                    var moved = false,
+                        offset = $element.closest(".notes").offset();
+                    $element.on("mousedown" + namespace, function(ev) {
+                        $element.on("mousemove" + namespace, function(ev) {
+                            moved = true;
+                            $scope.note.position = $scope.note.position || {};
+                            $scope.note.position.x = ev.clientX - offset.left;
+                            $scope.note.position.y = ev.clientY - offset.top;
+                            var topZ = getTopZ();
+                            $scope.note.position.z = topZ > $scope.note.position.z ? topZ + 1 : $scope.note.position.z;
+                            $scope.$apply(function() {
+                                updatePosition();
+                            });
+                        });
+                    })
+                    $(document).on("mouseup" + namespace, function(ev) {
+                        $element.off("mousemove" + namespace);
+                        if (moved) {
+                            //TODO: save
+                        }
+                    });
+                }
+                function unbindDrag() {
+                    $element.off("mousedown" + namespace + "mouseup" + namespace + "mousemove" + namespace);
+                }
+                function getTopZ() {
+                    return $scope.notes.reduce(function(prev, note) {
+                        return (note.position && note.position.z > prev ? note.position.z : prev);
+                    }, 0);
+                }
+                $scope.$watch(function() {
+                    if ($scope.note.position) {
+                        return $scope.note.position.x + "-" + $scope.note.position.y + "-" + $scope.note.position.z;
+                    }
+                    return "";
+                }, function(v) {
+                    if (v) {
+                        updatePosition();
+                    }
+                });
+                $scope.$watch(function() {
+                    return $scope.opts.display;
+                }, function (disp) {
+                     if ($scope.opts.screenSize > 1 && disp === "tiled") {
+                         bindDrag();
+                     } else {
+                         unbindDrag();
+                     }
+                });
+            }
+        };
+    }])
 ;
 
 }(jQuery));

@@ -11,6 +11,7 @@ import com.sticklet.core.model.base.BaseModel
 @JsonIgnoreProperties(["id", "updated", "created"])
 @Document
 class UserPreferences extends BaseModel {
+    //DisplayPref display = DisplayPref.tiled
     DisplayPref display = DisplayPref.stacked
     SortPref sortBy = SortPref.created
     OrderPref order = OrderPref.ASC

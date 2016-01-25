@@ -776,7 +776,7 @@ Sticklet
                 return Offline;
             },
             "storeRequest": function(method, url, data) {
-                if (method && url) {
+                if (method && url && ServiceWorker.enabled) {
                     $http.put("/serviceworker/update-cache", {
                         "method": method,
                         "url": HTTP.getRealUrl(url),

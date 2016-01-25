@@ -508,6 +508,10 @@ uib-accordion {
             width: 32%;
             min-width: 250px;
             display: inline-block;
+            &[tiled-stickies] {
+                position: sticky;
+                cursor: move;
+            }
         }
         &:not(.mobile).title .noteContainer {
             width: 32%;

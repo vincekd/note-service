@@ -22,6 +22,12 @@ class Note extends BaseModel {
     public boolean archived = false
     public Long deleted = null
 
+    public Map<String, Integer> position = [
+        "x": "",
+        "y": "",
+        "z": ""
+    ]
+
     @DBRef
     public List<Tag> tags = []
 }
