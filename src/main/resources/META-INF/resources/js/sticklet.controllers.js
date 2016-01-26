@@ -381,18 +381,21 @@ Sticklet
             $modalInst.dismiss("cancel");
         };
     }])
-    .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "Settings",
-                             function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, Settings) {
+    .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "Settings", "Design",
+                             function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, Settings, Design) {
 
         var thisEditor,
             topicAdd = ".NoteCtrl";
 
-        $scope.cur = {"content": "", "title": ""};
         $scope.note = null;
+        $scope.cur = {
+            "content": "",
+            "title": "",
+            "editingNote": false
+        };
 
         Settings.get("note.autoSaveInterval").then(function(time) {
             $scope.update = _.debounce(update, time);
-            //$scope.update = _.throttle(update, time, {trailing: true});
         });
 
         function update() {

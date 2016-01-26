@@ -65,9 +65,12 @@ Sticklet
             get size() {
                 return nums[screen];
             },
+            get mobile() {
+                return (Design.size <= 1);
+            },
             template: _.memoize(function(temp) {
                 temp = (/^\//.test(temp) ? temp : "/" + temp);
-                return (baseTemp + (Design.size > 1 ? temp : "/mobile" + temp));
+                return (baseTemp + (Design.mobile ? "/mobile" + temp : temp));
             }, function(temp) {
                 return temp + "-" + Design.size;
             })

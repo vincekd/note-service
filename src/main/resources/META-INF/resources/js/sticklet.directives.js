@@ -363,6 +363,7 @@ Sticklet
         return {
             "restrict": "A",
             "link": function($scope, $element, $attrs) {
+                //FIXME: on hold for now...
                 function updatePosition() {
                     $element.css({
                         "left": $scope.note.position.x,
@@ -372,27 +373,52 @@ Sticklet
                 }
 
                 function bindDrag() {
-                    //TODO: finish this
                     var moved = false,
-                        offset = $element.closest(".notes").offset();
+                        offset = $element.closest(".notes").offset(),
+                        position = hasPosition() ? $scope.note.position : $element.position();
+                    $element.css({
+                        "left": position.x,
+                        "top": position.y,
+                        "z-index": position.z
+                    });
+
                     $element.on("mousedown" + namespace, function(ev) {
-                        $element.on("mousemove" + namespace, function(ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        var origX = ev.clientX + window.scrollX, //where the mousedown was
+                            origY = ev.clientY + window.scrollY,
+                            pos = $element.position(); //element position where the mousedown was
+                        
+                        $(document).on("mousemove" + namespace, function(ev) {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            $element.addClass("dragging");
                             moved = true;
+                             var x = ev.clientX + window.scrollX,
+                                 y = ev.clientY + window.scrollY;
+
                             $scope.note.position = $scope.note.position || {};
-                            $scope.note.position.x = ev.clientX - offset.left;
-                            $scope.note.position.y = ev.clientY - offset.top;
+                            $scope.note.position.x = (pos.left + x - origX); 
+                            $scope.note.position.y = (pos.top + y - origY);
+
                             var topZ = getTopZ();
                             $scope.note.position.z = topZ > $scope.note.position.z ? topZ + 1 : $scope.note.position.z;
+
                             $scope.$apply(function() {
                                 updatePosition();
                             });
+
+                            return false;
                         });
-                    })
+                        return false;
+                    });
                     $(document).on("mouseup" + namespace, function(ev) {
-                        $element.off("mousemove" + namespace);
+                        $element.removeClass("dragging");
+                        $(document).off("mousemove" + namespace);
                         if (moved) {
-                            //TODO: save
+                            console.log("Save", $scope.note.position);
                         }
+                        moved = false;
                     });
                 }
                 function unbindDrag() {
@@ -400,8 +426,12 @@ Sticklet
                 }
                 function getTopZ() {
                     return $scope.notes.reduce(function(prev, note) {
-                        return (note.position && note.position.z > prev ? note.position.z : prev);
-                    }, 0);
+                        return (hasPosition(note) && note.position.z > prev ? note.position.z : prev);
+                    }, 1);
+                }
+                function hasPosition(note) {
+                    note = note || $scope.note;
+                    return (note.position && note.position.x && note.position.y);
                 }
                 $scope.$watch(function() {
                     if ($scope.note.position) {

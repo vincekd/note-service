@@ -32,11 +32,18 @@
 
                 <div id="note-content" ng-if="note">
                     <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
-                        <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
-                        <div wysihtml="options" value="cur.content" data-placeholder="Enter text..."></div>
+                        <div ng-if="!cur.editingNote">
+                            <div ng-bind-html="cur.content | Html"></div>
+                            <a id="edit-note-button" ng-click="cur.editingNote = true">
+                                <i class="oi oi-pencil"></i>
+                            </a>
+                        </div>
+                        <div ng-if="cur.editingNote">
+                            <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
+                            <div wysihtml="options" value="cur.content" data-placeholder="Enter text..."></div>
+                        </div>
                     </perfect-scrollbar>
                 </div>
-
             </div>
         </div>
 </basic-page>
