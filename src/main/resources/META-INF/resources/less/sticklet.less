@@ -499,7 +499,10 @@ uib-accordion {
             .note .content {
                 height: auto;
                 min-height: @note-content-height;
-                max-height: 600px;
+                max-height: @note-max-height;
+                .scrollbar {
+                    max-height: @note-max-height;
+                }
             }
         }
         &:not(.mobile).tiled .noteContainer {
