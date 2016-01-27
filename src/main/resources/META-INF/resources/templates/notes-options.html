@@ -37,7 +37,7 @@
 
 <div class="" id="notes-display-options">
     <div id="notes-sort" ng-controller="SortCtrl">
-        <div class="" uib-dropdown="" uib-keyboard-nav="" >
+        <div class="" uib-dropdown="" uib-keyboard-nav="" ng-if="opts.display !== 'tiled'">
             <button type="button" class="btn" uib-dropdown-toggle="">
                 <span>Sort</span>
                 <span class="caret"></span>
@@ -63,6 +63,7 @@
             </ul>
         </div>
     </div>
+
     <div class="btn-group">
         <button class="btn" type="button" ng-class="{active: opts.display === 'tiled'}" 
             ng-click="opts.display = 'tiled'">

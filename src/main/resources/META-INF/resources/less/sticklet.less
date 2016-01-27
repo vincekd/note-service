@@ -412,6 +412,7 @@ uib-accordion {
             .noteContainer {
                 height: @note-height;
                 margin: 10px;
+                transition: ease .300s;
                 .note {
                     padding: 0px;
                     padding-top: @note-top-padding;
@@ -502,14 +503,17 @@ uib-accordion {
                 }
             }
         }
-        &:not(.mobile).tiled .noteContainer {
-            width: 32%;
-            min-width: 250px;
-            display: inline-block;
-            &[tiled-stickies] {
-                position: absolute;
-                cursor: move;
-                transition: none;
+        &:not(.mobile).tiled {
+            overflow: hidden;
+            .noteContainer {
+                width: 32%;
+                min-width: 250px;
+                display: inline-block;
+                &[tiled-stickies] {
+                    position: absolute;
+                    cursor: move;
+                    transition: none;
+                }
             }
         }
         &:not(.mobile).title .noteContainer {
