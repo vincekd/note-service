@@ -18,7 +18,7 @@
 
                 <div class="full-height" ng-if="opts.display === 'tiled' && !opts.mobile">
                     <div class="notes">
-                        <div ng-repeat="note in notes | Limit:20 track by note.id" class="noteContainer" tiled-stickies="">
+                        <div ng-repeat="note in notes | Limit:10 track by note.id" class="noteContainer" tiled-stickies="">
                             <div class="full-height" ng-include="'/templates/notes-note.html'"></div>
                         </div>
                     </div>

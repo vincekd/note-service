@@ -8,7 +8,7 @@ import com.sticklet.core.constant.OrderPref
 import com.sticklet.core.constant.SortPref
 import com.sticklet.core.model.base.BaseModel
 
-@JsonIgnoreProperties(["id", "updated", "created"])
+@JsonIgnoreProperties(["id", "updated", "created", "version"])
 @Document
 class UserPreferences extends BaseModel {
     DisplayPref display = DisplayPref.tiled //to show of draggable stickies

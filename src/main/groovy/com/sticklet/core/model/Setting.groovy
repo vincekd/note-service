@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.sticklet.core.annotation.DBProp
 import com.sticklet.core.model.base.BaseModel
 
-@JsonIgnoreProperties(["user", "updated", "created", "initial", "userUpdatable"])
+@JsonIgnoreProperties(["user", "updated", "created", "initial", "userUpdatable", "version"])
 @Document
 class Setting extends BaseModel {
     @DBRef

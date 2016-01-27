@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.sticklet.core.annotation.DBProp
 import com.sticklet.core.model.base.BaseModel
 
-@JsonIgnoreProperties(["updated", "created", "password", "email", "registered"])
+@JsonIgnoreProperties(["updated", "created", "password", "email", "registered", "version"])
 @Document
 class User extends BaseModel {
     @DBProp(nullable=false, updatable=false)

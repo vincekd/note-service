@@ -1,5 +1,6 @@
 package com.sticklet.core.config
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer
@@ -13,6 +14,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableWebMvc
 @Configuration
 class StickletWebMvcConfigurerAdapter extends WebMvcConfigurerAdapter {
+    
+    @Autowired
+    public StickletRequestInterceptor stickletRequestInterceptor
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -28,7 +32,8 @@ class StickletWebMvcConfigurerAdapter extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new StickletRequestInterceptor())
+        //registry.addInterceptor(new StickletRequestInterceptor())
+        registry.addInterceptor(stickletRequestInterceptor)
     }
 
     @Override

@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.sticklet.core.model.base.BaseModel
 
-@JsonIgnoreProperties(["user", "contentEdited"])
+@JsonIgnoreProperties(["user", "contentEdited", "version"])
 @Document
 class Note extends BaseModel {
     @DBRef
