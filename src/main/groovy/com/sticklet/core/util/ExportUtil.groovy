@@ -28,9 +28,7 @@ class ExportUtil {
         XMLOutputFactory outputFact = XMLOutputFactory.newFactory()
         XMLInputFactory inputFact = XMLInputFactory.newFactory()
 
-        //xml = new StringWriter()
         File xmlFile = File.createTempFile("export-" + user.id, ".xml")
-        //private StringWriter xml
         FileOutputStream xml = new FileOutputStream(xmlFile)
         XMLStreamWriter sw= outputFact.createXMLStreamWriter(xml, "UTF-8")
         XmlMapper mapper= new XmlMapper(inputFact)
@@ -54,10 +52,24 @@ class ExportUtil {
             writeProp("title", n.title)
             writeProp("content", n.content)
             writeProp("color", n.color)
+            writeProp("archived", n.archived)
+            writeProp("deleted", n.deleted)
+            writeProp("titleEdited", n.titleEdited)
+            writeProp("contentEdited", n.contentEdited)
 
             sw.writeStartElement("tags")
             n.tags.each { Tag t ->
                 writeProp("tag", t.name)
+            }
+            sw.writeEndElement()
+            
+            sw.writeStartElement("position")
+            if (n.position) { 
+                writeProp("x", n.position.x)
+                writeProp("y", n.position.y)
+                writeProp("z", n.position.z)
+                writeProp("height", n.position.height)
+                writeProp("width", n.position.width)
             }
             sw.writeEndElement()
 

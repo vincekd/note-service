@@ -22,21 +22,42 @@
                         <h1 class="title">Sticklet</h1>
                         <div>
                             <p>
-                                Sticklet.com aims to provide a quality note service at a reasonable price. 
+                                <a href="https://www.sticklet.com">Sticklet.com</a> 
+                                aims to provide a quality note service at a reasonable price. 
                                 Failing that, here's something that shitty and free.
+                            </p>
+                            
+                            <p>
+                                Sticklet.com is an open source website. View and contribute to the code 
+                                <a href="https://github.com/vincekd/note-service">here</a>.
                             </p>
 
                             <div>
                                 <p>
-                                    Current version (0.1) includes such features as note taking and other note related tasks:
+                                    Current version (0.4) includes such features as note taking and other note related tasks:
                                 </p>
                                 <ul>
                                     <li>Offline editing and syncing</li>
                                     <li>Organize notes by tag</li>
                                     <li>Organize notes by color</li>
+                                    <li>Sticky draggable/resizable notes</li>
+                                    <li>Secure connection</li>
                                     <li>State of the art filtering tag/color/text system that allows you to... filter</li>
                                     <li>Receive automatic updates when you edit the note on separate computers</li>
                                     <li>Wine/coffee stain proof (Disclaimer: does not include your computer)</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <p>
+                                    Features for future releases:
+                                </p>
+                                <ul>
+                                    <li>Tracking and saving old versions for easy reversion.</li>
+                                    <li>encrypted database, and possible per user encryption</li>
+                                    <li>search by date of creation/update</li>
+                                    <li>Import from Google Keep/Microsoft OneNote</li>
+                                    <li>Improved mobile interface</li>
                                 </ul>
                             </div>
 
@@ -72,6 +93,7 @@
             </div>
         </form>
         <div ng-if="warning" ng-bind="warning"></div>
+        <div><a ng-click="passwordReset()">Forgot my password</a></div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-danger pull-left" ng-click="cancel()">Cancel</button>

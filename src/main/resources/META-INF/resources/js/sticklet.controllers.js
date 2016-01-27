@@ -3,8 +3,8 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify", "Design", "$route",
-                             function($scope, UserServ, Settings, Offline, Notify, Design, $route) {
+    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify", "Design", "$route", "$location",
+                             function($scope, UserServ, Settings, Offline, Notify, Design, $route, $location) {
         $scope.user;
         Settings.get("note.maxTitleLength").then(function(data) {
             $scope.maxTitleLength = data;
@@ -32,12 +32,29 @@ Sticklet
         $scope.resetFilters = function() {
             $scope.current.filters = {"colors": [], "tags": [], "search": "", "notTags": []};
         };
+        function getUrlFilters() {
+            //TODO: change this to ids everywhere
+            var params = $location.search();
+            if (_.isString(params.tags) && params.tags) {
+                $scope.current.filters.tags = params.tags.split("|");
+            }
+            if (_.isString(params["^tags"]) && params["^tags"]) {
+                $scope.current.filters.notTags = params["^tags"].split("|");
+            }
+            if (_.isString(params.colors) && params.colors) {
+                $scope.current.filters.colors = params.colors.split("|");
+            }
+            if (_.isString(params.search)) {
+                $scope.current.filters.search = (params.search || "");
+            }
+        }
         $scope.$watch(function() {
             return Design.size;
         }, function(s) {
             $scope.opts.screenSize = s;
             $scope.opts.mobile = Design.mobile;
         });
+        getUrlFilters();
         $scope.template = Design.template;
         UserServ.getUser().then(function(u) {
             $scope.user = u;
@@ -68,8 +85,8 @@ Sticklet
             blurTime = Date.now();
         }).focus();
     }])
-    .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter",
-                              function($scope, NoteServ, filterNotes, sortNotes) {
+    .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter", "$location",
+                              function($scope, NoteServ, filterNotes, sortNotes, $location) {
 
         $scope.opts.menuOpen = false; //reset this
         var allNotes = [];
@@ -120,7 +137,7 @@ Sticklet
         });
         $scope.onSearch = _.debounce(function() {
             $scope.$apply(function() {
-                $scope.notes = filterAndSortNotes();
+                filterAndSortNotes();
             });
         }, 250);
         $scope.$watchGroup([function() {
@@ -134,12 +151,21 @@ Sticklet
         }, function() {
             return $scope.opts.sortBy;
         }], function() {
-            $scope.notes = filterAndSortNotes();
+            filterAndSortNotes();
         });
 
         function filterAndSortNotes() {
-            return sortNotes(filterNotes(allNotes, $scope.current.filters),
+            $scope.notes = sortNotes(filterNotes(allNotes, $scope.current.filters),
                     $scope.opts.sortBy, $scope.opts.order);
+            updateUrl();
+        }
+        function updateUrl() {
+            $location.search({
+                "tags": $scope.current.filters.tags.join("|") || null,
+                "^tags": $scope.current.filters.notTags.join("|") || null,
+                "colors": $scope.current.filters.colors.join("|") || null,
+                "search": $scope.current.filters.search || null
+            });
         }
 
         getNotes();
@@ -147,7 +173,7 @@ Sticklet
             //get data
             NoteServ.getNotes().then(function(notes) {
                 allNotes = notes;
-                $scope.notes = filterAndSortNotes();
+                filterAndSortNotes();
             });
         }
     }])
@@ -185,21 +211,24 @@ Sticklet
             });
         };
         $scope.filterTag = function(tag) {
-            if ($scope.current.filters.tags.indexOf(tag) === -1) {
-                $scope.current.filters.tags.push(tag);
+            if ($scope.current.filters.tags.indexOf(tag.id) === -1) {
+                $scope.current.filters.tags.push(tag.id);
                 closeFilter();
             }
         };
         $scope.removeTagFilter = function(tag) {
             $scope.current.filters.tags = $scope.current.filters.tags.filter(function(t) {
-                return t.id !== tag.id;
+                return t !== tag.id;
+            });
+            $scope.current.filters.notTags = $scope.current.filters.notTags.filter(function(t) {
+                return t !== tag.id;
             });
         };
         $scope.toggleNotTag = function(tag) {
-            if ($scope.current.filters.notTags.indexOf(tag) === -1) {
-                $scope.current.filters.notTags.push(tag);
+            if ($scope.current.filters.notTags.indexOf(tag.id) === -1) {
+                $scope.current.filters.notTags.push(tag.id);
             } else {
-                $scope.current.filters.notTags = _.without($scope.current.filters.notTags, tag);
+                $scope.current.filters.notTags = _.without($scope.current.filters.notTags, tag.id);
             }
         };
         $scope.logout = function() {
@@ -514,7 +543,7 @@ Sticklet
     .controller("DataCtrl", ["$scope", "FileUploadServ", "Notify", function($scope, FileUploadServ, Notify) {
         //upload
         $scope.o = {"type": ""};
-        $scope.importTypes = ["Evernote", "Keep", "OneNote"];
+        $scope.importTypes = ["Sticklet", "Evernote", "Keep", "OneNote"];
         $scope.file = null;
         $scope.uploadProgress = 0;
         $scope.fileSelected = function(file) {

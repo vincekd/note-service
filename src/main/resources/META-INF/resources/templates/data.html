@@ -12,6 +12,9 @@
                 </select>
                 <div>
                     <div class="import-details" ng-if="o.type">
+                        <div ng-if="o.type === 'Sticklet'">
+                            <label class="">Sticklet</label>
+                        </div>
                         <div ng-if="o.type === 'Evernote'">
                             <label class="">Evernote</label>
                             <div>

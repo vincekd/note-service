@@ -63,6 +63,10 @@ Sticklet
                 $scope.login();
             }
         };
+        $scope.passwordReset = function() {
+            //TODO: complete this
+            console.log($scope.loginVals.email);
+        };
         $scope.cancel = function() {
             $modalInst.dismiss("cancel");
         };

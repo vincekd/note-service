@@ -593,13 +593,18 @@ Sticklet
     .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline", "NoteServ",
                          function(HTTP, STOMP, $rootScope, $q, Offline, NoteServ) {
         var tagsGet = "/tags",
+            curTags = [],
             tags = getTags(),
             namespace = "TagServ";
 
         function getTags() {
-            return Offline.get(tagsGet).finally(function() {
+            var prom = Offline.get(tagsGet).finally(function() {
                 notify();
             });
+            prom.then(function(tags) {
+                curTags = tags;
+            });
+            return prom;
         }
         Offline.onNetworkChange("TagServ", function(online) {
             tags = getTags();
@@ -655,6 +660,9 @@ Sticklet
         }
 
         var TagServ = {
+            get curTags() {
+                return curTags;
+            },
             "getTags": function() {
                 return tags;
             },
@@ -698,8 +706,9 @@ Sticklet
                 return HTTP.remove("/tag/delete/" + tag.id);
             },
             "noteHasTag": function(note, tag) {
+                var id = (_.isObject(tag) ? tag.id : tag);
                 return _.some(note.tags, function(t) {
-                    return tag.id === t.id;
+                    return id === t.id;
                 });
             }
         };

@@ -74,10 +74,6 @@ class EvernoteImportUtil {
     }
 
     private XmlParser makeXmlParser() {
-        XmlParser parser = new XmlParser(false, false, true)
-        parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-        parser.setFeature("http://xml.org/sax/features/namespaces", false)
-        parser
+        XmlUtil.makeXmlParser()
     }
-
 }

@@ -1,5 +1,6 @@
 package com.sticklet.core.controller
 
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 import org.slf4j.Logger
@@ -25,12 +26,21 @@ class DataController extends BaseController {
     @Autowired
     private DataService dataServ
 
+    @RequestMapping(value="/data/delete", method=RequestMethod.POST)
+    public @ResponseBody def deleteData(HttpServletRequest req, HttpServletResponse resp) {
+        User user = curUser()
+        logger.debug "deleting all data!!!! $user"
+        dataServ.deleteAccount(user)
+        req.session.invalidate()
+        emptyJson()
+    }
+
     @RequestMapping(value="/data/export/{type}", method=RequestMethod.GET)
     public @ResponseBody def exportData(@PathVariable('type') String type, HttpServletResponse resp) {
         User user = curUser()
         try {
             switch (type) {
-                case "json": 
+                case "json":
                     resp.setContentType("application/json")
                     return dataServ.exportJson(user)
                 case "xml":
@@ -61,8 +71,11 @@ class DataController extends BaseController {
                     dataServ.importKeep(user, file)
                     break
                 case "evernote":
-                default:
                     dataServ.importEvernote(user, file)
+                    break
+                case "sticklet":
+                default:
+                    dataServ.importSticklet(user, file)
             }
         } catch(ImportNotSupportedException e) {
             statusServ.setStatusBadRequest(resp)

@@ -97,7 +97,7 @@ Sticklet
         return function(tags, filtered) {
             if (filtered && filtered.length && tags && tags.length) {
                 return tags.filter(function(t) {
-                    return filtered.indexOf(t) === -1;
+                    return filtered.indexOf(t.id) === -1;
                 });
             }
             return tags;
@@ -111,6 +111,14 @@ Sticklet
     .filter("CreatedOrUpdated", [function() {
         return function(note, sortBy) {
             return (sortBy === "created" ? note.created : note.updated);
+        };
+    }])
+    .filter("TagsFromIDs", ["TagServ", function(TagServ) {
+        return function(tagIDs) {
+            var out = _.filter(TagServ.curTags, function(tag) {
+                return (tagIDs.indexOf(tag.id) > -1);
+            });
+            return out;
         };
     }])
 ;

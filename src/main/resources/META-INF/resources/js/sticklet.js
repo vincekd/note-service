@@ -7,7 +7,8 @@
         $locationProvider.hashPrefix("!");
         $routeProvider.when("/notes", {
             "templateUrl": "/templates/notes.html",
-            "controller": "NotesCtrl"
+            "controller": "NotesCtrl",
+            "reloadOnSearch": false
         }).when("/note/:noteID", {
             "templateUrl": "/templates/note.html",
             "controller": "NoteCtrl"
