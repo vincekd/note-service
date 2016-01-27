@@ -23,7 +23,7 @@ server:
 login:
   enabled: true
   admin:
-    password: admin
+    password: admin1
   register:
     enabled: true
     confirmation: false

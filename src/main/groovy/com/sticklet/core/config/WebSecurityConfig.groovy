@@ -31,7 +31,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final ALLOWED_RESOURCES = [
         "/bower_components/**/*", "/less/*.less", "/user/register", "/user/registration/*",
         "/templates/*.html", "/templates/mobile/*.html", "/js/*.js", "/cache.json", "/login.html",
-        "/index.html", "/", "/login", "/custom-logout"
+        "/index.html", "/", "/login", "/custom-logout", "/sticklet.service-worker.js"
     ]
 
     @Value("\${login.enabled}")

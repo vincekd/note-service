@@ -35,6 +35,3 @@
     <li>Pretty much everything on mobile...</li>
     <li>Editor height doesn't adjust properly when deleting lines</li>
 </ul>
-
-
-<h2>License</h2>

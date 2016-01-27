@@ -157,7 +157,7 @@ class UserService {
 
     public boolean validatePassword(String password) {
         password = password.trim()
-        password && password.size() >= 4
+        password && password.size() >= 6
     }
 
     public boolean validateUsername(String username) {

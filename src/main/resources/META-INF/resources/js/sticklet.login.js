@@ -3,6 +3,19 @@
 var Sticklet = angular.module("StickletLogin", ["ui.bootstrap"]);
 
 Sticklet
+    .service("ValidLogin", [function() {
+        return {
+            "username": function(username) {
+                return (username && username.length >= 4);
+            },
+            "password": function(password) {
+                return (password && password.length >= 6);
+            },
+            "email": function(email) {
+                return /^.+@.+$/.test(email);
+            }
+        };
+    }])
     .controller("LoginCtrl", ["$scope", "$uibModal",
                               function($scope, $modal) {
         $scope.opt = {};
@@ -12,7 +25,7 @@ Sticklet
                 "templateUrl": "loginPage.html",
                 "controller": "LoginPageCtrl",
                 "backdrop": "static",
-                "keyboard": false,
+                "keyboard": true,
                 "backdropClass": "sticklet-popup-backdrop",
                 "windowClass": "sticklet-popup-window",
                 "resolve": {
@@ -27,7 +40,7 @@ Sticklet
                 "templateUrl": "registerPage.html",
                 "controller": "RegisterPageCtrl",
                 "backdrop": "static",
-                "keyboard": false,
+                "keyboard": true,
                 "backdropClass": "sticklet-popup-backdrop",
                 "windowClass": "sticklet-popup-window"
             });
@@ -36,12 +49,14 @@ Sticklet
             });
         };
     }])
-    .controller("LoginPageCtrl", ["$scope", "$uibModalInstance", "$http", "username", function($scope, $modalInst, $http, username) {
+    .controller("LoginPageCtrl", ["$scope", "$uibModalInstance", "$http", "username", "ValidLogin",
+                                  function($scope, $modalInst, $http, username, ValidLogin) {
         $scope.loginVals = {
             "username": username
         };
         $scope.checkLogin = function() {
-            return $scope.loginVals.username && $scope.loginVals.password;
+            return (ValidLogin.username($scope.loginVals.username) && 
+                    ValidLogin.password($scope.loginVals.password));
         };
         $scope.typing = function($event) {
             if ($event.keyCode === 13) {
@@ -52,14 +67,22 @@ Sticklet
             $modalInst.dismiss("cancel");
         };
         $scope.login = function() {
-            $("form#login").submit();
+            if ($scope.checkLogin()) {
+                $("form#login").submit();
+            } else {
+                $scope.warning = "Your username or password is invalid";
+            }
         };
     }])
-    .controller("RegisterPageCtrl", ["$scope", "$uibModalInstance", "$http", function($scope, $modalInst, $http) {
+    .controller("RegisterPageCtrl", ["$scope", "$uibModalInstance", "$http", "ValidLogin",
+                                     function($scope, $modalInst, $http, ValidLogin) {
         $scope.user = {};
         $scope.checkRegister = function() {
             var u = $scope.user;
-            return (u.username && u.password && u.password === u.passwordRepeat && u.email);
+            return (ValidLogin.username(u.username) && 
+                    ValidLogin.password(u.password) && 
+                    u.password === u.passwordRepeat && 
+                    ValidLogin.email(u.email));
         };
         $scope.register = function() {
             if ($scope.checkRegister()) {
@@ -73,8 +96,6 @@ Sticklet
                     }
                 });
             } else {
-                $scope.loginError = false;
-                $scope.registerError = true;
                 $scope.errorMsg = "Invalid register submission.";
             }
         };

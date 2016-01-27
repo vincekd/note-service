@@ -10,7 +10,8 @@ Sticklet
             $scope.maxTitleLength = data;
         });
         $scope.opts = {
-            "screenSize": 0,
+            "screenSize": Design.size,
+            "mobile": Design.mobile,
             "display": "stacked",
             "sortBy": "created",
             "order": "ASC",
@@ -35,6 +36,7 @@ Sticklet
             return Design.size;
         }, function(s) {
             $scope.opts.screenSize = s;
+            $scope.opts.mobile = Design.mobile;
         });
         $scope.template = Design.template;
         UserServ.getUser().then(function(u) {
@@ -75,7 +77,7 @@ Sticklet
         $scope.displayNotes = [];
         $scope.batchSelections = [];
         $scope.viewableNote = function(note) {
-            return $scope.displayNotes.indexOf(note.id) >= 0;
+            return ($scope.displayNotes.indexOf(note.id) > -1);
         };
         $scope.toggleBatchSelection = function(note) {
             if ($scope.batchSelections.indexOf(note) >= 0) {
@@ -306,16 +308,7 @@ Sticklet
             });
         };
         $scope.updateNote = function() {
-            if (!$scope.note.titleEdited && $scope.note.title === "" && $scope.note.content) {
-                var el = document.createElement("div"),
-                    text;
-                el.innerHTML = $scope.note.content.replace(/\<br\>|\<br\s+\/\>/img, " ");
-                text = el.textContent;
-                $scope.note.title = text.substring(0, $scope.maxTitleLength - 10);
-                if (text.length > $scope.maxTitleLength) {
-                    $scope.note.title += "...";
-                }
-            }
+            NoteServ.titleFromContent($scope.note);
             NoteServ.save($scope.note);
         };
         $scope.addTag = function(tag) {
@@ -402,6 +395,9 @@ Sticklet
             if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
                 $scope.note.title = $scope.cur.title;
                 $scope.note.content = $scope.cur.content;
+                if (NoteServ.titleFromContent($scope.note)){
+                    $scope.cur.title = $scope.note.title;
+                }
                 NoteServ.save($scope.note);
             }
         }

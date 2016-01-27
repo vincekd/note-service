@@ -354,7 +354,12 @@ Sticklet
             notesGet = "/notes",
             notes = getNotes(),
             colors = getColors(),
-            namespace = "NoteServ";
+            namespace = "NoteServ",
+            maxTitleLength;
+
+        Settings.get("note.maxTitleLength").then(function(len) {
+            maxTitleLength = len;
+        });
 
         function getNotes() {
             return Offline.get(notesGet).finally(function() {
@@ -566,7 +571,22 @@ Sticklet
                 });
             },
             "updateNote": updateNote,
-            "updateNotes": updateNotes
+            "updateNotes": updateNotes,
+            "titleFromContent": function(note, maxLen) {
+                maxLen = maxLen || maxTitleLength;
+                if (!note.titleEdited && !note.title && note.content) {
+                    var el = document.createElement("div"),
+                        text;
+                    el.innerHTML = note.content.replace(/\<br\s*\/?\>/img, " ");
+                    text = el.textContent;
+                    note.title = text.substring(0, maxLen - 10);
+                    if (text.length > maxLen) {
+                        note.title += "...";
+                    }
+                    return true;
+                }
+                return false;
+            }
         };
         return Service;
     }])

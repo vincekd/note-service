@@ -3,6 +3,7 @@
     <head>
         <title>Sticklet</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <link rel="icon" type="image/png" href="/images/favicon.png">
 
@@ -70,10 +71,11 @@
                 </div>
             </div>
         </form>
+        <div ng-if="warning" ng-bind="warning"></div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-danger pull-left" ng-click="cancel()">Cancel</button>
-        <button type="button" ng-disabled="!checkLogin()" class="btn" ng-click="login()">Login</button>
+        <button type="button" class="btn" ng-click="login()">Login</button>
     </div>
 </div>
         </script>

@@ -167,7 +167,7 @@ Sticklet
         return {
             "restrict": "A",
             "link": function($scope, $element, $attrs) {
-                var $pref = $element.find("> " + $attrs.prefer); //.height("auto");
+                var $pref = $element.find("> " + $attrs.prefer);
                 function balanceHeights(height, prefHeight) {
                     var $children = $element.children().not($pref);
                     if ($children.length > 0) {
@@ -181,6 +181,8 @@ Sticklet
                     return $element.height();
                 }, function() {
                     return $pref.outerHeight();
+                }, function() {
+                    return $($element[0].children[1]).height();
                 }], function(height) {
                     balanceHeights(height[0], height[1]);
                 });
@@ -311,7 +313,7 @@ Sticklet
                     for (var i = 0; i < els.length; i++) {
                         var $el = $(els[i]),
                             top = $el.position().top;
-                        
+
                         if ((top + $el.outerHeight()) >= (scrollTop - leeway) && top <= ((scrollTop + portal) + leeway)) {
                             $el.addClass("stklt-shown");
                             arr.push($el.scope().note.id);
@@ -320,7 +322,8 @@ Sticklet
                         }
                     }
 
-                    $scope.displayNotes = arr;
+                    //ng-if creates new scope...
+                    $scope.$parent.displayNotes = arr;
                 }
 
                 $element.on("scroll.sticklet", _.throttle(function(ev) {
@@ -340,12 +343,16 @@ Sticklet
                         if (disp === "title") {
                             leeway = 250;
                         } else if (disp === "tiled") {
+                            //no longer used
                             leeway = 500;
                         } else {
                             leeway = 1000;
                         }
                         triggerScroll();
                     }
+                });
+                $scope.$on("$destroy", function() {
+                    $element.off("scroll.sticklet");
                 });
                 function triggerScroll(again) {
                     setTimeout(function() {
@@ -358,16 +365,15 @@ Sticklet
             }
         };
     }])
-    .directive("tiledStickies", [function() {
+    .directive("tiledStickies", ["NoteServ", function(NoteServ) {
         var namespace = ".stickies ";
         return {
             "restrict": "A",
             "link": function($scope, $element, $attrs) {
-                //FIXME: on hold for now...
                 function updatePosition() {
                     $element.css({
-                        "left": $scope.note.position.x,
-                        "top": $scope.note.position.y,
+                        "left": $scope.note.position.x + "px",
+                        "top": $scope.note.position.y + "px",
                         "z-index": $scope.note.position.z
                     });
                 }
@@ -375,11 +381,11 @@ Sticklet
                 function bindDrag() {
                     var moved = false,
                         offset = $element.closest(".notes").offset(),
-                        position = hasPosition() ? $scope.note.position : $element.position();
+                        position = hasPosition() ? $scope.note.position : getDefaultPosition();
                     $element.css({
                         "left": position.x,
                         "top": position.y,
-                        "z-index": position.z
+                        "z-index": (position.z || 0)
                     });
 
                     $element.on("mousedown" + namespace, function(ev) {
@@ -398,8 +404,8 @@ Sticklet
                                  y = ev.clientY + window.scrollY;
 
                             $scope.note.position = $scope.note.position || {};
-                            $scope.note.position.x = (pos.left + x - origX); 
-                            $scope.note.position.y = (pos.top + y - origY);
+                            $scope.note.position.x = Math.max(0, pos.left + x - origX); 
+                            $scope.note.position.y = Math.max(0, pos.top + y - origY);
 
                             var topZ = getTopZ();
                             $scope.note.position.z = topZ > $scope.note.position.z ? topZ + 1 : $scope.note.position.z;
@@ -416,13 +422,18 @@ Sticklet
                         $element.removeClass("dragging");
                         $(document).off("mousemove" + namespace);
                         if (moved) {
-                            console.log("Save", $scope.note.position);
+                            NoteServ.save($scope.note);
                         }
                         moved = false;
                     });
                 }
                 function unbindDrag() {
-                    $element.off("mousedown" + namespace + "mouseup" + namespace + "mousemove" + namespace);
+                    $element.css({
+                        "top": "",
+                        "left": "",
+                        "z-index": ""
+                    }).off("mousedown" + namespace);
+                    $(document).off("mouseup" + namespace + "mousemove" + namespace)
                 }
                 function getTopZ() {
                     return $scope.notes.reduce(function(prev, note) {
@@ -433,8 +444,15 @@ Sticklet
                     note = note || $scope.note;
                     return (note.position && note.position.x && note.position.y);
                 }
+                function getDefaultPosition() {
+                    return {
+                        "x": Math.floor(($element.parent().width() / 2) - ($element.width() / 2)),
+                        "y": Math.floor(($element.parent().height() / 2) - ($element.height / 2)),
+                        "z": 0
+                    };
+                }
                 $scope.$watch(function() {
-                    if ($scope.note.position) {
+                    if (hasPosition()) {
                         return $scope.note.position.x + "-" + $scope.note.position.y + "-" + $scope.note.position.z;
                     }
                     return "";
@@ -446,7 +464,7 @@ Sticklet
                 $scope.$watch(function() {
                     return $scope.opts.display;
                 }, function (disp) {
-                     if ($scope.opts.screenSize > 1 && disp === "tiled") {
+                     if (!$scope.opts.mobile && disp === "tiled") {
                          bindDrag();
                      } else {
                          unbindDrag();

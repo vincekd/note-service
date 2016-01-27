@@ -1,23 +1,30 @@
 <div class="full-height">
-    <div id="menu" class="full-height" ng-class="{'mobile': opts.screenSize < 2}" ng-include="template('menu.html')"></div>
+    <div id="menu" class="full-height" ng-class="{'mobile': opts.mobile}" ng-include="template('menu.html')"></div>
 
-    <div id="menu-dropdown" ng-if="opts.screenSize < 2" ng-show="opts.menuOpen" ng-include="'/templates/mobile/menu-dropdown.html'"></div>
+    <div id="menu-dropdown" ng-if="opts.mobile" ng-show="opts.menuOpen" ng-include="'/templates/mobile/menu-dropdown.html'"></div>
 
     <div class="full" id="notes">
         <div class="full">
-            <div id="notes-list" class="{{opts.screenSize > 1 ? opts.display : 'mobile'}} full">
+            <div id="notes-list" class="{{!opts.mobile ? opts.display : 'mobile'}} full">
 
-                <perfect-scrollbar class="scrollbar" wheel-propagation="true" 
+                <perfect-scrollbar class="scrollbar" wheel-propagation="true" ng-if="opts.display !== 'tiled' || opts.mobile" 
                     min-scrollbar-length="20" wheel-speed="3" notes-infinite-scroll>
                     <div class="notes">
-                        <div ng-repeat="note in notes | InfiniteScrollLimit:displayNotes:20 track by note.id"
-                            class="noteContainer" >  <!-- tiled-stickies="">  -->
+                        <div ng-repeat="note in notes | InfiniteScrollLimit:displayNotes:20 track by note.id" class="noteContainer">
                             <div ng-if="viewableNote(note)" class="full-height" ng-include="template('/notes-note.html')"></div>
                         </div>
                     </div>
                 </perfect-scrollbar>
 
-                <div id="notes-options" ng-if="!current.editing && opts.screenSize > 1" ng-include="template('/notes-options.html')"></div>
+                <div class="full-height" ng-if="opts.display === 'tiled' && !opts.mobile">
+                    <div class="notes">
+                        <div ng-repeat="note in notes | Limit:20 track by note.id" class="noteContainer" tiled-stickies="">
+                            <div class="full-height" ng-include="'/templates/notes-note.html'"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="notes-options" ng-if="!current.editing && !opts.mobile" ng-include="template('/notes-options.html')"></div>
             </div>
         </div>
     </div>

@@ -412,9 +412,6 @@ uib-accordion {
             .noteContainer {
                 height: @note-height;
                 margin: 10px;
-                &:not(.dragging) {
-                    transition: ease .300s;
-                }
                 .note {
                     padding: 0px;
                     padding-top: @note-top-padding;
@@ -510,8 +507,9 @@ uib-accordion {
             min-width: 250px;
             display: inline-block;
             &[tiled-stickies] {
-                position: sticky;
+                position: absolute;
                 cursor: move;
+                transition: none;
             }
         }
         &:not(.mobile).title .noteContainer {
@@ -569,9 +567,12 @@ ul.tags-dropdown {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            border: 1px solid #000;
+            border: 1px solid @font-color;
             padding: 5px 7px;
             border-radius: 15px;
+            &:hover {
+                border-color: @default-font-color;
+            }
         }
     }
 }
