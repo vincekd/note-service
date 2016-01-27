@@ -25,7 +25,9 @@ class Note extends BaseModel {
     public Map<String, Integer> position = [
         "x": null,
         "y": null,
-        "z": null
+        "z": null,
+        "height": null,
+        "width": null
     ]
 
     @DBRef

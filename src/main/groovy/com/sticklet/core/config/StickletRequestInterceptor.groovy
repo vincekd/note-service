@@ -23,6 +23,9 @@ class StickletRequestInterceptor implements HandlerInterceptor {
     @Value("\${debug.enabled}")
     private boolean debugEnabled = false
 
+    @Value("\${activityLog.enabled}")
+    private boolean activityLogEnabled = false
+
     @Autowired
     private ActivityLogRepo activityLogRepo
 
@@ -39,21 +42,25 @@ class StickletRequestInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest req, HttpServletResponse resp, def handler, Exception ex) {
-        ActivityLog log = new ActivityLog([
-            "username": req.getRemoteUser(),
-            "method": req.getMethod(),
-            "requestURI": req.getRequestURI(),
-            "ipAddr": req.getRemoteAddr(),
-            "requestData": ""
-        ])
+        if (activityLogEnabled) {
+            ActivityLog log = new ActivityLog([
+                "username": req.getRemoteUser(),
+                "method": req.getMethod(),
+                "requestURI": req.getRequestURI(),
+                "ipAddr": req.getRemoteAddr(),
+                "requestData": "",
+                "errorMessage": ex ? ex.message : ""
+            ])
+
+            try {
+                activityLogRepo.save(log)
+            } catch(Exception e) {
+                e.printStackTrace()
+            }
+        }
+
         if (ex) {
             logger.error("error in request: ${req.getServletPath()}: ${ex.message}")
-            log.errorMessage = ex.message
-        }
-        try {
-            activityLogRepo.save(log)
-        } catch(Exception e) {
-            e.printStackTrace()
         }
     }
 

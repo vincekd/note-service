@@ -42,6 +42,7 @@ class NoteService {
     }
 
     public boolean syncOfflineNotes(Map noteData, User user, HttpServletResponse resp) {
+        //TODO: handle resizing/dragging here too
         List<Map<String, Object>> saveOpts = []
         boolean run = noteData.every { String id, def data ->
             boolean isCreated = isOfflineNoteID(id)
@@ -210,6 +211,8 @@ class NoteService {
             note.position.x = params.position.x
             note.position.y = params.position.y
             note.position.z = params.position.z
+            note.position.height = params.position.height
+            note.position.width = params.position.width
         }
         noteRepo.save(note)
     }

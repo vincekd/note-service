@@ -27,6 +27,8 @@ login:
   register:
     enabled: true
     confirmation: false
+activityLog
+  enabled: true
 debug:
   enabled: true
 email:
@@ -56,6 +58,8 @@ login:
   register:
     enabled: true
     confirmation: false
+activityLog
+  enabled: false
 debug:
   enabled: false
 email:

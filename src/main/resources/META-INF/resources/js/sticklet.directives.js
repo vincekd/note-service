@@ -374,6 +374,8 @@ Sticklet
                     $element.css({
                         "left": $scope.note.position.x + "px",
                         "top": $scope.note.position.y + "px",
+                        "height": $scope.note.position.height + "px",
+                        "width": $scope.note.position.width + "px",
                         "z-index": $scope.note.position.z
                     });
                 }
@@ -383,9 +385,11 @@ Sticklet
                         offset = $element.closest(".notes").offset(),
                         position = hasPosition() ? $scope.note.position : getDefaultPosition();
                     $element.css({
-                        "left": position.x,
-                        "top": position.y,
-                        "z-index": (position.z || 0)
+                        "left": position.x + "px",
+                        "top": position.y + "px",
+                        "z-index": (position.z || 0),
+                        "height": position.height + "px",
+                        "width": position.width + "px"
                     });
 
                     $element.on("mousedown" + namespace, function(ev) {
@@ -394,7 +398,32 @@ Sticklet
                         var origX = ev.clientX + window.scrollX, //where the mousedown was
                             origY = ev.clientY + window.scrollY,
                             pos = $element.position(); //element position where the mousedown was
-                        
+
+                        if (ev.target.classList.contains("resize-area") || ev.target.classList.contains("stklt-resize-both")) {
+                            var width = $element.width(),
+                                height = $element.height();
+                            $(document).on("mousemove" + namespace, function(ev) {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                $element.addClass("resizing");
+                                moved = true;
+
+                                var x = ev.clientX + window.scrollX,
+                                    y = ev.clientY + window.scrollY;
+
+                                $scope.note.position.z = getZ();
+                                $scope.note.position.width = Math.round(width + (x - origX));
+                                $scope.note.position.height = Math.round(height + (y - origY));
+
+                                $scope.$apply(function() {
+                                    updatePosition();
+                                });
+
+                                return false;
+                            });
+                            return false;
+                        }
+
                         $(document).on("mousemove" + namespace, function(ev) {
                             ev.preventDefault();
                             ev.stopPropagation();
@@ -404,11 +433,12 @@ Sticklet
                                  y = ev.clientY + window.scrollY;
 
                             $scope.note.position = $scope.note.position || {};
-                            $scope.note.position.x = Math.max(0, pos.left + x - origX); 
-                            $scope.note.position.y = Math.max(0, pos.top + y - origY);
+                            var newX =  Math.max(0, pos.left + x - origX),
+                                newY = Math.max(0, pos.top + y - origY);
+                            $scope.note.position.x = newX;
+                            $scope.note.position.y = newY;
 
-                            var topZ = getTopZ();
-                            $scope.note.position.z = topZ > $scope.note.position.z ? topZ + 1 : $scope.note.position.z;
+                            $scope.note.position.z = getZ();
 
                             $scope.$apply(function() {
                                 updatePosition();
@@ -419,7 +449,7 @@ Sticklet
                         return false;
                     });
                     $(document).on("mouseup" + namespace, function(ev) {
-                        $element.removeClass("dragging");
+                        $element.removeClass("dragging resizing");
                         $(document).off("mousemove" + namespace);
                         if (moved) {
                             NoteServ.save($scope.note);
@@ -431,7 +461,9 @@ Sticklet
                     $element.css({
                         "top": "",
                         "left": "",
-                        "z-index": ""
+                        "z-index": "",
+                        "height": "",
+                        "width": ""
                     }).off("mousedown" + namespace);
                     $(document).off("mouseup" + namespace + "mousemove" + namespace)
                 }
@@ -440,24 +472,30 @@ Sticklet
                         return (hasPosition(note) && note.position.z > prev ? note.position.z : prev);
                     }, 1);
                 }
+                function getZ() {
+                    var topZ = getTopZ();
+                    return topZ > $scope.note.position.z ? topZ + 1 : $scope.note.position.z;
+                }
                 function hasPosition(note) {
                     note = note || $scope.note;
-                    return (note.position && note.position.x && note.position.y);
+                    return (note.position && _.isNumber(note.position.x) && _.isNumber(note.position.y));
                 }
                 function getDefaultPosition() {
                     return {
                         "x": Math.floor(($element.parent().width() / 2) - ($element.width() / 2)),
                         "y": Math.floor(($element.parent().height() / 2) - ($element.height / 2)),
-                        "z": 0
+                        "z": 0,
+                        "height": "",
+                        "width": ""
                     };
                 }
                 $scope.$watch(function() {
-                    if (hasPosition()) {
-                        return $scope.note.position.x + "-" + $scope.note.position.y + "-" + $scope.note.position.z;
-                    }
+//                    if (hasPosition()) {
+//                        return $scope.note.position.x + "-" + $scope.note.position.y + "-" + $scope.note.position.z;
+//                    }
                     return "";
-                }, function(v) {
-                    if (v) {
+                }, function(v, o) {
+                    if (v && v !== o) {
                         updatePosition();
                     }
                 });
