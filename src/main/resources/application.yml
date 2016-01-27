@@ -27,7 +27,7 @@ login:
   register:
     enabled: true
     confirmation: false
-activityLog
+activityLog:
   enabled: true
 debug:
   enabled: true
@@ -58,7 +58,7 @@ login:
   register:
     enabled: true
     confirmation: false
-activityLog
+activityLog:
   enabled: false
 debug:
   enabled: false
