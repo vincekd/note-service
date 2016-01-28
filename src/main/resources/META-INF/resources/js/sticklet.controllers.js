@@ -33,7 +33,6 @@ Sticklet
             $scope.current.filters = {"colors": [], "tags": [], "search": "", "notTags": []};
         };
         function getUrlFilters() {
-            //TODO: change this to ids everywhere
             var params = $location.search();
             if (_.isString(params.tags) && params.tags) {
                 $scope.current.filters.tags = params.tags.split("|");
@@ -75,15 +74,22 @@ Sticklet
             }
         });
         var blurTime;
-        $(window).on("focus", function(ev) {
+        $(window).on("focus.sticklet", function(ev) {
             if (blurTime && Date.now() - blurTime > 1200000) { //20 minutes
                 console.info("reloading page after long unfocus");
                 $route.reload();
             }
             blurTime = null;
-        }).on("blur", function(ev) {
+        }).on("blur.sticklet", function(ev) {
             blurTime = Date.now();
+        }).on("hashchange.sticklet", function() {
+//            $scope.$apply(function() {
+//                getUrlFilters();
+//            });
         }).focus();
+        $scope.$on("$destroy", function(ev) {
+            $(window).off("focus.sticklet blur.sticklet hashchange.sticklet");
+        });
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter", "$location",
                               function($scope, NoteServ, filterNotes, sortNotes, $location) {
