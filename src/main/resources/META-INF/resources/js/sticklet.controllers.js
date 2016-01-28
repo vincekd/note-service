@@ -234,6 +234,11 @@ Sticklet
                 $scope.current.filters.notTags = _.without($scope.current.filters.notTags, tag.id);
             }
         };
+        $scope.hasFilter = function() {
+            return ($scope.current.filters.tags.length || 
+                    $scope.current.filters.colors.length || 
+                    $scope.current.filters.search);
+        }
         $scope.logout = function() {
             HTTP.post("/custom-logout").then(function() {
                 window.location = "/login.html";

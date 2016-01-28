@@ -30,7 +30,8 @@
     };
     
     wysihtml.directive("wysihtml", ["$http", "$templateCache", function($http, $templateCache) {
-        var edCount = 0,
+        var useTextArea = false,
+            edCount = 0,
             toolbarName = "wysihtml-toolbar";
 
         $http.get("/templates/wysihtml-toolbar.html").then(function(resp) {
@@ -45,8 +46,8 @@
                 "options": "=wysihtml",
                 "value": "="
             },
-            "template": '<div ng-bind-html="content | Html"> </div>',
-            //"template": '<textarea ng-model="content"> </textarea>',
+            "template": (useTextArea ? '<textarea ng-model="content"> </textarea>' : 
+                '<div ng-bind-html="content | Html"> </div>'),
             "link": function($scope, $element, $attrs) {
                 $scope.content = $scope.value;
                 var id = $element.attr("id");

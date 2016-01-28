@@ -1,7 +1,7 @@
 (function() { "use strict";
     var Sticklet = angular.module("Sticklet", [
         "ngRoute",
-        //"hmTouchEvents", 
+        "hmTouchEvents", 
         "ui.bootstrap", 
         "perfect_scrollbar",
         "wysihtml",
@@ -11,10 +11,12 @@
                      function($routeProvider, $locationProvider, $provide) {
 
         $locationProvider.hashPrefix("!");
-        $routeProvider.when("/notes", {
+        $routeProvider.when("/", {
             "templateUrl": "/templates/notes.html",
             "controller": "NotesCtrl",
             "reloadOnSearch": false
+        }).when("/notes", {
+            "redirectTo": "/"
         }).when("/note/:noteID", {
             "templateUrl": "/templates/note.html",
             "controller": "NoteCtrl"
@@ -34,7 +36,7 @@
             "templateUrl": "/templates/trash.html",
             "controller": "TrashCtrl"
         }).otherwise({
-            "redirectTo": "/notes"
+            "redirectTo": "/"
         });
 
         $provide.value("network", {

@@ -12,11 +12,11 @@
                     <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
                         <li><color-choices on-change="filterColor(color)"></color-choices></li>
                         <li class="divider"></li>
-                        <li ng-repeat="tag in tags | TagsUsed:current.filters.tags" class="stklt-pull-up">
+                        <li ng-repeat="tag in usedTags = (tags | TagsUsed:current.filters.tags)" class="stklt-pull-up">
                             <a ng-click="filterTag(tag)" ng-bind="tag.name"></a>
                         </li>
-                        <li class="divider"></li>
-                        <li><a ng-click="resetFilters()">Clear filters</a></li>
+                        <li class="divider" ng-if="hasFilter() && usedTags.length"></li>
+                        <li ng-if="hasFilter()"><a ng-click="resetFilters()">Clear filters</a></li>
                   </ul>
                 </div>
                 <a ng-click="resetFilters()"
