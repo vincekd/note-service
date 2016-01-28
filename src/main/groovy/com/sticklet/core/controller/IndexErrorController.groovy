@@ -19,12 +19,8 @@ public class IndexErrorController extends BaseController implements ErrorControl
     @RequestMapping(value="/error")
     public String error(HttpServletRequest req, HttpServletResponse resp) {
         statusServ.setStatusNotFound(resp)
+        //logger.debug "redirecting to /error: ${req.getRequestURI()}"
         "{\"msg\": \"error\", \"status\": 404}"
-    }
-
-    @RequestMapping(value="/throw")
-    public def throwError() {
-        throw new Exception()
     }
 
     @Override

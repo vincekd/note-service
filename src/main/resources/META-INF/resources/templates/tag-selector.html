@@ -7,7 +7,7 @@
     <ul class="uib-dropdown-menu tags-dropdown" role="menu" aria-labelledby="single-button">
         <li><input type="text" ng-model="search" placeholder="{{ (tags | Empty) ? 'Create' : 'Search' }}" class="stklt-input" maxlength="{{maxNameLength}}" /></li>
         <li class="divider" ng-if="!(filteredTags | Empty)"></li>
-        <li ng-repeat="t in (filteredTags = (tags | FilterTags:search | orderBy:'name')) track by t.id">
+        <li ng-repeat="t in (filteredTags = (tags | FilterTags:search | orderBy:'name')) track by t.id" class="stklt-pull-up">
             <a ng-bind="t.name" ng-click="tagSelected(t)"></a>
         </li>
         <li class="divider" ng-if="canAdd()"></li>

@@ -1,4 +1,4 @@
-@import "stickletDefs";
+@import "stickletDefs.less";
 
 /* helper classes */
 .pre-wrap {
@@ -234,6 +234,68 @@ uib-accordion {
     //margin: 15px 0px;
     padding: 10px;
     text-align: center;
+}
+/* ngAnimate classes  */
+.stklt-pull-up {
+    &.ng-enter,
+    &.ng-leave {
+        transition: @default-transition-time cubic-bezier(0.250, 0.250, 0.750, 0.750) all;
+        position: relative;
+        display: block;
+    }
+    &.ng-enter.ng-enter-active, 
+    &.ng-leave {
+        opacity: 1;
+        top: 0;
+        height: 25px;
+    }
+    &.ng-enter,
+    &.ng-leave.ng-leave-active {
+        opacity: 0;
+        top: -45px;
+        height: 0px;
+    }
+}
+.stklt-fade {
+    &.ng-leave {
+        transition: @default-transition-time linear all;
+        opacity: 1;
+    }
+    &.ng-leave.ng-leave-active {
+        opacity: 0;
+        transition: @default-transition-time linear all;
+    }
+    &.ng-enter {
+        transition: @default-transition-time linear all;
+        opacity: 0;
+    }
+    &.ng-enter-active {
+        opacity: 1;
+    }
+}
+.stklt-slide {
+    &.ng-enter {
+        transition: @default-transition-time linear all;
+        transform: translateX(-100px);
+        opacity: 0;
+        z-index: -1;
+    }
+    &.ng-enter.ng-enter-active {
+        transform: translateX(0);
+        opacity: 1;
+        z-index: 1;
+    }
+    &.ng-leave {
+        transition: @default-transition-time linear all;
+        transform: translateX(0);
+        opacity: 1;
+        z-index: 1;
+    }
+    &.ng-leave.ng-leave-active {
+        transform: translateX(-100px);
+        opacity: 0;
+        z-index: -1;
+    }
 }
 
 /* menu */

@@ -12,7 +12,7 @@
                     <ul class="uib-dropdown-menu" role="menu" aria-labelledby="single-button">
                         <li><color-choices on-change="filterColor(color)"></color-choices></li>
                         <li class="divider"></li>
-                        <li ng-repeat="tag in tags | TagsUsed:current.filters.tags">
+                        <li ng-repeat="tag in tags | TagsUsed:current.filters.tags" class="stklt-pull-up">
                             <a ng-click="filterTag(tag)" ng-bind="tag.name"></a>
                         </li>
                         <li class="divider"></li>
@@ -33,11 +33,11 @@
             
             <div class="col-sm-6">
                 <div class="current-filters">
-                    <span class="tag-label" ng-repeat="color in current.filters.colors" ng-style="{'background': color}">
+                    <span class="tag-label stklt-slide" ng-repeat="color in current.filters.colors" ng-style="{'background': color}">
                         <span class="name" ng-bind="color"></span>
                         <a class="pull-right close" ng-click="removeColorFilter(color)">&times;</a>
                     </span>
-                    <span class="tag-label" ng-repeat="tag in current.filters.tags | TagsFromIDs">
+                    <span class="tag-label stklt-slide" ng-repeat="tag in current.filters.tags | TagsFromIDs">
                         <a class="pull-left" ng-click="toggleNotTag(tag)" title="toggle not">
                             <i class="oi {{current.filters.notTags.indexOf(tag.id) === -1 ? 'oi-chevron-bottom' : 'oi-chevron-top'}}"></i>
                         </a>
