@@ -1,6 +1,12 @@
 (function() { "use strict";
-    var Sticklet = angular.module("Sticklet", ["ngRoute", "hmTouchEvents", "ui.bootstrap", 
-                                               "perfect_scrollbar", "wysihtml", "ngAnimate"]);
+    var Sticklet = angular.module("Sticklet", [
+        "ngRoute",
+        //"hmTouchEvents", 
+        "ui.bootstrap", 
+        "perfect_scrollbar",
+        "wysihtml",
+        "ngAnimate"
+    ]);
     Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
                      function($routeProvider, $locationProvider, $provide) {
 

@@ -82,10 +82,6 @@ Sticklet
             blurTime = null;
         }).on("blur.sticklet", function(ev) {
             blurTime = Date.now();
-        }).on("hashchange.sticklet", function() {
-            //$scope.$apply(function() {
-            //    getUrlFilters();
-            //});
         }).focus();
         $scope.$on("$destroy", function(ev) {
             $(window).off("focus.sticklet blur.sticklet hashchange.sticklet");
@@ -166,12 +162,13 @@ Sticklet
             updateUrl();
         }
         function updateUrl() {
-            $location.search({
+            var state = {
                 "tags": $scope.current.filters.tags.join("|") || null,
                 "^tags": $scope.current.filters.notTags.join("|") || null,
                 "colors": $scope.current.filters.colors.join("|") || null,
                 "search": $scope.current.filters.search || null
-            });
+            };
+            $location.search(state).replace();
         }
 
         getNotes();
