@@ -128,7 +128,11 @@ Sticklet
             $scope.opts.menuOpen = !$scope.opts.menuOpen;
         };
         $scope.createNote = function() {
-            NoteServ.create();
+            NoteServ.create({
+                "tags": _.difference($scope.current.filters.tags, $scope.current.filters.notTags),
+                "color": $scope.current.filters.colors[0],
+                "title": $scope.current.filters.search
+            });
         };
         $scope.closeEditor = function() {
             $scope.current.editing = null;

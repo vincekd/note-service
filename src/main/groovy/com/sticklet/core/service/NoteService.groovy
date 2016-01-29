@@ -167,9 +167,22 @@ class NoteService {
         noteRepo.findAllByDeletedLessThan(lessThan)
     }
 
-    public Note createNote(User user) {
-        Note note = new Note(["user": user, "title": "", "content": ""])
+    public Note createNote(User user, Map<String, Object> data) {
+        data = data ?: [:]
+        Note note = new Note([
+            "user": user,
+            "title": data.title ?: "",
+            "color": data.color ?: "",
+            "tags": getTags(data.tags),
+            "content": ""
+        ])
         noteRepo.save(note)
+    }
+
+    public List<Tag> getTags(List<String> tags) {
+        tags.collect {
+            tagRepo.findOne(it)
+        }.findAll { it }
     }
 
     public Note save(Note note) {

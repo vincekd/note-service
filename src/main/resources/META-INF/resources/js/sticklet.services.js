@@ -402,7 +402,7 @@ Sticklet
                 });
             });
         }
-        function createNote(note, offline) {
+        function createNote(note) {
             notes = notes.then(function(data) {
                 data.push(note);
                 storeNotes(data);
@@ -553,8 +553,9 @@ Sticklet
             "refresh": function(note) {
                 return HTTP.get("/note/" + note.id);
             },
-            "create": function() {
-                return Offline.post("/note").catch(function(msg) {
+            "create": function(initData) {
+                initData = initData || {};
+                return Offline.post("/note", initData).catch(function(msg) {
                     if (msg === "offline") {
                         getOfflineNoteID().then(function(id) {
                             var now = Date.now();
@@ -563,8 +564,10 @@ Sticklet
                                 "created": now,
                                 "updated": now,
                                 "titleEdited": false,
-                                "tags": []
-                            }, true);
+                                "title": initData.title,
+                                "color": initData.color,
+                                "tags": [] //TODO: do this
+                            });
                             Offline.sync("note." + id + ".create", id);
                         });
                     }

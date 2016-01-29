@@ -109,9 +109,9 @@ class NoteController extends BaseController {
     }
 
     @RequestMapping(value="/note", method=RequestMethod.POST, produces="application/json")
-    public @ResponseBody def createNote(HttpServletResponse resp) {
+    public @ResponseBody def createNote(@RequestBody Map<String, Object> data, HttpServletResponse resp) {
         User user = curUser()
-        Note note = noteServ.createNote(user)
+        Note note = noteServ.createNote(user, data)
         if (note) {
             socketServ.sendToUser(user, SocketTopics.NOTE_CREATE, note)
             return note
