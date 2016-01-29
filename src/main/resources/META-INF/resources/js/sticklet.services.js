@@ -566,7 +566,7 @@ Sticklet
                                 "titleEdited": false,
                                 "title": initData.title,
                                 "color": initData.color,
-                                "tags": [] //TODO: do this
+                                "tags": [] //TODO: do this - need TagServ, will create dependency loop
                             });
                             Offline.sync("note." + id + ".create", id);
                         });

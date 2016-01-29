@@ -30,24 +30,23 @@
         fetch("/authenticate", {"credentials": "include"}).then(function(resp) {
             console.info("autenticated", resp.status);
             if (resp.status === 401) {
-                do401();
+                return do401();
             } else if (resp.status === 200) {
                 __sticklet.authenticated = true;
-            } 
+            }
+            navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
+                __sticklet.serviceWorker = true;
+                console.info("Service worker registered on scope:", reg.scope);
+            }).catch(function(error) {
+                __sticklet.serviceWorker = false;
+                console.warn('Service worker registration failed with ' + error);
+            });
         }, function(resp) {
             console.info("authenticate error status", resp.status);
             if (resp.status === 401) {
                 do401();
             }
         });
-
-//        navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
-//            __sticklet.serviceWorker = true;
-//            console.info("Service worker registered on scope:", reg.scope);
-//        }).catch(function(error) {
-//            __sticklet.serviceWorker = false;
-//            console.warn('Service worker registration failed with ' + error);
-//        });
     } else {
         console.warn("this site requires a modern browser.");
     }
