@@ -6,6 +6,7 @@ import com.sticklet.core.model.Note
 import com.sticklet.core.model.Tag
 import com.sticklet.core.model.User
 import com.sticklet.core.repository.base.BaseRepo
+import com.sticklet.core.repository.custom.CustomNoteRepo;
 
 public interface NoteRepo extends BaseRepo<Note, String>, CustomNoteRepo {
     public List<Note> findAllByUser(@Param("user") User user)

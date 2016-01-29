@@ -31,4 +31,9 @@ abstract class BaseModel {
     public String toString() {
         "<${this.class.simpleName} - ${id}>"
     }
+
+    //    @Override
+    //    public boolean equals(Object o) {
+    //        o != null && o instanceof BaseModel && this.class.isAssignableFrom(o.class) && id == o.id
+    //    }
 }
