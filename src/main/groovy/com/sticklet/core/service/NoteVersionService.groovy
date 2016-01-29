@@ -72,7 +72,6 @@ class NoteVersionService {
                 }
             }
         }
-        logger.debug "diff out: $diff"
         diff
     }
 

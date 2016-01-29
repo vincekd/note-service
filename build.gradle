@@ -1,7 +1,7 @@
 buildscript {
     ext {
         //springBootVersion = '1.2.2.RELEASE'
-        springBootVersion = '1.3.1.RELEASE'
+        springBootVersion = '1.3.2.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -77,13 +77,13 @@ dependencies {
     compile("org.springframework:spring-messaging")
 
     //groovy
-    compile("org.codehaus.groovy:groovy")
-    compile('org.codehaus.groovy:groovy-xml')
-    compile('org.codehaus.groovy:groovy-json')
+    compile("org.codehaus.groovy:groovy:2.4.3")
+    compile('org.codehaus.groovy:groovy-xml:2.3.10')
+    compile('org.codehaus.groovy:groovy-json:2.3.10')
 
     //misc
-    compile("org.reflections:reflections:0.9.9")
-    compile("joda-time:joda-time:2.8.2")
+    compile("org.reflections:reflections:0.9.10")
+    compile("joda-time:joda-time:2.9.2")
     compile("com.asual.lesscss:lesscss-engine:1.3.0")
     compile("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
     compile('javax.mail:mail:1.4.7')
