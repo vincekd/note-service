@@ -20,6 +20,10 @@ import com.sticklet.core.repository.NoteVersionRepo
 class NoteVersionService {
     private static final Logger logger = LoggerFactory.getLogger(NoteVersionService.class)
 
+    //disallow everything except title, color, and content?
+    private static final List<String> ignoreFields = ["position", "user", "id", "updated",
+        "created", "archived", "deleted", "contentEdited", "titleEdited", "tags", "version"]
+
     @Autowired
     private NoteVersionRepo repo
 
@@ -45,15 +49,13 @@ class NoteVersionService {
         if (oldNote) {
             diff = [:]
             note.class.fields.each { Field f ->
-                if (!f.isSynthetic()) {
+                if (!f.isSynthetic() && !ignoreFields.contains(f.name)) {
                     if (f.isAnnotationPresent(DBRef.class)) {
                         Type type = f.genericType
                         if (type instanceof ParameterizedType) {
                             ParameterizedType pType = (ParameterizedType) type
                             if (pType.rawType == List) {
-                                //!note[f.name].every { model -> oldNote[f.name].any { it.id == model.id } } || 
-                                //!oldNote[f.name].every { model -> oldNote[f.name].any { it.id == model.id } }
-                                if (note[f.name].size() != oldNote[f.name].size() || !note[f.name].every { m -> 
+                                if (note[f.name].size() != oldNote[f.name].size() || !note[f.name].every { m ->
                                     oldNote[f.name].any { it.id == m.id }
                                 }) {
                                     diff[f.name] = oldNote[f.name].collect {
@@ -64,7 +66,7 @@ class NoteVersionService {
                             }
                         }
                         if (note[f.name]?.id != oldNote[f.name]?.id) {
-                            diff[f.name] = oldNote[f.name]?.id 
+                            diff[f.name] = oldNote[f.name]?.id
                         }
                     } else if (note[f.name] != oldNote[f.name]) {
                         diff[f.name] = oldNote[f.name]
@@ -75,17 +77,72 @@ class NoteVersionService {
         diff
     }
 
-    public Note recomposeVersion(Note note, Long version) {
-        //TODO: finish this when we have an interface interface
-        List<NoteVersion> versions = repo.findAllByNote(note).sort {
-            it.noteVersion
-        }.reverse()
-        versions.each {
-            it.diff.each { String fieldName, def val ->
-                //(if dbref (if list) else set)
-                //note[fieldName] = val
+    private Map<String, Object> noteToMap(Note note) {
+        Map noteMap = [:]
+        note.class.fields.each { Field f ->
+            if (!f.isSynthetic() && !ignoreFields.contains(f.name)) {
+                noteMap[f.name] = note[f.name]
+                if (f.isAnnotationPresent(DBRef.class)) {
+                    Type type = f.genericType
+                    if (type instanceof ParameterizedType) {
+                        ParameterizedType pType = (ParameterizedType) type
+                        if (pType.rawType == List) {
+                            noteMap[f.name]= note[f.name].collect {
+                                it.id
+                            }
+                            return
+                        }
+                    }
+                    noteMap[f.name]= note[f.name].id
+                } else {
+                    noteMap[f.name] = note[f.name]
+                }
             }
         }
+        noteMap
+    }
+
+    public Note revertNote(Note note, Long version) {
+        List<NoteVersion> versions = getVersions(note)
+        if (versions.size()) {
+            int ind = versions.findIndexOf { it.noteVersion == version }
+            versions = versions.subList(0, ind + 1)
+            List<Map<String, Object>> vers = walkBackVersions(note, versions)
+            Map v = vers.last()
+
+            //only update these three for right now
+            note.title = v.title
+            note.content = v.content
+            note.color = v.color
+        }
         note
+    }
+
+    private List<Map<String, Object>> walkBackVersions(Note note, List<NoteVersion> versions) {
+        List<Map<String, Object>> out = []
+        Map noteMap = noteToMap(note)
+        versions.collect {
+            Map cur = new HashMap(noteMap)
+            if (out.size()) {
+                cur = cur + out.last()
+            }
+            it.diff.each { String key, def val ->
+                cur[key] = val
+            }
+            cur.noteVersion = it.noteVersion
+            out << cur
+        }
+        out
+    }
+
+    public List<Map<String, Object>> getFullVersions(Note note) {
+        List<NoteVersion> versions = getVersions(note)
+        walkBackVersions(note, versions)
+    }
+
+    public List<NoteVersion> getVersions(Note note) {
+        repo.findAllByNote(note).sort {
+            it.noteVersion
+        }.reverse()
     }
 }

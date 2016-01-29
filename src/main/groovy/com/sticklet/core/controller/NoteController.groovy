@@ -10,16 +10,41 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.ResponseBody
 
-import com.sticklet.AppConfig
 import com.sticklet.core.constant.SocketTopics
 import com.sticklet.core.controller.base.BaseController
 import com.sticklet.core.model.Note
 import com.sticklet.core.model.User
 import com.sticklet.core.service.NoteService
+import com.sticklet.core.service.NoteVersionService
 
 @Controller
 class NoteController extends BaseController {
-    @Autowired NoteService noteServ
+    @Autowired
+    private NoteService noteServ
+    @Autowired
+    private NoteVersionService noteVersionServ
+    
+    @RequestMapping(value="/note/{noteID}/version/{version}", method=RequestMethod.PUT, produces="application/json")
+    public @ResponseBody def revertNote(@PathVariable("noteID") String noteID, @PathVariable("version") Long version, HttpServletResponse resp) {
+        User user = curUser()
+        Note note = noteServ.getNote(noteID, user, resp)
+        if (note) {
+            note = noteVersionServ.revertNote(note, version)
+            note = noteServ.save(note)
+            socketServ.sendToUser(user, SocketTopics.NOTE_UPDATE, note)
+        }
+        emptyJson()
+    }
+
+    @RequestMapping(value="/note/{noteID}/versions", method=RequestMethod.GET, produces="application/json")
+    public @ResponseBody def getNoteVersions(@PathVariable("noteID") String noteID, HttpServletResponse resp) {
+        User user = curUser()
+        Note note = noteServ.getNote(noteID, user, resp)
+        if (note) {
+            return noteVersionServ.getFullVersions(note)
+        }
+        emptyJson()
+    }
 
     @RequestMapping(value="/notes", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def getNotes(HttpServletResponse resp) {

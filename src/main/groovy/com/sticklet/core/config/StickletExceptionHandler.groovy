@@ -3,6 +3,7 @@ package com.sticklet.core.config
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -17,16 +18,25 @@ import org.springframework.web.util.WebUtils
 @ControllerAdvice
 public class StickletExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(StickletExceptionHandler.class)
+    
+    @Value("\${debug.enabled}")
+    private boolean debugEnabled
 
     @ExceptionHandler([Throwable.class, Exception.class, RuntimeException.class])
-    public ResponseEntity<Object> handleNonSpringException(Exception e, WebRequest req) {
-        logger.debug "exception: $e"
+    public ResponseEntity<Object> handleNonSpringException(Exception ex, WebRequest req) {
+        logger.debug "exception: ${ex.message}"
+        if (debugEnabled) {
+            ex.printStackTrace()
+        }
         return new ResponseEntity<Object>("{}", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        logger.debug "internal exception: $ex"
+        logger.debug "internal exception: ${ex.message}"
+        if (debugEnabled) {
+            ex.printStackTrace()
+        }
         //this is just a copy of the original... for future reference
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST)

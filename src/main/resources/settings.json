@@ -1,5 +1,11 @@
 {
     "note": {
+        "versions": {
+            "enabled": {
+                "value": true,
+                "userUpdatable": false
+            }
+        },
         "maxTitleLength": {
             "value": 100,
             "userUpdatable": false

@@ -86,6 +86,11 @@ Sticklet
         $scope.$on("$destroy", function(ev) {
             $(window).off("focus.sticklet blur.sticklet hashchange.sticklet");
         });
+        $scope.$on("$routeChangeStart", function(event, next, current) {
+            if (next.$$route.originalPath !== "/") {
+                $location.search({});
+            }
+        });
     }])
     .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter", "$location",
                               function($scope, NoteServ, filterNotes, sortNotes, $location) {
@@ -455,16 +460,13 @@ Sticklet
         });
 
         function loadNote() {
-            NoteServ.getNotes().then(function(notes) {
-                $scope.note = _.find(notes, function(n) {
-                    return n.id === $routeParams.noteID;
-                });
-                if (!$scope.note) {
-                    //redirect back
-                    $location.path("/notes");
-                } else {
+            NoteServ.getNote($routeParams.noteID).then(function(note) {
+                $scope.note = note;
+                if (note) {
                     $scope.cur.title = $scope.note.title;
                     $scope.cur.content = $scope.note.content;
+                } else {
+                    $location.path("/notes");
                 }
             });
         }
@@ -478,6 +480,35 @@ Sticklet
             return $routeParams.noteID;
         }, function() {
             loadNote();
+        });
+    }])
+    .controller("VersionCtrl", ["$scope", "$routeParams", "NoteServ", "$location",
+                             function($scope, $routeParams, NoteServ, $location) {
+
+        $scope.note = null;
+        $scope.versions = null;
+        $scope.revertTo = function(version) {
+            NoteServ.revertTo($scope.note, version).then(function() {
+                $location.path("/");
+            });
+        };
+        function load() {
+            NoteServ.getNote($routeParams.noteID).then(function(note) {
+                $scope.note = note
+                if (!note) {
+                    $location.path("/notes");
+                    return;
+                }
+                NoteServ.getVersions(note).then(function(versions) {
+                    $scope.versions = versions;
+                });
+            });
+        }
+
+        $scope.$watch(function() {
+            return $routeParams.noteID;
+        }, function() {
+            load();
         });
     }])
     .controller("SortCtrl", ["$scope", function($scope) {

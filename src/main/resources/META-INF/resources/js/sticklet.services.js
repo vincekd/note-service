@@ -348,8 +348,8 @@ Sticklet
             }
         };
     }])
-    .service("NoteServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline", "Settings",
-                          function(HTTP, STOMP, $rootScope, $q, Offline, Settings) {
+    .service("NoteServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline", "Settings", "TagServ",
+                          function(HTTP, STOMP, $rootScope, $q, Offline, Settings, TagServ) {
         var offlineID = 0,
             notesGet = "/notes",
             notes = getNotes(),
@@ -370,6 +370,12 @@ Sticklet
             return Settings.get("note.colors");
         }
 
+        $rootScope.$on("update-note", function(event, note) {
+            updateNote(note);
+        });
+        $rootScope.$on("update-notes", function(event, notes) {
+            updateNotes(notes);
+        });
         //websocket callbacks
         STOMP.registerSetting("noteCreate", namespace, function(note) {
             createNote(note);
@@ -467,8 +473,21 @@ Sticklet
             "getNotes": function() {
                 return notes;
             },
+            "getNote": function(noteID) {
+                return notes.then(function(arr) {
+                    return _.find(arr, function(n) {
+                        return n.id === noteID;
+                    });
+                });
+            },
             "getColors": function() {
                 return colors;
+            },
+            "getVersions": function(note) {
+                return HTTP.get("/note/" + note.id + "/versions");
+            },
+            "revertTo": function(note, version) {
+                return HTTP.put("/note/" + note.id + "/version/" + version.noteVersion);
             },
             "save": function(note) {
                 var data = safe(note);
@@ -559,22 +578,24 @@ Sticklet
                     if (msg === "offline") {
                         getOfflineNoteID().then(function(id) {
                             var now = Date.now();
-                            createNote({
-                                "id": id,
-                                "created": now,
-                                "updated": now,
-                                "titleEdited": false,
-                                "title": initData.title,
-                                "color": initData.color,
-                                "tags": [] //TODO: do this - need TagServ, will create dependency loop
+                            TagServ.getTags().then(function(tags) {
+                                createNote({
+                                    "id": id,
+                                    "created": now,
+                                    "updated": now,
+                                    "titleEdited": !!initData.title,
+                                    "title": initData.title,
+                                    "color": initData.color,
+                                    "tags": initData.tags ? tags.filter(function(t) {
+                                        return initData.tags.indexOf(t.id) > -1;
+                                    }) : []
+                                });
+                                Offline.sync("note." + id + ".create", id);
                             });
-                            Offline.sync("note." + id + ".create", id);
                         });
                     }
                 });
             },
-            "updateNote": updateNote,
-            "updateNotes": updateNotes,
             "titleFromContent": function(note, maxLen) {
                 maxLen = maxLen || maxTitleLength;
                 if (!note.titleEdited && !note.title && note.content) {
@@ -593,8 +614,8 @@ Sticklet
         };
         return Service;
     }])
-    .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline", "NoteServ",
-                         function(HTTP, STOMP, $rootScope, $q, Offline, NoteServ) {
+    .service("TagServ", ["HTTP", "STOMP", "$rootScope", "$q", "Offline",
+                         function(HTTP, STOMP, $rootScope, $q, Offline) {
         var tagsGet = "/tags",
             curTags = [],
             tags = getTags(),
@@ -634,19 +655,19 @@ Sticklet
         }
         function tagNote(note, tag) {
             note.tags.push(tag);
-            NoteServ.updateNote(note);
+            $rootScope.$broadcast("update-note", note);
         }
         function untagNote(note, tag) {
             note.tags = note.tags.filter(function(t) {
                 return t.id !== tag.id;
             });
-            NoteServ.updateNote(note);
+            $rootScope.$broadcast("update-note", note);
         }
         function tagNotes(notes, tag) {
             _.each(notes, function(n) {
                 n.tags.push(tag);
             });
-            NoteServ.updateNotes(notes);
+            $rootScope.$broadcast("update-notes", notes);
         }
         function getStoreData(note, tag) {
             return { "note": { "id": note.id }, "tag": { "id": tag.id } };

@@ -28,6 +28,7 @@ class WebsocketService {
     }
 
     public void sendToUser(User user, String topic, def data) {
+        //data = (data ?: [:])
         if (loginEnabled) {
             msgTemp.convertAndSendToUser(user.username, "/topic" + topic, data)
         } else {

@@ -34,13 +34,7 @@
             } else if (resp.status === 200) {
                 __sticklet.authenticated = true;
             }
-            navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
-                __sticklet.serviceWorker = true;
-                console.info("Service worker registered on scope:", reg.scope);
-            }).catch(function(error) {
-                __sticklet.serviceWorker = false;
-                console.warn('Service worker registration failed with ' + error);
-            });
+            //initServiceWorker();
         }, function(resp) {
             console.info("authenticate error status", resp.status);
             if (resp.status === 401) {
@@ -49,6 +43,16 @@
         });
     } else {
         console.warn("this site requires a modern browser.");
+    }
+
+    function initServiceWorker() {
+        navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
+            __sticklet.serviceWorker = true;
+            console.info("Service worker registered on scope:", reg.scope);
+        }).catch(function(error) {
+            __sticklet.serviceWorker = false;
+            console.warn('Service worker registration failed with ' + error);
+        });
     }
 
     function do401() {

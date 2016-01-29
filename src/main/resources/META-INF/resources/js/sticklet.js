@@ -17,6 +17,9 @@
             "reloadOnSearch": false
         }).when("/notes", {
             "redirectTo": "/"
+        }).when("/version/:noteID", {
+            "templateUrl": "/templates/version.html",
+            "controller": "VersionCtrl"
         }).when("/note/:noteID", {
             "templateUrl": "/templates/note.html",
             "controller": "NoteCtrl"
