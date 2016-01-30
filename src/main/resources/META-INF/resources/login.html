@@ -7,15 +7,8 @@
 
         <link rel="icon" type="image/png" href="/images/favicon.png">
 
-        <script type="text/javascript">
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
-                console.info("Service worker registered on scope:", reg.scope);
-            }).catch(function(error) {
-                console.warn('Service worker registration failed with ' + error);
-            });
-        }
-        </script>
+        <!-- register ServiceWorker -->
+        <script type="text/javascript" src="/js/sticklet.register.js"></script>
 
         <!-- css -->
         <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
@@ -44,7 +37,7 @@
 
                             <div>
                                 <p>
-                                    Current version (0.4) includes such features as note taking and other note related tasks:
+                                    Current version (0.6) includes such features as note taking and other note related tasks:
                                 </p>
                                 <ul>
                                     <li>Offline editing and syncing</li>
@@ -52,22 +45,24 @@
                                     <li>Organize notes by color</li>
                                     <li>Sticky draggable/resizable notes</li>
                                     <li>Secure connection</li>
-                                    <li>State of the art filtering tag/color/text system that allows you to... filter</li>
+                                    <li>State of the art filtering tag/color/text system that allows you to—ahem—filter</li>
                                     <li>Receive automatic updates when you edit the note on separate computers</li>
+                                    <li>Tracking and saving old versions for easy reversion.</li>
+                                    <li>Import from Evernote</li>
                                     <li>Wine/coffee stain proof (Disclaimer: does not include your computer)</li>
                                 </ul>
                             </div>
-                            
+
                             <div>
                                 <p>
                                     Features for future releases:
                                 </p>
                                 <ul>
-                                    <li>Tracking and saving old versions for easy reversion.</li>
+                                    <li>Native mobile apps</li>
                                     <li>encrypted database, and possible per user encryption</li>
                                     <li>search by date of creation/update</li>
-                                    <li>Import from Google Keep/Microsoft OneNote</li>
                                     <li>Improved mobile interface</li>
+                                    <li>Import from Google Keep/Microsoft OneNote</li>
                                 </ul>
                             </div>
 
@@ -92,12 +87,12 @@
             <div>
                 <div class="form-group">
                     <label class="control-label">Username</label>
-                    <input type="text" class="form-control" ng-keydown="typing($event)" 
-                        ng-model="loginVals.username" pattern="[a-zA-Z0-9]{4,}" required name="username" autofocus/>
+                    <input type="text" class="form-control" ng-keydown="typing($event)" id="username"
+                        ng-model="loginVals.username" pattern="[a-zA-Z0-9]{4,}" required name="username" autofocus />
                 </div>
                 <div class="form-group">
                     <label class="control-label">Password</label>
-                    <input type="password" class="form-control" ng-keydown="typing($event)" 
+                    <input type="password" class="form-control" ng-keydown="typing($event)" id="password"
                         required pattern=".{6,}" ng-model="loginVals.password" name="password"/>
                 </div>
             </div>
@@ -107,7 +102,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-danger pull-left" ng-click="cancel()">Cancel</button>
-        <button type="button" class="btn" ng-click="login()">Login</button>
+        <button type="button" class="btn" ng-click="login()" ng-disabled="!checkLogin()">Login</button>
     </div>
 </div>
         </script>
@@ -121,7 +116,7 @@
             <div>
                 <div class="form-group">
                     <label class="control-label">Username</label>
-                    <input type="text" class="form-control" pattern="[a-zA-Z0-9]{4,}" required ng-model="user.username" name="username"/>
+                    <input type="text" class="form-control" pattern="[a-zA-Z0-9\_\-]{4,}" required ng-model="user.username" name="username"/>
                 </div>
                 <div class="form-group">
                     <label class="control-label">Your Email</label>
@@ -133,7 +128,8 @@
                 </div>
                 <div class="form-group">
                     <label class="control-label">Confirm Password</label>
-                    <input type="password" class="form-control" pattern=".{6,}" required ng-model="user.passwordRepeat" name="passwordRepeat"/>
+                    <input type="password" class="form-control" pattern=".{6,}"
+                        password="user.password" required ng-model="user.passwordRepeat" name="passwordRepeat"/>
                 </div>
             </div>
        </form>

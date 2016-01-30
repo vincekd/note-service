@@ -1,6 +1,11 @@
 (function($, angular, undefined) { 'use strict';
 
 var Sticklet = angular.module("StickletLogin", ["ui.bootstrap"]);
+Sticklet.run([function() {
+    $(function() {
+        __sticklet.initServiceWorker();
+    });
+}])
 
 Sticklet
     .service("ValidLogin", [function() {
@@ -49,11 +54,17 @@ Sticklet
             });
         };
     }])
-    .controller("LoginPageCtrl", ["$scope", "$uibModalInstance", "$http", "username", "ValidLogin",
-                                  function($scope, $modalInst, $http, username, ValidLogin) {
+    .controller("LoginPageCtrl", ["$scope", "$uibModalInstance", "$http", "username", "ValidLogin", "$timeout",
+                                  function($scope, $modalInst, $http, username, ValidLogin, $timeout) {
         $scope.loginVals = {
-            "username": username
+            "username": username,
+            "password": ""
         };
+        //get around keypass insertion issues
+        $timeout(function() {
+            $scope.loginVals.username = (username || $("#username").val());
+            $scope.loginVals.password = $("#password").val();
+        }, 1000);
         $scope.checkLogin = function() {
             return (ValidLogin.username($scope.loginVals.username) && 
                     ValidLogin.password($scope.loginVals.password));
@@ -107,5 +118,20 @@ Sticklet
             $modalInst.dismiss("cancel");
         }
     }])
+    .directive("password", ["ValidLogin", function(ValidLogin) {
+        return {
+            "require": "ngModel",
+            "scope": {
+                "password": "="
+            },
+            "link": function($scope, $element, $attrs, ctrl) {
+                ctrl.$validators.password = function(modelValue, viewValue) {
+                    return (ValidLogin.password(modelValue) && 
+                            ValidLogin.password($scope.password) && 
+                            $scope.password === modelValue);                
+                };
+            }
+        };
+    }]);
 ;
 }(jQuery, angular));

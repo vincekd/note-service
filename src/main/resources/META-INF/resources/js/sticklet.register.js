@@ -23,7 +23,8 @@
                 }
             }
         },
-        "authenticate": authenticate
+        "authenticate": authenticate,
+        "initServiceWorker": initServiceWorker
     };
 
     //register service worker
@@ -53,6 +54,8 @@
     }
 
     function initServiceWorker() {
+        //TODO: remove
+        return;
         navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
             __sticklet.serviceWorker = true;
             console.info("Service worker registered on scope:", reg.scope);
