@@ -26,7 +26,8 @@ Sticklet
             "restrict": "E",
             "scope": {
                 "note": "=",
-                "batch": "="
+                "batch": "=",
+                "disabled": "="
             },
             "templateUrl": "templates/tags.html",
             "link": function($scope, $element, $attrs) {
@@ -230,6 +231,56 @@ Sticklet
                                 '<div class="col-md-3 hidden-xs hidden-sm"></div>' +
                             '</div>' +
                         '</div>')
+        };
+    }])
+    .directive("contentPage", [function() {
+        return {
+            "restrict": "E",
+            "transclude": true,
+            "replace": true,
+            "templateUrl": "/templates/content-page.html",
+            "scope": {
+                "displayProp": "@",
+                "defaultHeader": "@",
+                "collection": "=",
+                "onSelect": "&",
+                "header": "@"
+            },
+            "link": function($scope, $element, $attrs) {
+                $scope.active = null;
+                $scope.activateItem = function(item) {
+                    $scope.active = item;
+                    $scope.onSelect({
+                        "item": item
+                    });
+                };
+                $scope.$watch('collection', function() {
+                    if (!_.isEmpty($scope.collection)) {
+                        $scope.activateItem($scope.collection[0]);
+                    }
+                });
+            }
+        };
+    }])
+    .directive("staticNote", [function() {
+        return {
+            "restrict": "E",
+            "templateUrl": "/templates/static-note.html",
+            "scope": {
+                "note": "=",
+                "overlord": "@"
+            },
+            "link": function($scope, $element, $attrs) {
+                if ($scope.overlord) {
+                    $scope.$watch('note.color', function() {
+                        if ($scope.note) {
+                            $element.closest($scope.overlord).css("background", $scope.note.color);
+                        } else {
+                            $element.closest($scope.overlord).css("background", "");
+                        }
+                    });
+                }
+            }
         };
     }])
     .directive("noteContextMenu", [function() {

@@ -1,0 +1,26 @@
+<div class="container-fluid row-full-height content-page">
+    <div class="row">
+        <div class="col-md-2 hidden-xs hidden-sm"></div>
+        <div class="col-md-8 content-page-main">
+            <div class="content-page-header">
+                <a class="close" route-load="/">&times;</a>
+                <h1 ng-if="header" ng-bind="header"></h1>
+            </div>
+            <div class="content-page-body">
+                <div class="content-page-nav">
+                    <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
+                        <ul class="nav nav-pills nav-stacked">
+                            <li ng-repeat="item in collection" role="presentation" ng-class="{active: item === active}">
+                                <a ng-click="activateItem(item)" ng-bind="item[displayProp] || defaultHeader"></a>
+                            </li>
+                        </ul>
+                    </perfect-scrollbar>
+                </div>
+                <div class="content-page-content">
+                    <ng-transclude class="full-height"></ng-transclude>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 hidden-xs hidden-sm"></div>
+    </div>
+</div>

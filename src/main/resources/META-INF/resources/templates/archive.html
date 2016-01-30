@@ -1,31 +1,10 @@
-<basic-page>
-    <div id="archive">
-        <div class="stklt-header">ARCHIVE</div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Created</th>
-                    <th>Archived</th>
-                    <th>Content</th>
-                    <th>Unarchive</th>
-                    <th>
-                        <span ng-if="opts.trashEnabled">Move to trash</span>
-                        <span ng-if="!opts.trashEnabled">Delete Permanently</span>
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr ng-repeat="note in archived | SortNotes:'updated':true">
-                    <td ng-bind="note.title"></td>
-                    <td ng-bind="note.created | DispDate:true"></td>
-                    <td ng-bind="note.updated | DispDate:true"></td>
-                    <td ng-bind="note.content | Clip"></td>
-                    <td><a ng-click="restoreNote(note)">Restore</a></td>
-                    <td><a ng-click="deleteNote(note)">Delete</a></td>
-                </tr>
-            </tbody>
-        </table>
+<content-page id="archive" collection="archived" display-prop="title" header="Archive"
+    default-header="Untitled" on-select="noteActivated(item)">
+    <div class="full-height" ng-if="activeNote">
+        <div class="text-right note-actions">
+            <button class="btn" type="button" ng-click="deleteNote(activeNote)">Delete Note</button>
+            <button class="btn" type="button" ng-click="restoreNote(activeNote)">Restore Note</button>
+        </div>
+        <static-note note="activeNote" overlord=".content-page-main"></static-note>
     </div>
-</basic-page>
+</content-page>

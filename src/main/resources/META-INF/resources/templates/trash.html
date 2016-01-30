@@ -1,29 +1,9 @@
-<basic-page>
-    <div id="trash">
-        <div class="stklt-header">TRASH</div>
-        <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Created</th>
-                        <th>Deleted</th>
-                        <th>Content</th>
-                        <th>Restore</th>
-                    </tr>
-                </thead>
-    
-                <tbody>
-                    <tr ng-repeat="note in trash | SortNotes:'deleted':true">
-                        <td ng-bind="note.title"></td>
-                        <td ng-bind="note.created | DispDate:true"></td>
-                        <td ng-bind="note.updated | DispDate:true"></td>
-                        <td ng-bind="note.deleted | DispDate:true"></td>
-                        <td ng-bind="note.content | Clip"></td>
-                        <td><a ng-click="restoreNote(note)">Restore</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </perfect-scrollbar>
+<content-page id="trash" collection="trash" display-prop="title" header="Trash"
+    default-header="Untitled" on-select="noteActivated(item)">
+    <div class="full-height" ng-if="activeNote">
+        <div class="text-right note-restore">
+            <button class="btn" type="button" ng-click="restoreNote(activeNote)">Restore Note</button>
+        </div>
+        <static-note note="activeNote" overlord=".content-page-main"></static-note>
     </div>
-</basic-page>
+</content-page>

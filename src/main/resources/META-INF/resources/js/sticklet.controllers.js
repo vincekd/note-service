@@ -546,10 +546,14 @@ Sticklet
     .controller("TagsAdminCtrl", ["$scope", "TagServ", "HTTP", "Popup",
                                   function($scope, TagServ, HTTP, Popup) {
         $scope.tags = [];
+        $scope.activeTag = null;
         $scope.removeTag = function(tag) {
             Popup.confirm("Are you sure you want to delete the tag from all notes?", "Delete Tag").then(function() {
                 TagServ.remove(tag);
             });
+        };
+        $scope.tagActivated = function(tag) {
+            $scope.activeTag = tag;
         };
         $scope.archiveTaggedNotes = function(tag) {
             Popup.confirm("Are you sure you want to archive all tagged notes?", "Archive Tagged Notes").then(function() {
@@ -613,10 +617,14 @@ Sticklet
             }
         };
     }])
-    .controller("ArchiveCtrl", ["$scope", "Archive", "Settings", "NoteServ", "Popup",
-                                function($scope, Archive, Settings, NoteServ, Popup) {
+    .controller("ArchiveCtrl", ["$scope", "Archive", "Settings", "NoteServ", "Popup", "SortNotesFilter",
+                                function($scope, Archive, Settings, NoteServ, Popup, sortNotes) {
         $scope.opts = {"trashEnabled": false};
         $scope.archived = [];
+        $scope.activeNote = null;
+        $scope.noteActivated = function(note) {
+            $scope.activeNote = note;
+        };
         $scope.restoreNote = function(note) {
             NoteServ.unarchive(note).then(function() {
                 $scope.archived = $scope.archived.filter(function(n) {
@@ -634,16 +642,18 @@ Sticklet
             });
         };
         Archive.get().then(function(archived) {
-            $scope.archived = archived;
+            $scope.archived = sortNotes(archived, 'updated', true);
         });
         Settings.get("note.trash.enabled").then(function(enabled) {
             $scope.opts.trashEnabled = enabled;
         });
     }])
-    .controller("TrashCtrl", ["$scope", "Trash", "Settings", "NoteServ", function($scope, Trash, Settings, NoteServ) {
+    .controller("TrashCtrl", ["$scope", "Trash", "Settings", "NoteServ", "SortNotesFilter",
+                              function($scope, Trash, Settings, NoteServ, sortNotes) {
         Settings.get("note.trash.enabled").then(function(enabled) {
             if (enabled) {
                 $scope.trash = [];
+                $scope.activeNote = null;
                 $scope.restoreNote = function(note) {
                     NoteServ.restore(note).then(function() {
                         $scope.trash = $scope.trash.filter(function(n) {
@@ -651,8 +661,11 @@ Sticklet
                         });
                     });
                 };
+                $scope.noteActivated = function(note) {
+                    $scope.activeNote = note;
+                };
                 Trash.get().then(function(trash) {
-                    $scope.trash = trash;
+                    $scope.trash = sortNotes(trash, 'deleted', true);
                 });
             }
         });

@@ -146,6 +146,40 @@ uib-accordion {
         }
     }
 }
+.nav-pills {
+    background: @lightest-background;
+    > li {
+        border: 1px solid #CCC;
+        + li {
+            margin-top: 0px;
+        }
+        > a {
+            color: @default-font-color;
+            font-weight: @bold-weight;
+            border-radius: 0px;
+            
+            //padding: @default-padding;
+            //text-align: center;
+            &:hover {
+                background: @light-background;
+                //padding: @default-padding;
+                //box-shadow: @box-shadow;
+            }
+            &:focus {
+                outline: none;
+            }
+        }
+        &.active > a {
+            &,
+            &:hover,
+            &:focus,
+            &:active {
+                background: @dark-background;
+                color: #DDD;
+            }
+        }
+    }
+}
 .btn {
     font-size: 1rem;
     padding: @default-padding;
@@ -731,10 +765,35 @@ ul.tags-dropdown {
         margin: 15px 0px;
     }
 }
-
+/* trash */
+#trash {
+    @note-restore-height: 32px;
+    .note-restore {
+        height: @note-restore-height;
+        margin-bottom: 5px;
+    }
+    .static-note {
+        height: ~"calc(100% - @{note-restore-height}px);";
+    }
+}
+/* archive */
+#archive {
+    @note-actions-height: 32px;
+    .note-actions {
+        height: @note-actions-height;
+        margin-bottom: 5px;
+    }
+    .static-note {
+        height: ~"calc(100% - @{note-actions-height}px);";
+    }
+}
 /* tags page */
 #tags-admin {
-    
+    .tag-actions {
+        padding: 10px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
 }
 
 .basic-page {
@@ -752,6 +811,55 @@ ul.tags-dropdown {
         }
         .basic-page-content {
             height: 100%;
+        }
+    }
+}
+.static-note {
+    height: 100%;
+    display: block;
+    .note-content-area {
+        padding: 15px;
+    }
+}
+.content-page {
+    height: 100%;
+    background: @dark-background;
+    display: block;
+    .content-page-main {
+        position: relative;
+        background: @light-background;
+        //padding-top: 10px;
+        .content-page-header {
+            height: @content-page-header-height;
+            h1 {
+                font-size: 1.3rem;
+                margin: 0;
+                padding: 10px;
+                font-weight: bold;
+                text-align: center;
+            }
+            > .close {
+                position: absolute;
+                top: 3px;
+                right: 10px;
+                z-index: 100;
+            }
+        }
+        .content-page-body {
+            height: ~"calc(100% - @{content-page-header-height}px)";
+            .content-page-nav {
+                width: 26%;
+                min-width: 200px;
+                height: 100%;
+                display: inline-block;
+                vertical-align: top;
+            }
+            .content-page-content {
+                height: 100%;
+                width: 73%;
+                display: inline-block;
+                vertical-align: top;
+            }
         }
     }
 }

@@ -121,5 +121,10 @@ Sticklet
             return out;
         };
     }])
+    .filter("BoolWord", [function() {
+        return function(val) {
+            return (val ? "Yes": "No");
+        };
+    }])
 ;
 }(jQuery));

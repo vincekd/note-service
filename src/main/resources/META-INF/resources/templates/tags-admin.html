@@ -1,31 +1,21 @@
-<basic-page id="tags-admin">
-<!--     <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3"> -->
-    <div>
-        <div class="stklt-header">Tag Manager</div>
+<content-page id="tags-admin" collection="tags" display-prop="name" header="Tag Manager" on-select="tagActivated(item)">
+    <div class="full-height" ng-if="activeTag">
+        <div class="tag-actions">
+            <button ng-click="archiveTaggedNotes(activeTag)" ng-if="checkShowArchive(activeTag)" class="btn" type="button">Archive Tagged Notes</button>
+            <button class="btn" type="button" ng-click="deleteTaggedNotes(activeTag)"  ng-if="checkShowDelete(activeTag)">Delete Tagged Notes</button>
+            <button class="btn" type="button" ng-click="removeTag(activeTag)">Delete Tag From Notes</button>
+        </div>
+        <div>
+            <label class="stklt-label">Notes with Tag:</label>
+            <span ng-bind="activeTag.noteCount"></span>
+        </div>
+        <div>
+            <label class="stklt-label">Archived Notes with Tag:</label>
+            <span ng-bind="activeTag.archivedCount"></span>
+        </div>
+        <div>
+            <label class="stklt-label">Deleted Notes with Tag:</label>
+            <span ng-bind="activeTag.deletedCount"></span>
+        </div>
     </div>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Tag name</th>
-                <th>Tagged Notes (Archived) (Deleted)</th>
-                <th>Archive Tagged Notes</th>
-                <th>Delete Tagged Notes</th>
-                <th>Delete Tag From Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="tag in tags">
-                <td ng-bind="tag.name"></td>
-                <td>
-                    <span ng-bind="tag.noteCount"></span>
-                    <span>(</span><span ng-bind="tag.archivedCount"></span><span>)</span>
-                    <span>(</span><span ng-bind="tag.deletedCount"></span><span>)</span>
-                </td>
-                <td><a ng-click="archiveTaggedNotes(tag)" ng-if="checkShowArchive(tag)">Archive Notes</a></td>
-                <td><a ng-click="deleteTaggedNotes(tag)"  ng-if="checkShowDelete(tag)">Delete Notes</a></td>
-                <td><a ng-click="removeTag(tag)">Delete Tag</a></td>
-            </tr>
-        </tbody>
-    </table>
-<!--     </perfect-scrollbar> -->
-</basic-page>
+</content-page>

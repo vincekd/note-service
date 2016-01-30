@@ -1,0 +1,38 @@
+<div class="full-height static-note" ng-style="{background: note.color}" ng-if="note">
+    <div>
+        <div>
+            <label class="stklt-label">Title:</label>
+            <span ng-bind="note.title"></span>
+        </div>
+        <div>
+            <span>
+                <label class="stklt-label">Created:</label>
+                <span ng-bind="note.created | DispDate:true"></span>
+            </span>
+            <span>
+                <label class="stklt-label">Updated:</label>
+                <span ng-bind="note.updated | DispDate:true"></span>
+            </span>
+            <span ng-if="note.deleted">
+                <label class="stklt-label">Deleted:</label>
+                <span ng-bind="note.deleted | DispDate:true"></span>
+            </span>
+        </div>
+        <span>
+            <label class="stklt-label">Is Archived:</label>
+            <span ng-bind="note.archived | BoolWord"></span>
+        </span>
+        <div ng-if="note.tags">
+            <label class="stklt-label">Tags:</label>
+            <tags note="note" disabled="true"></tags>
+        </div>
+        <div>
+            <label class="stklt-label">Content:</label>
+        </div>
+    </div>
+    <div class="note-content-area">
+        <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
+            <div ng-bind-html="note.content | Html"></div>
+        </perfect-scrollbar>
+    </div>
+</div>
