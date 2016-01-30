@@ -22,27 +22,34 @@
                     }
                 }
             }
-        }
+        },
+        "authenticate": authenticate
     };
 
     //register service worker
-    if ('serviceWorker' in navigator && 'fetch' in window) {
-        fetch("/authenticate", {"credentials": "include"}).then(function(resp) {
-            console.info("autenticated", resp.status);
-            if (resp.status === 401) {
-                return do401();
-            } else if (resp.status === 200) {
-                __sticklet.authenticated = true;
-            }
-            //initServiceWorker();
-        }, function(resp) {
-            console.info("authenticate error status", resp.status);
-            if (resp.status === 401) {
-                do401();
-            }
-        });
-    } else {
-        console.warn("this site requires a modern browser.");
+    function authenticate() {
+        if ('serviceWorker' in navigator && 'fetch' in window) {
+            var req = new Request("/authenticate", {
+                "method": "GET",
+                "cache": "no-store"
+            });
+            fetch(req, {"credentials": "include"}).then(function(resp) {
+                console.info("autenticated", resp.status);
+                if (resp.status === 401) {
+                    return do401();
+                } else if (resp.status === 200) {
+                    __sticklet.authenticated = true;
+                }
+                initServiceWorker();
+            }, function(resp) {
+                console.info("authenticate error status", resp.status);
+                if (resp.status === 401) {
+                    do401();
+                }
+            });
+        } else {
+            console.warn("this site requires a modern browser.");
+        }
     }
 
     function initServiceWorker() {

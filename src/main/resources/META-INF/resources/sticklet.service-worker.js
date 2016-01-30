@@ -3,7 +3,7 @@
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
 var DEV = false,
-    VERSION = "v0.1.18",
+    VERSION = "v0.1.28",
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
     CACHE_NAME = 'sticklet-cache.' + VERSION,
@@ -49,7 +49,7 @@ self.addEventListener('fetch', function(event) {
         });
         event.respondWith(ret);
     } else {
-        //console.log("skipping ServiceWorker intercept for: ", event.request.url);
+        console.log("skipping ServiceWorker intercept for: ", event.request.url);
     }
 });
 self.addEventListener('activate', function(event) {
@@ -90,8 +90,25 @@ self.addEventListener('install', function(event) {
                     toCache = resp.libraries;
                 }
                 localforage.setItem(CACHED_STORAGE_NAME, toCache);
-                console.info("service worker installed.");
-                return cache.addAll(toCache);
+                toCache = toCache || [];
+                //return caches.addAll(toCache);
+                return Promise.all(toCache.filter(function(res) {
+                    var req = new Request(res, {
+                        "method": "GET",
+                        "cache": "no-store"
+                    });
+                    return fetch(req).then(function(resp) {
+                        if (resp.status === 200) {
+                            return caches.open(CACHE_NAME).then(function(cache) {
+                                cache.put(req, resp);
+                            });
+                        }
+                        console.warn("failed cache:", req.url, resp.status);
+                        return null;
+                    });
+                })).then(function() {
+                    console.info("service worker installed.");
+                });
             });
         });
     }

@@ -63,6 +63,7 @@
         window.setOnline = network.setOnline;
 
         $(function() {
+            window.__sticklet.authenticate();
             STOMP.connect();
         });
     }]);
