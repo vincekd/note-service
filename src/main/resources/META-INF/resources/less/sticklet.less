@@ -262,12 +262,13 @@ uib-accordion {
     color: @font-color;
 }
 .stklt-header {
-    display: block;
-    font-size: 1.4rem;
-    font-weight: @bold-weight;
-    //margin: 15px 0px;
-    padding: 10px;
+    //font-size: 1.4rem;
+    font-size: 1.3rem;
+    margin: 0;
     text-align: center;
+    display: block;
+    font-weight: @bold-weight;
+    padding: 10px;
 }
 /* ngAnimate classes  */
 .stklt-pull-up {
@@ -795,6 +796,19 @@ ul.tags-dropdown {
         text-align: center;
     }
 }
+/* note version page */
+#version {
+    @border-color: #AAA;
+    .table.table-bordered {
+        border-color: @border-color;
+        thead > tr > th {
+            border: none;
+        }
+        tbody > tr > td {
+            border-color: @border-color;
+        }
+    }
+}
 
 .basic-page {
     height: 100%;
@@ -832,11 +846,7 @@ ul.tags-dropdown {
         .content-page-header {
             height: @content-page-header-height;
             h1 {
-                font-size: 1.3rem;
-                margin: 0;
-                padding: 10px;
-                font-weight: bold;
-                text-align: center;
+                .stklt-header;
             }
             > .close {
                 position: absolute;
