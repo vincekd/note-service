@@ -4,16 +4,19 @@ var Sticklet = angular.module("Sticklet");
 
 Sticklet
     .service("Notify", ["$timeout", function($timeout) {
-        var notifications = [],
+        var hasHtml5Notifications = ('Notification' in window),
+            notifications = [],
             networkActiveRequests = [];
-        Notification.requestPermission();
+        if (hasHtml5Notifications) {
+            Notification.requestPermission();
+        }
         var Notify = {
             "get": function() {
                 return notifications;
             },
             "add": function(msg, permOrRemoveAfter, html5) {
                 var n = {"text": msg, "removable": permOrRemoveAfter !== true};
-                if (html5 && Notification.permission === "granted") {
+                if (hasHtml5Notifications && html5 && Notification.permission === "granted") {
                     n.notif = new Notification("", {
                         "body": msg,
                         "icon": null,

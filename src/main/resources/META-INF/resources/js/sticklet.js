@@ -7,8 +7,8 @@
         "wysihtml",
         "ngAnimate"
     ]);
-    Sticklet.config(["$routeProvider", "$locationProvider", "$provide",
-                     function($routeProvider, $locationProvider, $provide) {
+    Sticklet.config(["$routeProvider", "$locationProvider", "$provide", "$templateRequestProvider",
+                     function($routeProvider, $locationProvider, $provide, $templateRequestProvider) {
 
         $locationProvider.hashPrefix("!");
         $routeProvider.when("/", {
