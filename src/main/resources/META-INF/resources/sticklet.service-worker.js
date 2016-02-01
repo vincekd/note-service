@@ -2,8 +2,7 @@
 
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
-var DEV = false,
-    VERSION = "v0.1.28",
+var VERSION = "v0.1.41",
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
     CACHE_NAME = 'sticklet-cache.' + VERSION,
@@ -12,7 +11,7 @@ var DEV = false,
     CACHE_WHITELIST = [CACHE_NAME, SECONDARY_CACHE_NAME, OFFLINE_CACHE_NAME],
     fetchOpts = {"credentials": "include"},
     fileRegex = /\.(?:html|js|less|css|woff|ttf|map|woff2|otf)$/i,
-    uriRegex = /https?:\/\/[^\/]+(\/[^#?]+).*/i;
+    uriRegex = /https?:\/\/[^\/]+(\/[^#?]*).*/i;
 
 self.addEventListener('message', onMessage);
 self.addEventListener('fetch', function(event) {
@@ -26,9 +25,7 @@ self.addEventListener('fetch', function(event) {
                     return doPromise(getFromCache(event));
                 } else if (isFileGet(event.request.method, uri)) {
                     //return cache if available, but still fetch ('eventually fresh')
-                    if (!DEV) {
-                        return doPromise(eventuallyFresh(event));
-                    } //skip and do fetch if debugging
+                    return doPromise(eventuallyFresh(event));
                 } else if (event.request.headers.has("sticklet-cache")) {
                     //neither in cache nor get, check headers for sticklet cache header
                     return doPromise(stickletCache(event));
@@ -37,13 +34,15 @@ self.addEventListener('fetch', function(event) {
                 }
                 return doPromise(myFetch(event));
             }, function() {
+                console.warn("error opening localforage", event.url);
                 reject(getErrorResp("could not open localforage storage"));
             });
             function doPromise(prom) {
                 prom.then(function(resp) {
                     resolve(resp);
                 }, function(err) {
-                    reject(err);
+                    console.warn("error fetching", event.request.url, uri, err);
+                    resolve(getErrorResp("failed to find or fetch", event.request.url));
                 });
             }
         });
@@ -83,15 +82,13 @@ self.addEventListener('install', function(event) {
                 //sendMessage({
                 //    "command": "install"
                 //});
-                var toCache;
-                if (!DEV) {
-                    toCache = resp.libraries.concat(resp.sticklet);
-                } else {
-                    toCache = resp.libraries;
-                }
+                var toCache = resp.libraries.concat(resp.sticklet) || [];
                 localforage.setItem(CACHED_STORAGE_NAME, toCache);
-                toCache = toCache || [];
-                //return caches.addAll(toCache);
+//                return caches.open(CACHE_NAME).then(function(cache) {
+//                    return cache.addAll(toCache);
+//                }).then(function(d) {
+//                    console.info("service worker installed");
+//                });
                 return Promise.all(toCache.filter(function(res) {
                     var req = new Request(res, {
                         "method": "GET",
@@ -122,6 +119,7 @@ function myFetch(event) {
 function getFromCache(event) {
     return caches.match(event.request, {"cacheName": CACHE_NAME}).then(function(cachedResp) {
         if (!cachedResp) {
+            console.warn("failed to locate in cache", event.request.url);
             return myFetch(event).then(function(resp) {
                 if (resp.status === 200) {
                     caches.open(CACHE_NAME).then(function(cache) {
