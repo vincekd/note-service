@@ -54,7 +54,6 @@
     }
 
     function initServiceWorker() {
-        //TODO: re-enable when working
         navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
             __sticklet.serviceWorker = true;
             console.info("Service worker registered on scope:", reg.scope);
