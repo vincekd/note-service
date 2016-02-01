@@ -20,19 +20,14 @@
             <a data-wysihtml5-command="italic" title="italic">
                 <i class="oi oi-italic"></i>
             </a>
-<!--             <a data-wysihtml5-command="strikeThrough" title="strikethrough"> -->
-<!--                 <i class="oi oi-minus"></i> -->
-<!--             </a> -->
         </div>
         
         
         <div class="section">
             <a data-wysihtml5-command="insertOrderedList" title="ordered list">
-<!--                 <i class="oi oi-numbers">1.</i> -->
                 <span>1.</span>
             </a>
             <a data-wysihtml5-command="insertUnorderedList" title="unordered list">
-<!--                 <span>&middot;</span> -->
                 <i class="glyphicon glyphicon-option-vertical"></i>
             </a>
         </div>
@@ -67,15 +62,18 @@
         <div data-wysihtml5-dialog="createLink" style="display: none;">
             <label>
                 <span>Link:</span>
-                <input data-wysihtml5-dialog-field="href" value="http://" class="text">
+                <input data-wysihtml5-dialog-field="href" value="" class="text" placeholder="https://sticklet.com">
             </label>
-            <button class="btn" type="button" data-wysihtml5-dialog-action="save">OK</button>
-            <button class="btn" type="button" data-wysihtml5-dialog-action="cancel">Cancel</button>
+            <button class="btn wysihtml5-action" type="button" data-wysihtml5-dialog-action="save">OK</button>
+            <button class="btn wysihtml5-action" type="button" data-wysihtml5-dialog-action="cancel">Cancel</button>
         </div>
         <div data-wysihtml5-dialog="insertImage" style="display: none;">
-            <label><span>Image :</span> <input data-wysihtml5-dialog-field="src" value="http://"></label>
-            <button class="btn" type="button" data-wysihtml5-dialog-action="save">OK</button>
-            <button class="btn" type="button" data-wysihtml5-dialog-action="cancel">Cancel</button>
+            <label>
+                <span>Image :</span>
+                <input data-wysihtml5-dialog-field="src" value="" placeholder="https://sticklet.com/image.png">
+            </label>
+            <button class="btn wysihtml5-action" type="button" data-wysihtml5-dialog-action="save">OK</button>
+            <button class="btn wysihtml5-action" type="button" data-wysihtml5-dialog-action="cancel">Cancel</button>
         </div>
     </div>
 </div>

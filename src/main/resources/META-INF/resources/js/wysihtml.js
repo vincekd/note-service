@@ -29,7 +29,8 @@
         //,classes": {}
     };
     
-    wysihtml.directive("wysihtml", ["$http", "$templateCache", function($http, $templateCache) {
+    wysihtml.directive("wysihtml", ["$http", "$templateCache", "$timeout",
+                                    function($http, $templateCache, $timeout) {
         var useTextArea = false,
             edCount = 0,
             toolbarName = "wysihtml-toolbar";
@@ -61,23 +62,47 @@
                     "parserRules": parserRules,
                     //"useLineBreaks": false
                 });
+                var preventBlur = false;
                 editor.on("load", function() {
                     editor.focus();
+                    //try to stop blurring on links, etc.
+                    $(editor.toolbar.container).on("mouseup mousedown", function(ev) {
+                        ev.stopPropagation();
+                        preventBlur = true;
+                        $timeout(function() {
+                            preventBlur = false;
+                        }, 10);
+                    });
                 });
 
-                if ($scope.options) {
-                    _.each($scope.options.events, function(callback, event) {
-                        if (!/key|mouse|click/i.test(event)) {
-                            editor.on(event, function(evt) {
-                                callback.call(null, evt, editor);
-                            });
-                        } else {
-                            $element.on(event, function(evt) {
-                                callback.call(null, evt, editor);
-                            });
-                        }
-                    });
+                if ($scope.options && $scope.options.events) {
+                    if ($scope.options.events.blur) {
+                        editor.on("blur", function(ev) {
+                            if (!preventBlur) {
+                                $scope.options.events.blur.call(null, ev, editor);
+                            }
+                        });
+                    }
+                    if ($scope.options.events.keydown) {
+                        $element.on("keydown", function(ev) {
+                            $scope.options.events.keydown.call(null, ev, editor);
+                        });
+                    }
                 }
+
+//                if ($scope.options) {
+//                    _.each($scope.options.events, function(callback, event) {
+//                        if (!/key|mouse|click/i.test(event)) {
+//                            editor.on(event, function(evt) {
+//                                callback.call(null, evt, editor);
+//                            });
+//                        } else {
+//                            $element.on(event, function(evt) {
+//                                callback.call(null, evt, editor);
+//                            });
+//                        }
+//                    });
+//                }
 
                 function update() {
                     $scope.value = editor.getValue(true);
