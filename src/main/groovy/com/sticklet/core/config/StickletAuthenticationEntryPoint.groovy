@@ -14,7 +14,7 @@ public class StickletAuthenticationEntryPoint implements AuthenticationEntryPoin
     private static final Logger logger = LoggerFactory.getLogger(StickletAuthenticationEntryPoint.class)
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        logger.debug "unauthorized request: ${request.getRemoteAddr()}"
+        logger.debug "unauthorized request: ${request.getRequestURI()} from ${request.getRemoteAddr()}"
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
     }
 }

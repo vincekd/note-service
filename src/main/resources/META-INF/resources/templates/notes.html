@@ -16,13 +16,14 @@
                     </div>
                 </perfect-scrollbar>
 
-                <div class="full-height" ng-if="opts.display === 'tiled' && !opts.mobile">
+                <perfect-scrollbar class="scrollbar scrollbar-x" wheel-propagation="true" ng-if="opts.display === 'tiled' && !opts.mobile" 
+                        min-scrollbar-length="20" wheel-speed="3">
                     <div class="notes">
                         <div ng-repeat="note in notes | Limit:10 track by note.id" class="noteContainer" tiled-stickies="">
                             <div class="full-height" ng-include="'/templates/notes-note.html'"></div>
                         </div>
                     </div>
-                </div>
+                </perfect-scrollbar>
 
                 <div id="notes-options" ng-if="!current.editing && !opts.mobile" ng-include="template('/notes-options.html')"></div>
             </div>

@@ -40,15 +40,24 @@ class UserService {
 
     @Autowired
     private UserRepo repo
-
     @Autowired
     private UserPreferencesRepo userPrefsRepo
-
     @Autowired
     private PasswordEncoder passwordEncoder
-
     @Autowired
     private EmailService emailServ
+    @Autowired
+    private SettingsService settingsServ
+    @Autowired
+    private ActivityLogService activityLogServ
+
+    //delete UserPreferences, User Settings, User ActivityLogs, User
+    public void delete(User user) {
+        userPrefsRepo.delete(user.prefs)
+        settingsServ.deleteAll(user)
+        activityLogServ.deleteAll(user)
+        repo.delete(user)
+    }
 
     public org.springframework.security.core.userdetails.User getPrincipal() {
 

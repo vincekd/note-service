@@ -26,10 +26,10 @@ class DataController extends BaseController {
     @Autowired
     private DataService dataServ
 
-    @RequestMapping(value="/data/delete", method=RequestMethod.POST)
+    @RequestMapping(value="/data/account", method=RequestMethod.DELETE)
     public @ResponseBody def deleteData(HttpServletRequest req, HttpServletResponse resp) {
         User user = curUser()
-        logger.debug "deleting all data!!!! $user"
+        logger.warn "deleting all data!!!! $user"
         dataServ.deleteAccount(user)
         req.session.invalidate()
         emptyJson()

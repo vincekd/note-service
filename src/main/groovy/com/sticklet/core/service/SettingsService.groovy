@@ -25,6 +25,11 @@ class SettingsService {
         }
     }
 
+    public  void deleteAll(User user) {
+        List<Setting> settings = settingRepo.findAllByUser(user)
+        settingRepo.delete(settings)
+    }
+
     public void init(Map map) {
         Map<String, Object> settings = packValues(map, "", true)
         settings.each { String key, Map val ->

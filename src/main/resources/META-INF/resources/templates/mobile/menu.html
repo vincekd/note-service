@@ -1,9 +1,10 @@
-<div class="full-height">
-    <span id="create-note">
+<div class="full-height text-center clearfix">
+    <span id="create-note" class="pull-left">
         <button class="btn" ng-click="createNote()" ng-disabled="opts.batchSelect">+ Create Note</button>
     </span>
 
-    <span ng-if="(!(current.filters.colors | Empty) || !(current.filters.tags | Empty) || !(current.filters.search | Empty))">
+    <span id="clear-filters" 
+        ng-if="(!(current.filters.colors | Empty) || !(current.filters.tags | Empty) || !(current.filters.search | Empty))">
         <a ng-click="resetFilters()">reset filters</a>
     </span>
 

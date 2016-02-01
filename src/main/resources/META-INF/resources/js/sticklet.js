@@ -1,8 +1,8 @@
 (function() { "use strict";
     var Sticklet = angular.module("Sticklet", [
         "ngRoute",
-        "hmTouchEvents", 
-        "ui.bootstrap", 
+        "hmTouchEvents",
+        "ui.bootstrap",
         "perfect_scrollbar",
         "wysihtml",
         "ngAnimate"

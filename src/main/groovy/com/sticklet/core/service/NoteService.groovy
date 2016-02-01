@@ -32,13 +32,18 @@ class NoteService {
     @Autowired
     private TagRepo tagRepo
 
-    private int maxLength //= (settingsServ.get("note.maxTitleLength") ?: StickletConsts.MAX_TITLE_LENGTH)
-    private String offlineName //= (settingsServ.get("note.offline.baseName") ?: "stklt-note-id-")
+    private int maxLength
+    private String offlineName
 
     @PostConstruct
     public void init() {
         maxLength = (settingsServ.get("note.maxTitleLength") ?: StickletConsts.MAX_TITLE_LENGTH)
         offlineName = (settingsServ.get("note.offline.baseName") ?: "stklt-note-id-")
+    }
+
+    public void deleteAll(User user) {
+        List<Note> userNotes = noteRepo.findAllByUser(user)
+        noteRepo.delete(userNotes)
     }
 
     public boolean syncOfflineNotes(Map noteData, User user, HttpServletResponse resp) {

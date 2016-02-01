@@ -25,16 +25,15 @@
     "assert": "~0.1.0",
     "modernizr": "~2.8.1"
   },
+  "version": "1.3.3",
   "homepage": "https://github.com/mozilla/localForage",
-  "version": "1.3.2",
-  "_release": "1.3.2",
+  "_release": "1.3.3",
   "_resolution": {
     "type": "version",
-    "tag": "1.3.2",
-    "commit": "7ca5b0bb64c2f07b109779622e2a018842c43aa0"
+    "tag": "1.3.3",
+    "commit": "f473d39943bc6536bb42eb2587f61d685a7a6f76"
   },
   "_source": "git://github.com/mozilla/localForage.git",
   "_target": "~1.3.2",
-  "_originalSource": "localforage",
-  "_direct": true
+  "_originalSource": "localforage"
 }

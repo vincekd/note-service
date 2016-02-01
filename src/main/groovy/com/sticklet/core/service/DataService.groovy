@@ -26,9 +26,16 @@ class DataService {
     private NoteService noteServ
     @Autowired
     private TagService tagServ
+    @Autowired
+    private UserService userServ
 
     public void deleteAccount(User user) {
-        //TODO: delete notes, tags, user preferences, settings, user, activity log
+        //notes
+        noteServ.deleteAll(user)
+        //tags
+        tagServ.deleteAll(user)
+        //user preferences, user settings, activitylog, user
+        userServ.delete(user)
     }
 
     public File exportXML(User user) {

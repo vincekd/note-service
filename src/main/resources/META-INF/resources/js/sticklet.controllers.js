@@ -3,8 +3,10 @@
 var Sticklet = angular.module("Sticklet");
 
 Sticklet
-    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify", "Design", "$route", "$location",
-                             function($scope, UserServ, Settings, Offline, Notify, Design, $route, $location) {
+    .controller("PageCtrl", ["$scope", "UserServ", "Settings", "Offline", "Notify",
+                             "Design", "$route", "$location", "network",
+                             function($scope, UserServ, Settings, Offline, Notify,
+                                     Design, $route, $location, network) {
         $scope.user;
         Settings.get("note.maxTitleLength").then(function(data) {
             $scope.maxTitleLength = data;
@@ -64,15 +66,20 @@ Sticklet
             }
         });
         var notification;
+        if (!network.online) {
+            notification = getOfflineNotification();
+        }
         Offline.onNetworkChange("PageCtrl", function(online) {
             console.info("network online", online);
             $scope.current.online = online;
-            if (online) {
-                Notify.remove(notification);
-            } else {
-                notification = Notify.add("Cannot connect to the server....", true, false);
+            Notify.remove(notification);
+            if (!online) {
+                notification = getOfflineNotification();
             }
         });
+        function getOfflineNotification() {
+            return Notify.add("Cannot connect to the server....", true, false);
+        }
         var blurTime;
         $(window).on("focus.sticklet", function(ev) {
             if (blurTime && Date.now() - blurTime > 1200000) { //20 minutes
@@ -315,8 +322,8 @@ Sticklet
             $scope.updateTempColor($scope.batchSelections);
         };
     }])
-    .controller("NoteListNoteCtrl", ["$scope", "NoteServ", "TagServ", "Popup",
-                                     function($scope, NoteServ, TagServ, Popup) {
+    .controller("NoteListNoteCtrl", ["$scope", "NoteServ", "TagServ", "Popup", "$location",
+                                     function($scope, NoteServ, TagServ, Popup, $location) {
         $scope.editing = false;
         $scope.tmpColor = $scope.note.color;
         $scope.changeColor = function(color) {
@@ -341,7 +348,11 @@ Sticklet
             if (!$scope.opts.batchSelect) {
                 $event.preventDefault();
                 $event.stopPropagation();
-                $scope.current.title = $scope.note;
+                if ($scope.opts.display === "title") {
+                    $location.path("/note/" + $scope.note.id);
+                } else {
+                    $scope.current.title = $scope.note;
+                }
                 return false;
             }
         };
@@ -587,12 +598,21 @@ Sticklet
             });
         }
     }])
-    .controller("DataCtrl", ["$scope", "FileUploadServ", "Notify", function($scope, FileUploadServ, Notify) {
+    .controller("DataCtrl", ["$scope", "FileUploadServ", "Notify", "Popup", "HTTP",
+                             function($scope, FileUploadServ, Notify, Popup, HTTP) {
         //upload
         $scope.o = {"type": ""};
         $scope.importTypes = ["Sticklet", "Evernote", "Keep", "OneNote"];
         $scope.file = null;
         $scope.uploadProgress = 0;
+        $scope.deleteAccount = function() {
+            Popup.confirm("Are you sure you want to delete your account? This is not recoverable.", 
+                    "Delete Account").then(function() {
+                HTTP.remove("/data/account").then(function() {
+                    location.href = "/login.html";
+                });
+            });
+        };
         $scope.fileSelected = function(file) {
             $scope.file = file;
         };

@@ -26,6 +26,11 @@ class TagService {
     @Autowired
     private SettingsService settingsServ
 
+    public void deleteAll(User user) {
+        List<Tag> userTags = tagRepo.findAllByUser(user)
+        tagRepo.delete(userTags)
+    }
+
     public List<Tag> getTagsByUser(User user) {
         tagRepo.findAllByUser(user)
     }

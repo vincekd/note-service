@@ -320,9 +320,18 @@ Sticklet
                 "isOpen": "=",
                 "tagSelect": "&",
                 "tagAdd": "&",
-                "isDisabled": "="
+                "isDisabled": "=",
+                //"appendTo": "@"
             },
             "link": function($scope, $element, $attrs) {
+                //need angular-bootstrap#1.1.2 for dropdown-append-to functionality
+                //$scope.appendToElm = $element.closest($scope.appendTo)[0];
+                //if (!$scope.appendToElm) {
+                //    $scope.appendToElm = angular.element("body");
+                //} else {
+                //    $scope.appendToElm = angular.element($scope.appendToElm);
+                //}
+
                 var tags;
                 TagServ.getTags().then(function(t) {
                     tags = t;
@@ -444,6 +453,10 @@ Sticklet
                     });
 
                     $element.on("mousedown" + namespace, function(ev) {
+                        if ($scope.current.editing === $scope.note || $scope.current.title === $scope.note) {
+                            console.log("editing...");
+                            return;
+                        }
                         ev.preventDefault();
                         ev.stopPropagation();
                         var origX = ev.clientX + window.scrollX, //where the mousedown was

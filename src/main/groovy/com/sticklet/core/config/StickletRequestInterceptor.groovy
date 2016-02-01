@@ -13,7 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
 
 import com.sticklet.core.model.ActivityLog
-import com.sticklet.core.repository.ActivityLogRepo
+import com.sticklet.core.service.ActivityLogService
 
 @Service
 @Component
@@ -27,7 +27,7 @@ class StickletRequestInterceptor implements HandlerInterceptor {
     private boolean activityLogEnabled = false
 
     @Autowired
-    private ActivityLogRepo activityLogRepo
+    private ActivityLogService activityLogServ
 
     @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, def handler) {
@@ -43,20 +43,7 @@ class StickletRequestInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest req, HttpServletResponse resp, def handler, Exception ex) {
         if (activityLogEnabled) {
-            ActivityLog log = new ActivityLog([
-                "username": req.getRemoteUser(),
-                "method": req.getMethod(),
-                "requestURI": req.getRequestURI(),
-                "ipAddr": req.getRemoteAddr(),
-                "requestData": "",
-                "errorMessage": ex ? ex.message : ""
-            ])
-
-            try {
-                activityLogRepo.save(log)
-            } catch(Exception e) {
-                e.printStackTrace()
-            }
+            activityLogServ.storeRequest(req, ex)
         }
 
         if (ex) {

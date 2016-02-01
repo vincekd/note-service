@@ -1,49 +1,56 @@
 <basic-page id="note">
-        <div id="note-container" ng-style="{'background': note.color}">
-            <div class="full-height" balance-heights="" prefer="#note-controls">
-
-                <div id="note-controls">
-                    <div class="container-fluid row-full-height">
-
-                        <div class="row no-row-padding" id="note-info">
-                            <div class="col-sm-4">
-                                <div>
-                                    <label class="stklt-label">Created:</label>
-                                    <span ng-bind="note.created | DispDate:true"></span>
-                                </div>
-                                <div>
-                                    <label class="stklt-label">Updated:</label>
-                                    <span ng-bind="note.updated | DispDate:true"></span>
-                                </div>
+    <div ng-if="cur.editingNote" class="pull-right relative-div">
+        <button class="btn" id="close-edit-view" type="button" ng-click="cur.editingNote = false">Done</button>
+    </div>
+    <div id="note-container" ng-style="{'background': note.color}">
+        <div class="full-height" balance-heights="" prefer="#note-controls">
+            <div id="note-controls">
+                <div class="container-fluid row-full-height">
+                    <div class="row" id="note-info">
+                        <div class="col-sm-12">
+                            <div ng-if="!cur.editingNote">
+                                <label class="stklt-label">Title:</label>
+                                <span class="bold-text" ng-bind="cur.title"></span>
                             </div>
-                            <div class="col-sm-8">
+                            <div ng-if="cur.editingNote">
                                 <input type="text" class="stklt-input title" ng-model="cur.title" 
                                     ng-change="update()" maxlength="{{maxTitleLength}}"/>
                             </div>
                         </div>
-
-                        <div class="row no-row-padding" id="note-tags">
-                            <div class="col-sm-12 tags">
-                                <tags note="note"></tags>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label class="stklt-label">Created:</label>
+                            <span ng-bind="note.created | DispDate:true"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="stklt-label">Updated:</label>
+                            <span ng-bind="note.updated | DispDate:true"></span>
                         </div>
                     </div>
-                </div>
-
-                <div id="note-content" ng-if="note">
-                    <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
-                        <div ng-if="!cur.editingNote">
-                            <div ng-bind-html="cur.content | Html"></div>
+                    <div class="row no-row-padding" id="note-tags">
+                        <div class="col-sm-12 tags">
+                            <tags note="note"></tags>
                         </div>
-                        <div ng-if="cur.editingNote">
-                            <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
-                            <div wysihtml="options" value="cur.content" data-placeholder="Enter text..."></div>
-                        </div>
-                    </perfect-scrollbar>
-                    <a id="edit-note-button" ng-click="cur.editingNote = true" ng-if="!cur.editingNote">
-                        <i class="oi oi-pencil"></i>
-                    </a>
+                    </div>
+                    <!-- <hr /> -->
                 </div>
             </div>
+
+            <div id="note-content" ng-if="note">
+                <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                    <div ng-if="!cur.editingNote">
+                        <div ng-bind-html="cur.content | Html"></div>
+                    </div>
+                    <div ng-if="cur.editingNote">
+                        <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
+                        <div wysihtml="options" value="cur.content" data-placeholder="Enter text..."></div>
+                    </div>
+                </perfect-scrollbar>
+                <a id="edit-note-button" ng-click="cur.editingNote = true" ng-if="!cur.editingNote">
+                    <i class="oi oi-pencil"></i>
+                </a>
+            </div>
         </div>
+    </div>
 </basic-page>

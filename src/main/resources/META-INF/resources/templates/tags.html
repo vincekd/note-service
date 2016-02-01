@@ -5,6 +5,6 @@
     </span>
 
     <tag-selector ng-if="!batch && !disabled" on-toggle="tagsOpened()" tags="userTags"
-        title="+ Tag" is-open="opts.isOpen" search="opts.search"
+        title="+ Tag" is-open="opts.isOpen" search="opts.search" append-to=".notes"
         tag-select="addTag(tag)" tag-add="createAndAddTag()"></tag-selector>
 </perfect-scrollbar>

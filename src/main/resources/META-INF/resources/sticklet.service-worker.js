@@ -2,7 +2,7 @@
 
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
-var VERSION = "v0.1.41",
+var VERSION = "v0.1.44",
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
     CACHE_NAME = 'sticklet-cache.' + VERSION,
@@ -48,7 +48,7 @@ self.addEventListener('fetch', function(event) {
         });
         event.respondWith(ret);
     } else {
-        console.log("skipping ServiceWorker intercept for: ", event.request.url);
+        //console.log("skipping ServiceWorker intercept for: ", event.request.url);
     }
 });
 self.addEventListener('activate', function(event) {
