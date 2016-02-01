@@ -55,13 +55,13 @@
 
     function initServiceWorker() {
         //TODO: re-enable when working
-        navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
-            __sticklet.serviceWorker = true;
-            console.info("Service worker registered on scope:", reg.scope);
-        }).catch(function(error) {
-            __sticklet.serviceWorker = false;
-            console.warn('Service worker registration failed with ' + error);
-        });
+        //navigator.serviceWorker.register('/sticklet.service-worker.js').then(function(reg) {
+        //    __sticklet.serviceWorker = true;
+        //    console.info("Service worker registered on scope:", reg.scope);
+        //}).catch(function(error) {
+        //    __sticklet.serviceWorker = false;
+        //    console.warn('Service worker registration failed with ' + error);
+        //});
     }
 
     function do401() {
