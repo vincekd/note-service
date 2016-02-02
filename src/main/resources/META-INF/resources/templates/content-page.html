@@ -6,19 +6,28 @@
                 <a class="close" route-load="/">&times;</a>
                 <h1 ng-if="header" ng-bind="header"></h1>
             </div>
-            <div class="content-page-body">
+            <div class="content-page-body" ng-if="network.online">
                 <div class="content-page-nav">
-                    <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
-                        <ul class="nav nav-pills nav-stacked">
-                            <li ng-repeat="item in collection" role="presentation" ng-class="{active: item === active}">
-                                <a ng-click="activateItem(item)" ng-bind="item[displayProp] || defaultHeader"></a>
-                            </li>
-                        </ul>
-                    </perfect-scrollbar>
+                    <div ng-if="!disallowFilter" class="content-page-filter">
+                        <input type="search" class="stklt-input" maxlength="50" ng-model="search[displayProp]" placeholder="Search" />
+                    </div>
+                    <div class="content-page-list">
+                        <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
+                            <ul class="nav nav-pills nav-stacked">
+                                <li ng-repeat="item in collection | FilterContentPage:search:displayProp:defaultHeader" 
+                                    role="presentation" ng-class="{active: item === active}">
+                                    <a ng-click="activateItem(item)" ng-bind="item[displayProp] || defaultHeader"></a>
+                                </li>
+                            </ul>
+                        </perfect-scrollbar>
+                    </div>
                 </div>
                 <div class="content-page-content">
                     <ng-transclude class="full-height"></ng-transclude>
                 </div>
+            </div>
+            <div ng-if="!network.online" class="stklt-header">
+                This page is unavailable offline.
             </div>
         </div>
         <div class="col-md-2 hidden-xs hidden-sm"></div>

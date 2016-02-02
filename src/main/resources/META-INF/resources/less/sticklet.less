@@ -894,6 +894,13 @@ ul.tags-dropdown {
                 height: 100%;
                 display: inline-block;
                 vertical-align: top;
+                @content-page-filter-height: 25px;
+                .content-page-filter {
+                    height: @content-page-filter-height;
+                }
+                .content-page-list {
+                    height: ~"calc(100% - @{content-page-filter-height}px)";
+                }
             }
             .content-page-content {
                 height: 100%;

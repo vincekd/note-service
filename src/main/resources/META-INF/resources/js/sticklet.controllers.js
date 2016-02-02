@@ -404,6 +404,13 @@ Sticklet
                 }
             });
         };
+        $scope.$watch(function() {
+            return $scope.note.color;
+        }, function(col, old) {
+            if (col !== old && $scope.tmpColor !== col) {
+                $scope.tmpColor = col;
+            }
+        });
         $scope.$on("update-temp-color", function($event, notes, color) {
             if (notes.indexOf($scope.note) >= 0) {
                 $scope.tmpColor = (color || $scope.note.color);

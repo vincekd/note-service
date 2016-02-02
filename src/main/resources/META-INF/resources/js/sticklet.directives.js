@@ -221,19 +221,19 @@ Sticklet
             "replace": true,
             "template": ('<div class="container-fluid row-full-height basic-page">' +
                             '<div class="row">' +
-                                '<div class="col-md-3 hidden-xs hidden-sm"></div>' +
-                                '<div class="col-md-6 basic-page-main">' +
+                                '<div class="col-md-2 hidden-xs hidden-sm"></div>' +
+                                '<div class="col-md-8 basic-page-main">' +
                                     '<a class="close" route-load="/">&times;</a>' +
                                     '<div class="basic-page-content">' +
                                         '<ng-transclude></ng-transclude>' +
                                     '</div>' +
                                 '</div>' +
-                                '<div class="col-md-3 hidden-xs hidden-sm"></div>' +
+                                '<div class="col-md-2 hidden-xs hidden-sm"></div>' +
                             '</div>' +
                         '</div>')
         };
     }])
-    .directive("contentPage", [function() {
+    .directive("contentPage", ["network", function(network) {
         return {
             "restrict": "E",
             "transclude": true,
@@ -244,9 +244,12 @@ Sticklet
                 "defaultHeader": "@",
                 "collection": "=",
                 "onSelect": "&",
-                "header": "@"
+                "header": "@",
+                "disallowFilter": "="
             },
             "link": function($scope, $element, $attrs) {
+                $scope.network = network;
+                $scope.search = {};
                 $scope.active = null;
                 $scope.activateItem = function(item) {
                     $scope.active = item;

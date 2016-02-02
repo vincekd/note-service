@@ -126,5 +126,16 @@ Sticklet
             return (val ? "Yes": "No");
         };
     }])
+    .filter("FilterContentPage", [function() {
+        return function(collection, search, itemProp, defaultHeader) {
+            if (!search || !search[itemProp] || !collection || !itemProp) {
+                return collection;
+            }
+            var reg = new RegExp(search[itemProp], "i");
+            return _.filter(collection, function(item) {
+                return reg.test(item[itemProp] || defaultHeader); 
+            });
+        };
+    }])
 ;
 }(jQuery));
