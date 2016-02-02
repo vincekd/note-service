@@ -2,7 +2,7 @@
 
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
-var VERSION = "v0.1.44",
+var VERSION = "v0.1.47",
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
     CACHE_NAME = 'sticklet-cache.' + VERSION,
@@ -10,7 +10,7 @@ var VERSION = "v0.1.44",
     OFFLINE_CACHE_NAME = "sticklet-offline-cache." + VERSION,
     CACHE_WHITELIST = [CACHE_NAME, SECONDARY_CACHE_NAME, OFFLINE_CACHE_NAME],
     fetchOpts = {"credentials": "include"},
-    fileRegex = /\.(?:html|js|less|css|woff|ttf|map|woff2|otf)$/i,
+    fileRegex = /\.(?:html|js|less|css|woff|ttf|map|woff2|otf|ico)$/i,
     uriRegex = /https?:\/\/[^\/]+(\/[^#?]*).*/i;
 
 self.addEventListener('message', onMessage);
@@ -20,12 +20,14 @@ self.addEventListener('fetch', function(event) {
         var ret = new Promise(function(resolve, reject) {
             //get cached uri to determine how to treat different things
             localforage.getItem(CACHED_STORAGE_NAME).then(function(cached) {
-                if (cached.indexOf(uri) !== -1) {
-                    //return from catch, don't refetch
-                    return doPromise(getFromCache(event));
-                } else if (isFileGet(event.request.method, uri)) {
-                    //return cache if available, but still fetch ('eventually fresh')
-                    return doPromise(eventuallyFresh(event));
+                if (isFileGet(event.request.method, uri)) {
+                    if (cached.indexOf(uri) !== -1) {
+                        //return from catch, don't refetch
+                        return doPromise(getFromCache(event));
+                    } else {
+                        //return cache if available, but still fetch ('eventually fresh')
+                        return doPromise(eventuallyFresh(event));
+                    }
                 } else if (event.request.headers.has("sticklet-cache")) {
                     //neither in cache nor get, check headers for sticklet cache header
                     return doPromise(stickletCache(event));
@@ -109,6 +111,7 @@ self.addEventListener('install', function(event) {
             });
         });
     }
+    self.skipWaiting();
     event.waitUntil(install());
 });
 
@@ -242,7 +245,7 @@ function sendMessage(msg) {
     });
 }
 function isFileGet(method, uri) {
-    return method === "GET" && fileRegex.test(uri);
+    return method === "GET" && (uri === "/" || fileRegex.test(uri));
 }
 function getUri(url) {
     return url.replace(uriRegex, "$1");
