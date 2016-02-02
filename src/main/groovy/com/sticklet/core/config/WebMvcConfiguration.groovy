@@ -89,6 +89,8 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
         String protocol = "org.apache.coyote.http11.Http11NioProtocol"
         Connector connector = new Connector(protocol)
 
+        logger.info "redirecting port $redirectPort to $port"
+
         connector.setScheme("http")
         connector.setPort(redirectPort)
         connector.setRedirectPort(port)
