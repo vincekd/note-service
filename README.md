@@ -8,27 +8,28 @@
 <ul>
   <li>offline access</li>
   <li>easy sorting/filtering</li>
-  <li>easy mobile useage</li>
+  <li>easy mobile useage - get the android app <a href="https://play.google.com/store/apps/details?id=com.sticklet.app">here</a></li>
 </ul>
 
 <h2>TODO:</h2>
 <ol>
-    <li>Improve mobile interface</li>
     <li>
         <div>Filter options to implement:<div>
         <ul>
           <li>Search by dates</li>
+          <li>filter in archive/trash</li>
         </ul>
     </li>
     <li>BETTER STYLE, MAN ((tags/archive/settings/trash pages, color scheme, Chrome & FF (Edge?))</li>
     <li>per-user encrypted database</li>
-    <li>import from keep, OneNote, sticklet</li>
-    <li>second level caching (ehcache? - even necessary with mongodb?)</li>
+    <li>import from keep, OneNote</li>
+    <li>Password resets</li>
+    <li>public notes</li>
 </ol>
 
 <h2>known bugs:</h2>
 <ul>
-    <li>Pretty much everything on mobile...</li>
     <li>Editor height doesn't adjust properly when deleting lines</li>
     <li>Dropdown for tags goes off screen if too low</li>
+    <li>Firefox for Android does not handle text insertion well at all</li>
 </ul>

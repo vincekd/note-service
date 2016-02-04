@@ -51,6 +51,7 @@
         "/templates/notes-note.html",
         "/templates/notes-options.html",
         "/templates/content-page.html",
+        "/templates/share.html",
         "/templates/static-note.html",
         "/templates/mobile/menu-dropdown.html",
         "/templates/mobile/menu.html",

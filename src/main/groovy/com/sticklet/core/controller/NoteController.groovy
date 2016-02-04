@@ -36,7 +36,7 @@ class NoteController extends BaseController {
             model.addAttribute("note", note)
             return "public-note"
         }
-        return "/404.html"
+        //return "/404.html"
     }
 
     @RequestMapping(value="/note/{noteID}/version/{version}", method=RequestMethod.PUT, produces="application/json")

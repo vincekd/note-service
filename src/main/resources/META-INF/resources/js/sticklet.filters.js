@@ -137,5 +137,11 @@ Sticklet
             });
         };
     }])
+    .filter("ShareUrl", ["HTTP", function(HTTP) {
+        return function(note) {
+            return HTTP.getRealUrl("/note/" + note.id + "/public");
+        };
+    }])
 ;
 }(jQuery));
+

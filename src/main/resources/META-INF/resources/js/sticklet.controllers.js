@@ -356,6 +356,25 @@ Sticklet
                 return false;
             }
         };
+        $scope.shareNote = function() {
+            var $modalInst = Popup.popup({
+                "animation": true,
+                "templateUrl": "/templates/share.html",
+                "controller": "ShareCtrl",
+                "backdrop": true,
+                "keyboard": false,
+                "backdropClass": "sticklet-popup-backdrop",
+                "windowClass": "sticklet-popup-window",
+                "resolve": {
+                    "note": function() { return $scope.note; }
+                }
+            });
+            $modalInst.result.then(function(res) {
+                if (res === "save") {
+                    NoteServ.save($scope.note);
+                }
+            });
+        };
         $scope.archiveNote = function() {
             NoteServ.archive($scope.note);
         };
@@ -416,6 +435,20 @@ Sticklet
                 $scope.tmpColor = (color || $scope.note.color);
             }
         });
+    }])
+    .controller("ShareCtrl", ["$scope", "note", "$uibModalInstance", function($scope, note, $modalInst) {
+        var orig = !!note.isPublic;
+        $scope.note = note;
+        $scope.save = function() {
+            if (orig !== $scope.note.isPublic) {
+                $modalInst.close("save");
+            } else {
+                $modalInst.dismiss("no-change");
+            }
+        };
+        $scope.cancel = function() {
+            $modalInst.dismiss("cancel");
+        };
     }])
     .controller("NoteMenuCtrl", ["$scope", "note", "maxTitleLength", "$uibModalInstance",
                                  function($scope, note, maxTitleLength, $modalInst) {

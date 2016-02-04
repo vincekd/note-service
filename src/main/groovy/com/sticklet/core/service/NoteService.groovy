@@ -18,7 +18,7 @@ import com.sticklet.core.repository.TagRepo
 @Service
 class NoteService {
     private static final Logger logger = LoggerFactory.getLogger(NoteService.class)
-    private static final List<String> userUpdatableProps = ["title", "content", "color"]
+    private static final List<String> userUpdatableProps = ["title", "content", "color", "isPublic"]
 
     @Autowired
     private NoteRepo noteRepo
@@ -68,6 +68,7 @@ class NoteService {
                 note.content = data.update.content
                 note.title = data.update.title
                 note.color = data.update.color
+                note.isPublic = data.update.isPublic
                 if (note.title) {
                     note.titleEdited = true
                 }
