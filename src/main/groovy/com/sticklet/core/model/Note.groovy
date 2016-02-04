@@ -22,6 +22,8 @@ class Note extends BaseModel {
     public boolean archived = false
     public Long deleted = null
 
+    public boolean isPublic = false
+
     public Map<String, Integer> position = [
         "x": null,
         "y": null,

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sticklet</title>
+        <link rel="icon" type="image/png" href="/images/favicon.png" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css" />
+
+        <link type="text/css" rel="stylesheet" href="/less/sticklet.less" />
+        <link type="text/css" rel="stylesheet" href="/less/public-note.less" />
+    </head>
+    <body>
+        <div class="container-fluid row-full-height">
+            <div class="row">
+                <div class="col-md-2 hidden-xs hidden-sm"></div>
+                <div class="col-md-8 full-height" id="public-note" th:style="'background: ' + ${note.color}">
+                    <div id="header">
+                        <div>
+                            <label class="stklt-label">Title:</label>
+                            <span th:text="${note.title}"></span>
+                        </div>
+                        <div>
+                            <label class="stklt-label">Content:</label>
+                        </div>
+                    </div>
+                    <div id="content" th:utext="${note.content}"></div>
+                </div>
+                <div class="col-md-2 hidden-xs hidden-sm"></div>
+            </div>
+        </div>
+    </body>
+</html>

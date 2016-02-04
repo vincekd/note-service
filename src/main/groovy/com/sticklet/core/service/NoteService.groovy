@@ -202,6 +202,19 @@ class NoteService {
         null
     }
 
+    public Note getPublicNote(String noteID, HttpServletResponse resp) {
+        Note note = noteRepo.findOne(noteID)
+        if (note) {
+            if (note.isPublic) {
+                return note
+            }
+            statusServ.setStatusUnauthorized(resp)
+        } else {
+            statusServ.setStatusNotFound(resp)
+        }
+        null
+    }
+
     public boolean response(Note note, User user, HttpServletResponse resp) {
         if (note) {
             if (userHasAccess(note, user)) {

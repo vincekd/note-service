@@ -11,18 +11,17 @@ import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.stereotype.Service
 
+import com.google.common.collect.ImmutableList
 import com.sticklet.core.model.Note
 import com.sticklet.core.model.NoteVersion
-import com.sticklet.core.model.base.BaseModel
 import com.sticklet.core.repository.NoteVersionRepo
 
 @Service
 class NoteVersionService {
     private static final Logger logger = LoggerFactory.getLogger(NoteVersionService.class)
 
-    //disallow everything except title, color, and content?
-    private static final List<String> ignoreFields = ["position", "user", "id", "updated",
-        "created", "archived", "deleted", "contentEdited", "titleEdited", "tags", "version"]
+    //disallow everything except title, color, and content
+    private static final ImmutableList<String> fields = ImmutableList.of("content", "title", "color")
 
     @Autowired
     private NoteVersionRepo repo
@@ -49,7 +48,7 @@ class NoteVersionService {
         if (oldNote) {
             diff = [:]
             note.class.fields.each { Field f ->
-                if (!f.isSynthetic() && !ignoreFields.contains(f.name)) {
+                if (!f.isSynthetic() && fields.contains(f.name)) {
                     if (f.isAnnotationPresent(DBRef.class)) {
                         Type type = f.genericType
                         if (type instanceof ParameterizedType) {
@@ -80,7 +79,7 @@ class NoteVersionService {
     private Map<String, Object> noteToMap(Note note) {
         Map noteMap = [:]
         note.class.fields.each { Field f ->
-            if (!f.isSynthetic() && !ignoreFields.contains(f.name)) {
+            if (!f.isSynthetic() && fields.contains(f.name)) {
                 noteMap[f.name] = note[f.name]
                 if (f.isAnnotationPresent(DBRef.class)) {
                     Type type = f.genericType

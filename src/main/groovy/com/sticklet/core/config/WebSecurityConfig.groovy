@@ -24,14 +24,14 @@ import com.sticklet.core.service.AjaxLogoutSuccessHandler
 import com.sticklet.core.service.CustomUserDetailsService
 
 @Configuration
-//@EnableWebMvcSecurity
 @EnableWebSecurity
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class)
     private static final ALLOWED_RESOURCES = [
         "/bower_components/**/*", "/less/*.less", "/user/register", "/user/registration/*",
         "/templates/*.html", "/templates/mobile/*.html", "/js/*.js", "/cache.json", "/login.html",
-        "/index.html", "/", "/login", "/custom-logout", "/sticklet.service-worker.js", "/404.html"
+        "/index.html", "/", "/login", "/custom-logout", "/sticklet.service-worker.js", "/404.html",
+        "/robots.txt", "/note/*/public"
     ]
 
     @Value("\${login.enabled}")

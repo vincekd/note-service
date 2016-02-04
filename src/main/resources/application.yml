@@ -38,7 +38,7 @@ email:
   password: 
   port: 587
 multipart:
-  file-size-threshold: 1Mb # Threshold after which files will be written to disk.
+  file-size-threshold: 1Mb
   location: #/tmp
   max-file-size: 10Mb
   max-request-size: 10Mb
@@ -74,3 +74,8 @@ email:
   from: "admin@sticklet.com"
   password:
   port: 587
+multipart:
+  file-size-threshold: 1Mb
+  location: #/tmp
+  max-file-size: 10Mb
+  max-request-size: 10Mb

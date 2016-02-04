@@ -1,13 +1,9 @@
 package com.sticklet.core.config
 
 import javax.servlet.DispatcherType
-import javax.servlet.MultipartConfigElement
 import javax.servlet.Servlet
 
-import org.apache.catalina.Context
 import org.apache.catalina.connector.Connector
-import org.apache.tomcat.util.descriptor.web.SecurityCollection
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -19,6 +15,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.DispatcherServlet
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver
 
 import com.sticklet.core.filter.LessFilter
 
@@ -26,18 +23,12 @@ import com.sticklet.core.filter.LessFilter
 @EnableWebMvc
 class WebMvcConfiguration extends WebMvcConfigurationSupport {
     private static final Logger logger = LoggerFactory.getLogger(WebMvcConfiguration.class)
-    
+
     @Value("\${server.redirectPort}")
     private Integer redirectPort
-    
+
     @Value("\${server.port}")
     private Integer port
-
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        //10MB file upload size
-        return new MultipartConfigElement("", 10 * 1024 * 1024, 10 * 1024 * 1024, 1024 * 1024);
-    }
 
     @Bean
     public FilterRegistrationBean filterRegistrationBean() {
@@ -54,6 +45,22 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
     public LessFilter lessFilter() {
         new LessFilter()
     }
+    
+    @Bean
+    public ServletContextTemplateResolver templateResolver() {
+        ServletContextTemplateResolver resolver = new ServletContextTemplateResolver()
+        resolver.setPrefix("/templates/")
+        resolver.setSuffix(".html")
+        resolver.setSuffix("HTML5")
+        resolver
+    }
+    
+// <bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
+//  <property name="templateResolver" ref="templateResolver" />
+// </bean>
+// <bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
+//  <property name="templateEngine" ref="templateEngine" />
+// </bean>
 
     @Bean
     public Servlet dispatcherServlet() {
@@ -71,15 +78,15 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Bean
     public EmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory() {
-//                    @Override
-//                    protected void postProcessContext(Context context) {
-//                        SecurityConstraint securityConstraint = new SecurityConstraint()
-//                        securityConstraint.setUserConstraint("CONFIDENTIAL")
-//                        SecurityCollection collection = new SecurityCollection()
-//                        collection.addPattern("/*")
-//                        securityConstraint.addCollection(collection)
-//                        context.addConstraint(securityConstraint)
-//                    }
+                    //                    @Override
+                    //                    protected void postProcessContext(Context context) {
+                    //                        SecurityConstraint securityConstraint = new SecurityConstraint()
+                    //                        securityConstraint.setUserConstraint("CONFIDENTIAL")
+                    //                        SecurityCollection collection = new SecurityCollection()
+                    //                        collection.addPattern("/*")
+                    //                        securityConstraint.addCollection(collection)
+                    //                        context.addConstraint(securityConstraint)
+                    //                    }
                 }
         factory.addAdditionalTomcatConnectors(createConnection())
         factory

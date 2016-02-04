@@ -2,8 +2,11 @@ package com.sticklet.core.controller
 
 import javax.servlet.http.HttpServletResponse
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -19,11 +22,23 @@ import com.sticklet.core.service.NoteVersionService
 
 @Controller
 class NoteController extends BaseController {
+    private static final Logger logger = LoggerFactory.getLogger(NoteController.class)
+
     @Autowired
     private NoteService noteServ
     @Autowired
     private NoteVersionService noteVersionServ
-    
+
+    @RequestMapping(value="/note/{noteID}/public", method=RequestMethod.GET)
+    public String getPublicNote(@PathVariable("noteID") String noteID, HttpServletResponse resp, Model model) {
+        Note note = noteServ.getPublicNote(noteID, resp)
+        if (note) {
+            model.addAttribute("note", note)
+            return "public-note"
+        }
+        return "/404.html"
+    }
+
     @RequestMapping(value="/note/{noteID}/version/{version}", method=RequestMethod.PUT, produces="application/json")
     public @ResponseBody def revertNote(@PathVariable("noteID") String noteID, @PathVariable("version") Long version, HttpServletResponse resp) {
         User user = curUser()
