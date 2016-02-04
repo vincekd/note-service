@@ -474,8 +474,7 @@ Sticklet
     .controller("NoteCtrl", ["$scope", "$routeParams", "NoteServ", "TagServ", "$location", "STOMP", "Settings", "Design",
                              function($scope, $routeParams, NoteServ, TagServ, $location, STOMP, Settings, Design) {
 
-        var thisEditor,
-            topicAdd = ".NoteCtrl";
+        var topicAdd = ".NoteCtrl";
 
         $scope.note = null;
         $scope.cur = {

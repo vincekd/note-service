@@ -1,7 +1,10 @@
 <div ng-if="type === 'textarea'">
-    <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
-    <div wysihtml="options" value="cur.value" data-placeholder="Enter text..."></div>
+    <stklt-trix-toolbar id="stklt-trix-toolbar"></stklt-trix-toolbar>
+    <trix-editor placeholder="Enter text..." autofocus ng-model="cur.value" toolbar="stklt-trix-toolbar"
+        angular-trix prevent-trix-file-accept="true" trix-blur="onBlur(e, editor)" 
+        trix-initialize="onInitialize(e, editor)"></trix-editor>
 </div>
 <div ng-if="type === 'input'">
-    <input type="text" max-length="{{maxTitleLength}}" ng-model="cur.value" class="stklt-input" />
+    <input type="text" max-length="{{maxTitleLength}}" 
+        ng-model="cur.value" class="stklt-input" autofocus />
 </div>

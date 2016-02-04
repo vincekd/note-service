@@ -130,20 +130,18 @@ Sticklet
                     };
 
                 if ($scope.type === "textarea") {
-                    $scope.options = {
-                        "events": {
-                            "blur": function(ev, editor) {
+                    $scope.onInitialize = function(ev, editor) {
+                        $(editor.element).on("keydown", function(ev) {
+                            if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
+                                ev.preventDefault();
+                                ev.stopPropagation();
                                 close();
-                            },
-                            "keydown": function(ev, editor) {
-                                if ((ev.ctrlKey && ev.keyCode === keyCodes.ENTER) || ev.keyCode === keyCodes.ESCAPE) {
-                                    ev.preventDefault();
-                                    ev.stopPropagation();
-                                    close();
-                                    return false;
-                                }
+                                return false;
                             }
-                        }
+                        });
+                    }
+                    $scope.onBlur = function(ev, editor) {
+                        close();
                     };
                 } else {
                     $element.on("keydown.sticklet", "input", function(ev) {
@@ -576,6 +574,13 @@ Sticklet
                      }
                 });
             }
+        };
+    }])
+    .directive("stkltTrixToolbar", [function() {
+        return {
+            "restrict": "E",
+            "templateUrl": "/templates/trix-toolbar.html",
+            //"link": function($scope, $element, $attrs) {}
         };
     }])
 ;

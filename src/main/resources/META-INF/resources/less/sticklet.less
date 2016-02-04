@@ -912,13 +912,15 @@ ul.tags-dropdown {
     }
 }
 
-/* wysihtml */
-[wysihtml] {
+/* trix editor */
+trix-editor {
     background: #FFF;
     padding: 10px;
     min-height: @note-content-height;
+    border-radius: 0px;
 }
-#wysihtml-toolbar {
+stklt-trix-toolbar {
+    display: block;
     position: sticky;
     top: 0px;
     right: 0px;
@@ -926,25 +928,77 @@ ul.tags-dropdown {
     padding: @default-padding;
     background: @light-background;
     border: @default-border;
-    .section {
+    .sections {
         display: inline-block;
-        border-right: @default-border;
-        padding: 0 4px;
-        &:first-child {
-            padding-left: 0px;
-        }
-        &:last-child {
-            padding-right: 0px;
-            border-right: none;
-        }
-        > a {
-            padding: 3px;
-            &.wysihtml5-command-active {
-                color: #F00;
+        .section {
+            display: inline-block;
+            border-right: @default-border;
+            padding: 0 4px;
+            &:first-child {
+                padding-left: 0px;
+            }
+            &:last-child {
+                padding-right: 0px;
+                border-right: none;
+            }
+            > button {
+                background: @light-background;
+                color: @font-color;
+                font-weight: @bold-weight;
+                padding: 3px;
+                border: none;
+                .pointer;
+                &:hover {
+                    text-decoration: none;
+                    &:not([disabled]) {
+                        color: @default-font-color;
+                    }
+                }
+                &[disabled] {
+                    color: #AAA;
+                }
+                &.active {
+                    color: #FFF;
+                }
             }
         }
     }
-    .toolbar-extras {}
+    .dialogs {
+        position:absolute;
+        bottom: -33px;
+        left: 0px;
+        right: 0px;
+        display: block;
+        background: #CCC;
+        > :not(.active) {
+            display: none;
+        }
+        > .active {
+            padding: 5px 10px;
+            border: @default-border;
+        }
+        .button_group {
+            display: inline-block;
+        }
+        .link_url_fields {
+            input[type='url'] {
+                width: 30%;
+                min-width: 200px;
+                max-width: 300px;
+            }
+        }
+    }
+}
+trix-toolbar {
+    .button_group {
+        margin: 0px;
+        button {
+            background: @lightest-background;
+            ::before {
+                display: none;
+            }
+        }
+    }
 }
 
 /* Popup style */

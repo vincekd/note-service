@@ -11,10 +11,7 @@
         "/bower_components/angular-route/angular-route.min.js",
         "/bower_components/bootstrap/dist/js/bootstrap.min.js",
         "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff",
-        "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2",
-        "/bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf",
         "/bower_components/open-iconic/font/fonts/open-iconic.woff",
-        "/bower_components/open-iconic/font/fonts/open-iconic.otf",
         "/bower_components/bootstrap/dist/css/bootstrap.min.css.map",
         "/bower_components/open-iconic/font/css/open-iconic-bootstrap.min.css",
         "/bower_components/angular-bootstrap/ui-bootstrap.min.js",
@@ -22,10 +19,12 @@
         "/bower_components/angular-animate/angular-animate.min.js",
         "/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js",
         "/bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js",
-        "/bower_components/wysihtml/dist/wysihtml-toolbar.min.js",
-        "/bower_components/wysihtml/parser_rules/advanced.js",
         "/bower_components/hammerjs/hammer.js",
-        "/bower_components/angular-hammer/angular-hammer.js"
+        "/bower_components/angular-hammer/angular-hammer.js",
+        "/bower_components/components-font-awesome/css/font-awesome.min.css",
+        "/bower_components/components-font-awesome/fonts/fontawesome-webfont.woff2",
+        "/bower_components/trix/dist/trix.js",
+        "/bower_components/angular-trix/dist/angular-trix.min.js"
     ],
     "sticklet": [
         "/",
@@ -38,7 +37,7 @@
         "/templates/editable-area.html",
         "/templates/color-choices.html", 
         "/templates/menu.html",
-        "/templates/wysihtml-toolbar.html",
+        "/templates/trix-toolbar.html",
         "/templates/tag-selector.html",
         "/templates/popup.html",
         "/templates/notifications.html",
@@ -70,7 +69,6 @@
         "/js/sticklet.directives.js",
         "/js/sticklet.filters.js",
         "/js/sticklet.factory.js",
-        "/js/sticklet.register.js",
-        "/js/wysihtml.js"
+        "/js/sticklet.register.js"
     ]
 }

@@ -4,8 +4,9 @@
         "hmTouchEvents",
         "ui.bootstrap",
         "perfect_scrollbar",
-        "wysihtml",
-        "ngAnimate"
+        //"wysihtml",
+        "ngAnimate",
+        "angularTrix"
     ]);
     Sticklet.config(["$routeProvider", "$locationProvider", "$provide", "$templateRequestProvider",
                      function($routeProvider, $locationProvider, $provide, $templateRequestProvider) {

@@ -2,7 +2,7 @@
 
 self.importScripts('/bower_components/localforage/dist/localforage.min.js');
 
-var VERSION = "v0.1.47",
+var VERSION = "v0.1.50",
     CACHED_STORAGE_NAME = "sticklet.cache",
     SYNCED_STORAGE_NAME = "sticklet.sync",
     CACHE_NAME = 'sticklet-cache.' + VERSION,

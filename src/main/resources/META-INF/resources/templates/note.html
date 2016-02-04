@@ -43,8 +43,10 @@
                         <div ng-bind-html="cur.content | Html"></div>
                     </div>
                     <div ng-if="cur.editingNote">
-                        <div ng-include="'/templates/wysihtml-toolbar.html'" id="wysihtml-toolbar"></div>
-                        <div wysihtml="options" value="cur.content" data-placeholder="Enter text..."></div>
+                        <stklt-trix-toolbar id="stklt-trix-toolbar"></stklt-trix-toolbar>
+                        <trix-editor placeholder="Enter text..." autofocus toolbar="stklt-trix-toolbar" ng-model="cur.content"
+                            angular-trix prevent-trix-file-accept="true" trix-initialize="onInitialize(e, editor)"
+                            trix-change="update(e, editor)"></trix-editor>
                     </div>
                 </perfect-scrollbar>
                 <a id="edit-note-button" ng-click="cur.editingNote = true" ng-if="!cur.editingNote">

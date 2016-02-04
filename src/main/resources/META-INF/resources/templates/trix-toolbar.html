@@ -1,0 +1,39 @@
+<div class="sections">
+    <span class="section history_tools">
+        <button disabled="" class="undo" data-action="undo" data-key="z" title="Undo"><i class="oi oi-action-undo"></i></button>
+        <button disabled="" class="redo" data-action="redo" data-key="shift+z" title="Redo"><i class="oi oi-action-redo"></i></button>
+    </span>
+
+    <span class="section text_tools">
+        <button class="bold" data-attribute="bold" data-key="b" title="Bold"><i class="fa fa-bold"></i></button>
+        <button class="italic" data-attribute="italic" data-key="i" title="Italic"><i class="fa fa-italic"></i></button>
+<!--         <button class="underline" data-attribute="underline" data-key="u" title="Underline"><i class="oi oi-underline"></i></button> -->
+        <button class="strike" data-attribute="strike" title="Strikethrough"><i class="fa fa-strikethrough"></i></button>
+    </span>
+
+    <span class="section block_tools">
+        <button class="quote" data-attribute="quote" title="Quote"><i class="oi oi-double-quote-serif-left"></i></button>
+<!--         <button class="code" data-attribute="code" title="Code"><i class="oi oi-code"></i></button> -->
+        <button class="list bullets" data-attribute="bullet" title="Bullets"><i class="fa fa-list-ul"></i></button>
+        <button class="list numbers" data-attribute="number" title="Numbers"><i class="fa fa-list-ol"></i></button>
+<!--         <button disabled="" class="block-level decrease" data-action="decreaseBlockLevel" title="Decrease Level">Decrease Level</button> -->
+<!--         <button disabled="" class="block-level increase" data-action="increaseBlockLevel" title="Increase Level">Increase Level</button> -->
+    </span>
+
+    <span class="section link_tools">
+        <button class="link" data-attribute="href" data-action="link" data-key="k" title="Link"><i class="oi oi-link-intact"></i></button>
+    </span>
+</div>
+
+<div class="dialogs">
+    <div class="dialog link_dialog" data-attribute="href" data-dialog="href">
+        <div class="link_url_fields">
+            <input disabled="disabled" required="" name="href" pattern="(?:https?://)?.+\..+"
+                placeholder="Enter a URL..." type="text">
+            <div class="button_group">
+                <input value="Link" data-method="setAttribute" type="button">
+                <input value="Unlink" data-method="removeAttribute" type="button">
+            </div>
+        </div>
+    </div>
+</div>
