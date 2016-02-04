@@ -9,9 +9,9 @@ spring:
       port: 27017
       username: sticklet
       password: sticklet
-#    cache:
-#      ehcache:
-#        config: classpath:ehcache.xml
+  cache:
+    ehcache:
+      config: classpath:ehcache.xml
 logging: 
   level:
     org.springframework: WARN

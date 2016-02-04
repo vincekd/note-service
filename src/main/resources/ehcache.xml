@@ -5,7 +5,7 @@
     dynamicConfig="true"
     name="stickletSecondLevelCacheManager">
 
-    <diskStore path="java.io.tempDir" />
+    <diskStore path="java.io.tmpdir" />
 
     <defaultCache eternal="false" 
         maxElementsInMemory="5000"
@@ -15,14 +15,22 @@
         timeToLiveSeconds="0"
         diskExpiryThreadIntervalSeconds="120"
         memoryStoreEvictionPolicy="LRU" />
-
-     <cache name="weakCache"
-        eternal="false"
-        maxElementsInMemory="1000" 
-        overflowToDisk="true" 
+        
+     <cache name="user-notes" eternal="false"
+        maxElementsInMemory="5000"
+        overflowToDisk="true"
         diskPersistent="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
         diskExpiryThreadIntervalSeconds="120"
-        timeToIdleSeconds="300" 
-        timeToLiveSeconds="300"
+        memoryStoreEvictionPolicy="LRU" />
+
+     <cache name="user-tags" eternal="false"
+        maxElementsInMemory="5000"
+        overflowToDisk="true"
+        diskPersistent="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        diskExpiryThreadIntervalSeconds="120"
         memoryStoreEvictionPolicy="LRU" />
 </ehcache>

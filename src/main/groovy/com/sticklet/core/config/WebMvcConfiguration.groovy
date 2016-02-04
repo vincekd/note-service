@@ -10,8 +10,11 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.FilterRegistrationBean
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
+import org.springframework.cache.ehcache.EhCacheCacheManager
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.io.ClassPathResource
 import org.springframework.web.servlet.DispatcherServlet
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport
@@ -45,7 +48,7 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
     public LessFilter lessFilter() {
         new LessFilter()
     }
-    
+
     @Bean
     public ServletContextTemplateResolver templateResolver() {
         ServletContextTemplateResolver resolver = new ServletContextTemplateResolver()
@@ -54,13 +57,6 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
         resolver.setSuffix("HTML5")
         resolver
     }
-    
-// <bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
-//  <property name="templateResolver" ref="templateResolver" />
-// </bean>
-// <bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
-//  <property name="templateEngine" ref="templateEngine" />
-// </bean>
 
     @Bean
     public Servlet dispatcherServlet() {
@@ -77,17 +73,18 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Bean
     public EmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
-        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory() {
-                    //                    @Override
-                    //                    protected void postProcessContext(Context context) {
-                    //                        SecurityConstraint securityConstraint = new SecurityConstraint()
-                    //                        securityConstraint.setUserConstraint("CONFIDENTIAL")
-                    //                        SecurityCollection collection = new SecurityCollection()
-                    //                        collection.addPattern("/*")
-                    //                        securityConstraint.addCollection(collection)
-                    //                        context.addConstraint(securityConstraint)
-                    //                    }
-                }
+        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory()
+        //{
+        //    @Override
+        //    protected void postProcessContext(Context context) {
+        //        SecurityConstraint securityConstraint = new SecurityConstraint()
+        //        securityConstraint.setUserConstraint("CONFIDENTIAL")
+        //        SecurityCollection collection = new SecurityCollection()
+        //        collection.addPattern("/*")
+        //        securityConstraint.addCollection(collection)
+        //        context.addConstraint(securityConstraint)
+        //    }
+        //}
         factory.addAdditionalTomcatConnectors(createConnection())
         factory
     }
@@ -96,7 +93,7 @@ class WebMvcConfiguration extends WebMvcConfigurationSupport {
         String protocol = "org.apache.coyote.http11.Http11NioProtocol"
         Connector connector = new Connector(protocol)
 
-        logger.info "redirecting port $redirectPort to $port"
+        logger.info "setup redirect port $redirectPort to $port"
 
         connector.setScheme("http")
         connector.setPort(redirectPort)

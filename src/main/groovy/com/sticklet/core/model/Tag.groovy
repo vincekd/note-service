@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.sticklet.core.model.base.BaseModel
 
-@JsonIgnoreProperties(["user", "updated", "created", "lowerCaseName", "version"])
+@JsonIgnoreProperties(["user", "updated", "created", "upperCaseName", "version"])
 @Document
 class Tag extends BaseModel {
     @DBRef

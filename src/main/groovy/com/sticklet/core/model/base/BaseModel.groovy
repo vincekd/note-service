@@ -10,8 +10,7 @@ import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
-//@JsonSerialize(using = BaseMongoModelSerializer.class)
-abstract class BaseModel {
+abstract class BaseModel implements Serializable {
     @Transient
     private final Logger logger = LoggerFactory.getLogger(this.class)
 
