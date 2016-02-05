@@ -22,6 +22,9 @@
                 <div class="col-md-3 hidden-xs hidden-sm"></div>
                 <div class="col-md-6">
                     <div id="infoContainer">
+                        <div ng-controller="LoginCtrl" class="pull-right">
+                            <a ng-click="registerPage()">Register</a> or <a ng-click="loginPage()">Login</a>
+                        </div>
                         <h1 class="title">Sticklet</h1>
                         <div>
                             <p>
@@ -63,11 +66,6 @@
                                     <li>search by date of creation/update</li>
                                     <li>Import from Google Keep/Microsoft OneNote</li>
                                 </ul>
-                            </div>
-
-                            <hr />
-                            <div ng-controller="LoginCtrl">
-                                <a ng-click="registerPage()">Register</a> or <a ng-click="loginPage()">Login</a>
                             </div>
                         </div>
                     </div>
