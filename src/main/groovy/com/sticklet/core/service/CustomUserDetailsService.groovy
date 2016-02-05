@@ -34,17 +34,16 @@ class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userServ.getUserByUsername(username)
 
+        logger.debug "authenticating $username: $user"
         if (user) {
             if (user.registered || !registerEnabled) {
                 return new org.springframework.security.core.userdetails.User(user.username,
                         user.password, true, true, true, true, getAuthorities(user.role))
-            } else {
-                //this might be a bad way to do this...
-                throw new UserNotRegisteredException(username)
             }
-        } else {
-            throw new UsernameNotFoundException(username)
+            //this might be a bad way to do this...
+            throw new UserNotRegisteredException(username)
         }
+        throw new UsernameNotFoundException(username)
     }
 
     public List<GrantedAuthority> getAuthorities(String role) {

@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration
+import org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.ComponentScan
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
 @Configuration
 @EnableCaching
 @EnableWebMvc
-@EnableAutoConfiguration(exclude = RepositoryRestMvcAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = [RepositoryRestMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class])
 @EnableAsync
 @EnableScheduling
 @ComponentScan(basePackages=["com.sticklet"])

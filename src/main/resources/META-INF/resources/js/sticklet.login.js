@@ -85,7 +85,6 @@ Sticklet
             if ($scope.checkLogin()) {
                 var $form = $("form#login")
                 //$form.submit();
-                console.log("data", $form.serialize());
                 $http({
                     "method": "POST",
                     "url": "/login.html",
@@ -95,8 +94,12 @@ Sticklet
                     }
                 }).then(function(resp) {
                     if (resp.status === 200) {
-                        history.replaceState({}, "main", "/");
-                        location.reload();
+                        __sticklet.authenticate(true).then(function(resp) {
+                            if (resp && resp.status !== 401) {
+                                history.replaceState({}, "main", "/");
+                                location.reload();
+                            }
+                        });
                     }
                 }, function(err) {
                     console.log("got err", err);

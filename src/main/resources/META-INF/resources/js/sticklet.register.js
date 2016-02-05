@@ -28,23 +28,26 @@
     };
 
     //register service worker
-    function authenticate() {
+    function authenticate(disable401) {
         if ('serviceWorker' in navigator && 'fetch' in window) {
             var req = new Request("/authenticate", {
                 "method": "GET",
                 "cache": "no-store"
             });
-            fetch(req, {"credentials": "include"}).then(function(resp) {
+            return fetch(req, {"credentials": "include"}).then(function(resp) {
                 console.info("autenticated", resp.status);
-                if (resp.status === 401) {
-                    return do401();
-                } else if (resp.status === 200) {
-                    __sticklet.authenticated = true;
+                if (!disable401) {
+                    if (resp.status === 401) {
+                        return do401();
+                    } else if (resp.status === 200) {
+                        __sticklet.authenticated = true;
+                    }
+                    initServiceWorker();
                 }
-                initServiceWorker();
+                return resp;
             }, function(resp) {
                 console.info("authenticate error status", resp.status);
-                if (resp.status === 401) {
+                if (!disabled401 && resp.status === 401) {
                     do401();
                 }
             });
