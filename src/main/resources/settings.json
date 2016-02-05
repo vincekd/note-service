@@ -27,7 +27,7 @@
             }
         },
         "autoSaveInterval": {
-            "value": 10000,
+            "value": 5000,
             "userUpdatable": false
         },
         "colors": {

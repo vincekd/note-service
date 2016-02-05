@@ -1,4 +1,4 @@
-<basic-page id="note">
+<basic-page id="note" allow-offline="true">
     <div ng-if="cur.editingNote" class="pull-right relative-div">
         <button class="btn" id="close-edit-view" type="button" ng-click="cur.editingNote = false">Done</button>
     </div>
@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-            <div id="note-content" ng-if="note">
+            <div id="note-content" ng-if="note" ng-dblclick="cur.editingNote = true">
                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
                     <div ng-if="!cur.editingNote">
                         <div ng-bind-html="cur.content | Html"></div>

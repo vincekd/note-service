@@ -212,7 +212,7 @@ Sticklet
             }
         };
     }])
-    .directive("basicPage", [function() {
+    .directive("basicPage", ["network", function(network) {
         return {
             "restrict": "E",
             "transclude": true,
@@ -222,13 +222,22 @@ Sticklet
                                 '<div class="col-md-2 hidden-xs hidden-sm"></div>' +
                                 '<div class="col-md-8 basic-page-main">' +
                                     '<a class="close" route-load="/">&times;</a>' +
-                                    '<div class="basic-page-content">' +
+                                    '<div class="basic-page-content" ng-if="network.online || allowOffline">' +
                                         '<ng-transclude></ng-transclude>' +
+                                    '</div>' +
+                                    '<div class="stklt-header" ng-if="!network.online && !allowOffline">' +
+                                        'This page is unavailable offline.' +
                                     '</div>' +
                                 '</div>' +
                                 '<div class="col-md-2 hidden-xs hidden-sm"></div>' +
                             '</div>' +
-                        '</div>')
+                        '</div>'),
+            "scope": {
+                "allowOffline": "="
+            },
+            "link": function($scope, $element, $attrs) {
+                $scope.network = network;
+            }
         };
     }])
     .directive("contentPage", ["network", function(network) {
