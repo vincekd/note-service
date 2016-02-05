@@ -83,7 +83,24 @@ Sticklet
         };
         $scope.login = function() {
             if ($scope.checkLogin()) {
-                $("form#login").submit();
+                var $form = $("form#login")
+                //$form.submit();
+                console.log("data", $form.serialize());
+                $http({
+                    "method": "POST",
+                    "url": "/login.html",
+                    "data": $form.serialize(),
+                    "headers": {
+                        "Content-Type": 'application/x-www-form-urlencoded'
+                    }
+                }).then(function(resp) {
+                    if (resp.status === 200) {
+                        history.replaceState({}, "main", "/");
+                        location.reload();
+                    }
+                }, function(err) {
+                    console.log("got err", err);
+                });
             } else {
                 $scope.warning = "Your username or password is invalid";
             }
