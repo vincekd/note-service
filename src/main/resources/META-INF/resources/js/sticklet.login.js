@@ -121,13 +121,15 @@ Sticklet
         };
         $scope.register = function() {
             if ($scope.checkRegister()) {
+                $scope.registering = true;
                 $http.post("/user/register", $scope.user).success(function(msg) {
-                    $modalInst.close($scope.user.username);
+                    //$modalInst.close($scope.user.username);
                 }).error(function(resp, status) {
                     if (status === 409) {
                         $scope.errorMsg = "User with that username already exists.";
                     } else {
-                        $scope.errorMsg = "Please ensure your username has at least 4 characters and password has at least 6 characters, no spaces.";
+                        $scope.errorMsg = ("Please ensure your username has at least 4 characters " +
+                                "and password has at least 6 characters, no spaces.");
                     }
                 });
             } else {

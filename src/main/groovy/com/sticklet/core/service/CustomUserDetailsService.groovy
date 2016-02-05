@@ -34,7 +34,7 @@ class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userServ.getUserByUsername(username)
 
-        logger.debug "authenticating $username: $user"
+        //logger.debug "authenticating $username: $user"
         if (user) {
             if (user.registered || !registerEnabled) {
                 return new org.springframework.security.core.userdetails.User(user.username,

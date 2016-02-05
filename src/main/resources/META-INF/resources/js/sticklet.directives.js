@@ -113,6 +113,7 @@ Sticklet
             },
             "templateUrl": "templates/editable-area.html",
             "link": function($scope, $element, $attrs) {
+                $scope.hideLinks = true;
                 $scope.cur = {
                     "value": $scope.model[$scope.prop]
                 };
@@ -590,6 +591,21 @@ Sticklet
             "restrict": "E",
             "templateUrl": "/templates/trix-toolbar.html",
             //"link": function($scope, $element, $attrs) {}
+        };
+    }])
+    .directive("urlTrixToolbar", [function() {
+        return {
+            "restrict": "A",
+            "link": function($scope, $element, $attrs) {
+                $element.on("focus.stklt", function(ev) {
+                    if (!$element.val()) {
+                        $element.val("https://");
+                    }
+                });
+                $scope.$on("$destroy", function(ev) {
+                    $element.off("focus.stklt");
+                });
+            }
         };
     }])
 ;

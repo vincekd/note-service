@@ -83,15 +83,17 @@ Sticklet
         var blurTime;
         $(window).on("focus.sticklet", function(ev) {
             if (blurTime && Date.now() - blurTime > 1200000) { //20 minutes
-                console.info("reloading page after long unfocus");
-                $route.reload();
+                __sticklet.authenticate().then(function(resp) {
+                    console.info("reloading page after long unfocus");
+                    $route.reload();
+                });
             }
             blurTime = null;
         }).on("blur.sticklet", function(ev) {
             blurTime = Date.now();
         }).focus();
         $scope.$on("$destroy", function(ev) {
-            $(window).off("focus.sticklet blur.sticklet hashchange.sticklet");
+            $(window).off("focus.sticklet blur.sticklet");
         });
         $scope.$on("$routeChangeStart", function(event, next, current) {
             if (next.$$route.originalPath !== "/") {

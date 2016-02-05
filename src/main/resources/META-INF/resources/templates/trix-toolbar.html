@@ -20,7 +20,7 @@
 <!--         <button disabled="" class="block-level increase" data-action="increaseBlockLevel" title="Increase Level">Increase Level</button> -->
     </span>
 
-    <span class="section link_tools">
+    <span class="section link_tools" ng-if="!hideLinks">
         <button class="link" data-attribute="href" data-action="link" data-key="k" title="Link"><i class="oi oi-link-intact"></i></button>
     </span>
 </div>
@@ -29,10 +29,10 @@
     <div class="dialog link_dialog" data-attribute="href" data-dialog="href">
         <div class="link_url_fields">
             <input disabled="disabled" required="" name="href" pattern="(?:https?://)?.+\..+"
-                placeholder="Enter a URL..." type="text">
+                url-trix-toolbar="" placeholder="https://www.sticklet.com" type="url">
             <div class="button_group">
-                <input value="Link" data-method="setAttribute" type="button">
-                <input value="Unlink" data-method="removeAttribute" type="button">
+                <input class="btn" value="Link" data-method="setAttribute" type="button">
+                <input class="btn" value="Unlink" data-method="removeAttribute" type="button">
             </div>
         </div>
     </div>
