@@ -34,6 +34,12 @@ class UserController extends BaseController {
         emptyJson()
     }
 
+    @RequestMapping(value="/user/passwordReset", method=RequestMethod.POST, consumes="application/json")
+    public @ResponseBody def passwordReset(@RequestBody Map json, HttpServletResponse resp) {
+        userServ.resetPassword(json.email, resp)
+        emptyJson()
+    }
+
     @RequestMapping(value="/user/registration/{id}", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody def registration(@PathVariable("id") String id, HttpServletResponse resp) {
         if (userServ.register(id)) {

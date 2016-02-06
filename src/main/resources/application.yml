@@ -33,7 +33,7 @@ activityLog:
 debug:
   enabled: true
 email:
-  enabled: false
+  enabled: true
   from: "admin@sticklet.com"
   password: 
   port: 587

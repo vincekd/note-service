@@ -2,6 +2,7 @@ package com.sticklet.core.service
 
 import javax.mail.internet.AddressException
 import javax.mail.internet.InternetAddress
+import javax.servlet.http.HttpServletResponse
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,7 +35,7 @@ class UserService {
 
     @Value("\${email.enabled}")
     private boolean emailEnabled
-    
+
     @Value("\${login.register.confirmation}")
     private boolean registerConfirmation
 
@@ -50,6 +51,23 @@ class UserService {
     private SettingsService settingsServ
     @Autowired
     private ActivityLogService activityLogServ
+
+    public void resetPassword(String email, HttpServletResponse resp) {
+        User user = repo.findByEmail(email)
+        if (user) {
+            if (emailEnabled) {
+                String resetCode = ""
+                emailServ.send(user.email, StickletConsts.RESET_PASSWORD_SUBJECT,
+                        StickletConsts.RESET_PASSWORD_CONTENT.
+                        replaceAll("%id%", user.id).
+                        replaceAll("%resetCode%", resetCode))
+            } else {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+            }
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND)
+        }
+    }
 
     //delete UserPreferences, User Settings, User ActivityLogs, User
     public void delete(User user) {

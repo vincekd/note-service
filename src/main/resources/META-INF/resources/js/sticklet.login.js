@@ -56,6 +56,9 @@ Sticklet
     }])
     .controller("LoginPageCtrl", ["$scope", "$uibModalInstance", "$http", "username", "ValidLogin", "$timeout",
                                   function($scope, $modalInst, $http, username, ValidLogin, $timeout) {
+        $scope.opts = {
+            "pwReset": false
+        };
         $scope.loginVals = {
             "username": username,
             "password": ""
@@ -75,8 +78,21 @@ Sticklet
             }
         };
         $scope.passwordReset = function() {
-            //TODO: complete this
-            console.log($scope.loginVals.email);
+            $http.post("/user/passwordReset", {
+                "email": $scope.opts.email
+            }).then(function(resp) {
+                if (resp.status === 200) {
+                    $modalInst.dismiss("cancel");
+                } else {
+                    $scope.warning = "No such user";
+                }
+            }, function(resp) {
+                if (resp.status === 404) {
+                    $scope.warning = "No such user";
+                } else {
+                    $scope.warning = "There was an error sending the email. Please email support at admin@sticklet.com";
+                }
+            });
         };
         $scope.cancel = function() {
             $modalInst.dismiss("cancel");

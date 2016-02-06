@@ -7,4 +7,5 @@ import com.sticklet.core.repository.base.BaseRepo
 
 public interface UserRepo extends BaseRepo<User, String> {
     public User findByUsername(@Param("username") String username)
+    public User findByEmail(@Param("email") String email)
 }

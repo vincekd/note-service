@@ -40,7 +40,7 @@
 
                             <div>
                                 <p>
-                                    Current version (0.6) includes such features as note taking and other note related tasks:
+                                    Current version (0.8) includes such features as note taking and other note related tasks:
                                 </p>
                                 <ul>
                                     <li>Offline editing and syncing</li>
@@ -80,7 +80,7 @@
         <h4 class="modal-title">Login</h4>
     </div>
     <div class="modal-body">
-        <form class="login" id="login" method="POST" action="login.html" novalidate ng-if="!opts.register">
+        <form class="login" id="login" method="POST" action="login.html" novalidate ng-if="!opts.pwReset">
             <div>
                 <div class="form-group">
                     <label class="control-label">Username</label>
@@ -94,12 +94,27 @@
                 </div>
             </div>
         </form>
+        <div ng-if="!opts.pwReset"><a ng-click="opts.pwReset = true">Forgot my password</a></div>
+        <div ng-if="opts.pwReset">
+            <h5>
+                Please enter your email and we will send you an email with reset instructions.
+            </h5>
+            <div class="form-group">
+                <label class="control-label">Email</label>
+                <input type="email" class="form-control" id="email"
+                    required ng-model="opts.email" name="email"/>
+            </div>
+        </div>
         <div ng-if="warning" ng-bind="warning"></div>
-        <div><a ng-click="passwordReset()">Forgot my password</a></div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-danger pull-left" ng-click="cancel()">Cancel</button>
-        <button type="button" class="btn" ng-click="login()" ng-disabled="!checkLogin()">Login</button>
+        <div ng-if="!opts.pwReset">
+            <button type="button" class="btn btn-danger pull-left" ng-click="cancel()">Cancel</button>
+            <button type="button" class="btn" ng-click="login()" ng-disabled="!checkLogin()">Login</button>
+        </div>
+        <div ng-if="opts.pwReset">
+            <button type="button" class="btn" ng-click="passwordReset()">Send Email</button>
+        </div>
     </div>
 </div>
         </script>
@@ -113,7 +128,8 @@
             <div>
                 <div class="form-group">
                     <label class="control-label">Username</label>
-                    <input type="text" class="form-control" pattern="[a-zA-Z0-9\_\-]{4,}" required ng-model="user.username" name="username"/>
+                    <input type="text" class="form-control" pattern="^[a-zA-Z0-9\_\-]{4,}$" 
+                        required ng-model="user.username" name="username"/>
                 </div>
                 <div class="form-group">
                     <label class="control-label">Your Email</label>
