@@ -691,6 +691,7 @@ Sticklet
                 $scope.archived = $scope.archived.filter(function(n) {
                     return n.id !== note.id;
                 });
+                $scope.activeNote = $scope.archived[0];
             });
         };
         $scope.deleteNote = function(note) {
@@ -699,6 +700,7 @@ Sticklet
                     $scope.archived = $scope.archived.filter(function(n) {
                         return n.id !== note.id;
                     });
+                    $scope.activeNote = $scope.archived[0];
                 });
             });
         };
@@ -720,6 +722,7 @@ Sticklet
                         $scope.trash = $scope.trash.filter(function(n) {
                             return n.id !== note.id;
                         });
+                        $scope.activeNote = $scope.trash[0];
                     });
                 };
                 $scope.noteActivated = function(note) {

@@ -1,29 +1,31 @@
 <div class="container-fluid row-full-height content-page">
-    <div class="row">
+    <div class="row no-row-padding">
         <div class="col-md-2 hidden-xs hidden-sm"></div>
         <div class="col-md-8 content-page-main">
             <div class="content-page-header">
                 <a class="close" route-load="/">&times;</a>
                 <h1 ng-if="header" ng-bind="header"></h1>
             </div>
-            <div class="content-page-body" ng-if="network.online">
-                <div class="content-page-nav">
-                    <div ng-if="!disallowFilter" class="content-page-filter">
-                        <input type="search" class="stklt-input" maxlength="50" ng-model="search[displayProp]" placeholder="Search" />
+            <div class="content-page-body container-fluid row-full-height" ng-if="network.online">
+                <div class="row">
+                    <div class="content-page-nav col-xs-3">
+                        <div ng-if="!disallowFilter" class="content-page-filter">
+                            <input type="search" class="stklt-input" maxlength="50" ng-model="search[displayProp]" placeholder="Search" />
+                        </div>
+                        <div class="content-page-list">
+                            <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li ng-repeat="item in collection | FilterContentPage:search:displayProp:defaultHeader" 
+                                        role="presentation" ng-class="{active: item === active}">
+                                        <a ng-click="activateItem(item)" ng-bind="item[displayProp] || defaultHeader"></a>
+                                    </li>
+                                </ul>
+                            </perfect-scrollbar>
+                        </div>
                     </div>
-                    <div class="content-page-list">
-                        <perfect-scrollbar class="scrollbar" wheel-propagation="true" min-scrollbar-length="20" wheel-speed="3">
-                            <ul class="nav nav-pills nav-stacked">
-                                <li ng-repeat="item in collection | FilterContentPage:search:displayProp:defaultHeader" 
-                                    role="presentation" ng-class="{active: item === active}">
-                                    <a ng-click="activateItem(item)" ng-bind="item[displayProp] || defaultHeader"></a>
-                                </li>
-                            </ul>
-                        </perfect-scrollbar>
+                    <div class="content-page-content col-xs-9">
+                        <ng-transclude class="full-height"></ng-transclude>
                     </div>
-                </div>
-                <div class="content-page-content">
-                    <ng-transclude class="full-height"></ng-transclude>
                 </div>
             </div>
             <div ng-if="!network.online" class="stklt-header">
