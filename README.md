@@ -20,16 +20,14 @@
           <li>filter in archive/trash</li>
         </ul>
     </li>
-    <li>BETTER STYLE, MAN ((tags/archive/settings/trash pages, color scheme, Chrome & FF (Edge?))</li>
     <li>per-user encrypted database</li>
-    <li>import from keep, OneNote</li>
+    <li>import from Keep, OneNote</li>
     <li>Password resets</li>
-    <li>public notes</li>
 </ol>
 
 <h2>known bugs:</h2>
 <ul>
-    <li>Editor height doesn't adjust properly when deleting lines</li>
     <li>Dropdown for tags goes off screen if too low</li>
     <li>Firefox for Android does not handle text insertion well at all</li>
+    <li>Infinite scrolling buggy on chrome</li>
 </ul>
