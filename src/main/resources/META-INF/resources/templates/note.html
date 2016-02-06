@@ -1,6 +1,6 @@
 <basic-page id="note" allow-offline="true">
     <div ng-if="cur.editingNote" class="pull-right relative-div">
-        <button class="btn" id="close-edit-view" type="button" ng-click="cur.editingNote = false">Done</button>
+        <button class="btn" id="close-edit-view" type="button" ng-click="done()">Done</button>
     </div>
     <div id="note-container" ng-style="{'background': note.color}">
         <div class="full-height" balance-heights="" prefer="#note-controls">

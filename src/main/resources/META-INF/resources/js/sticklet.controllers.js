@@ -101,8 +101,8 @@ Sticklet
             }
         });
     }])
-    .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter", "$location",
-                              function($scope, NoteServ, filterNotes, sortNotes, $location) {
+    .controller("NotesCtrl", ["$scope", "NoteServ", "FilterNotesFilter", "SortNotesFilter", "$location", "$timeout",
+                              function($scope, NoteServ, filterNotes, sortNotes, $location, $timeout) {
 
         $scope.opts.menuOpen = false; //reset this
         var allNotes = [];
@@ -146,6 +146,12 @@ Sticklet
                 "tags": _.difference($scope.current.filters.tags, $scope.current.filters.notTags),
                 "color": $scope.current.filters.colors[0],
                 "title": $scope.current.filters.search
+            }).then(function(note) {
+                if ($scope.opts.mobile) {
+                    $timeout(function() {
+                        $location.path("/note/" + note.id);
+                    });
+                }
             });
         };
         $scope.closeEditor = function() {
@@ -486,8 +492,12 @@ Sticklet
         };
 
         Settings.get("note.autoSaveInterval").then(function(time) {
-            $scope.update = _.debounce(update, time);
+            $scope.update = time? _.debounce(update, time) : update;
         });
+        $scope.done = function() {
+            update();
+            $scope.cur.editingNote = false;
+        }
 
         function update() {
             if ($scope.cur.content !== $scope.note.content || $scope.cur.title !== $scope.note.title) {
