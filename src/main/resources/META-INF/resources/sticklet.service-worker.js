@@ -111,7 +111,6 @@ self.addEventListener('install', function(event) {
             });
         });
     }
-    self.skipWaiting();
     event.waitUntil(install());
 });
 
