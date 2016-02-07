@@ -34,7 +34,7 @@ Sticklet
         return function(notes, sortBy, reverse) {
             reverse = (reverse === "DESC" || reverse === true);
             var sorted = _.sortBy(notes, function(n) {
-                return n[sortBy];
+                return _.isString(n[sortBy]) ? n[sortBy].toLowerCase() : n[sortBy];
             });
             return (reverse ? _.reverse(sorted) : sorted);
         };

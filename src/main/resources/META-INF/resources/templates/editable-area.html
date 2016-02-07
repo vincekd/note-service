@@ -1,7 +1,7 @@
 <div ng-if="type === 'textarea'">
     <stklt-trix-toolbar id="stklt-trix-toolbar"></stklt-trix-toolbar>
     <trix-editor placeholder="Enter text..." autofocus ng-model="cur.value" toolbar="stklt-trix-toolbar"
-        angular-trix prevent-trix-file-accept="true" trix-blur="onBlur(e, editor)" 
+        angular-trix prevent-trix-file-accept="true" trix-blur="onBlur(e, editor)"
         trix-initialize="onInitialize(e, editor)"></trix-editor>
 </div>
 <div ng-if="type === 'input'">

@@ -113,7 +113,9 @@ Sticklet
                         __sticklet.authenticate(true).then(function(resp) {
                             if (resp && resp.status !== 401) {
                                 history.replaceState({}, "main", "/");
-                                location.reload();
+                                $timeout(function() {
+                                    location.reload();
+                                }, 10);
                             }
                         });
                     }
