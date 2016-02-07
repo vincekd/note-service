@@ -12,65 +12,73 @@
 
         <!-- css -->
         <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="/less/sticklet.less" />
+        <link type="text/css" rel="stylesheet" href="/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
+<!--         <link type="text/css" rel="stylesheet" href="/less/sticklet.less" /> -->
         <link type="text/css" rel="stylesheet" href="/less/sticklet.login.less" />
     </head>
 
     <body ng-app="StickletLogin">
         <div id="info" class="container-fluid row-full-height">
             <div class="row">
-                <div class="col-md-3 hidden-xs hidden-sm"></div>
-                <div class="col-md-6">
+                <div class="col-md-2 hidden-xs hidden-sm"></div>
+                <div class="col-md-8">
                     <div id="infoContainer">
-                        <div ng-controller="LoginCtrl" class="pull-right">
-                            <a ng-click="registerPage()">Register</a> or <a ng-click="loginPage()">Login</a>
-                        </div>
-                        <h1 class="title">Sticklet</h1>
-                        <div>
-                            <p>
-                                <a href="https://www.sticklet.com">Sticklet.com</a> 
-                                aims to provide a quality note service at a reasonable price. 
-                                Failing that, here's something that shitty and free.
-                            </p>
-                            
-                            <p>
-                                Sticklet.com is an open source website. View and contribute to the code 
-                                <a href="https://github.com/vincekd/note-service">here</a>.
-                            </p>
-
-                            <div>
-                                <p>
-                                    Current version (0.8) includes such features as note taking and other note related tasks:
-                                </p>
-                                <ul>
-                                    <li>Offline editing and syncing</li>
-                                    <li>Organize notes by tag</li>
-                                    <li>Organize notes by color</li>
-                                    <li>Sticky draggable/resizable notes</li>
-                                    <li>Secure connection</li>
-                                    <li>State of the art filtering tag/color/text system that allows you to—ahem—filter</li>
-                                    <li>Receive automatic updates when you edit the note on separate computers</li>
-                                    <li>Tracking and saving old versions for easy reversion.</li>
-                                    <li>Import from Evernote/Sticklet</li>
-                                    <li>Make single notes public so you can easily send links for todo lists, etc.</li>
-                                    <li>Wine/coffee stain proof (Disclaimer: does not include your computer)</li>
-                                </ul>
+                        <perfect-scrollbar class="scrollbar" wheel-propagation="true" wheel-speed="10" min-scrollbar-length="20">
+                            <img id="logo-image" src="/images/sticklet-large-logo.png" title="Sticklet.com" />
+                            <div ng-controller="LoginCtrl" id="login-register">
+                                <a ng-click="registerPage()">Register</a> or <a ng-click="loginPage()">Login</a>
                             </div>
+                            <div id="content">
+                                <div>
+                                    <p>
+                                        <a href="https://www.sticklet.com">Sticklet.com</a> 
+                                        aims to provide a quality note service at a reasonable price. 
+                                        Failing that, here's something that shitty and free.
+                                    </p>
+                                </div>
 
-                            <div>
-                                <p>
-                                    Features for future releases:
-                                </p>
-                                <ul>
-                                    <li>encrypted database, and possible per user encryption</li>
-                                    <li>search by date of creation/update</li>
-                                    <li>Import from Google Keep/Microsoft OneNote</li>
-                                </ul>
+                                <div>
+                                    <p>
+                                        Current version (0.8) includes such features as note taking and other note related tasks:
+                                    </p>
+                                    <ul>
+                                        <li>Offline edits automatically sync when connection regained</li>
+                                        <li>Organize notes by tag</li>
+                                        <li>Organize notes by color</li>
+                                        <li>Sticky draggable/resizable notes</li>
+                                        <li>Secure connection</li>
+                                        <li>State of the art filtering tag/color/text system that allows you to—ahem—filter</li>
+                                        <li>Receive automatic updates when you edit the note on separate computers</li>
+                                        <li>Automatically records old versions for easy reversion</li>
+                                        <li>Import from Evernote/Sticklet</li>
+                                        <li>Make single notes public so you can easily send links for todo lists, etc.</li>
+                                        <li>Wine/coffee stain proof (Disclaimer: does not include your computer)</li>
+                                    </ul>
+                                </div>
+    
+                                <div>
+                                    <p>
+                                        Features for future releases:
+                                    </p>
+                                    <ul>
+                                        <li>encrypted database, and possible per user encryption</li>
+                                        <li>search by date of creation/update</li>
+                                        <li>Import from Google Keep/Microsoft OneNote</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <p>
+                                        This is an <a href="https://en.wikipedia.org/wiki/Open_source">open source</a> website. 
+                                        View and contribute to the code 
+                                        <a href="https://github.com/vincekd/note-service">here</a>.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        </perfect-scrollbar>
                     </div>
                 </div>
-                <div class="col-md-3 hidden-xs hidden-sm"></div>
+                <div class="col-md-2 hidden-xs hidden-sm"></div>
             </div>
         </div>
         
@@ -165,13 +173,15 @@
     </body>
 
     <!-- libraries -->
-    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
-    <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
-    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script type="text/javascript" src="/bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script type="text/javascript" src="/bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js"></script>
+    <script type="text/javascript" src="/bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js"></script>
 
     <!-- sticklet code -->
-    <script type="text/javascript" src="js/sticklet.login.js"></script>
+    <script type="text/javascript" src="/js/sticklet.login.js"></script>
 </html>

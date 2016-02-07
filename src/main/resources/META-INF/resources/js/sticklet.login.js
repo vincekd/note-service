@@ -1,6 +1,6 @@
 (function($, angular, undefined) { 'use strict';
 
-var Sticklet = angular.module("StickletLogin", ["ui.bootstrap"]);
+var Sticklet = angular.module("StickletLogin", ["ui.bootstrap", "perfect_scrollbar"]);
 Sticklet.run([function() {
     $(function() {
         __sticklet.initServiceWorker();
