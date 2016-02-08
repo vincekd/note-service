@@ -34,7 +34,6 @@
         "/templates/notes.html", 
         "/templates/note.html",
         "/templates/tags.html", 
-        "/templates/editable-area.html",
         "/templates/color-choices.html", 
         "/templates/menu.html",
         "/templates/trix-toolbar.html",

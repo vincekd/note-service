@@ -8,7 +8,7 @@
             <div id="notes-list" class="{{!opts.mobile ? opts.display : 'mobile'}} full">
 
                 <perfect-scrollbar class="scrollbar" wheel-propagation="true" ng-if="opts.display !== 'tiled' || opts.mobile" 
-                    min-scrollbar-length="20" wheel-speed="3" notes-infinite-scroll>
+                    min-scrollbar-length="20" wheel-speed="3" notes-infinite-scroll> 
                     <div class="notes">
                         <div ng-repeat="note in notes | InfiniteScrollLimit:displayNotes:20 track by note.id" class="noteContainer">
                             <div ng-if="viewableNote(note)" class="full-height" ng-include="template('/notes-note.html')"></div>

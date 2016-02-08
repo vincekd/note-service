@@ -111,7 +111,17 @@ Sticklet
                 "type": "@",
                 "prop": "@"
             },
-            "templateUrl": "templates/editable-area.html",
+            "template": (
+                "<div ng-if=\"type === 'textarea'\">" +
+                    "<stklt-trix-toolbar id=\"stklt-trix-toolbar\"></stklt-trix-toolbar>" +
+                    "<trix-editor placeholder=\"Enter text...\" ng-model=\"cur.value\" toolbar=\"stklt-trix-toolbar\"" +
+                    "angular-trix prevent-trix-file-accept=\"true\" trix-blur=\"onBlur(e, editor)\"" +
+                    "trix-initialize=\"onInitialize(e, editor)\" autofocus=\"\"></trix-editor>" +
+                "</div>" +
+                "<div ng-if=\"type === 'input'\">" +
+                    "<input type=\"text\" max-length=\"{{maxTitleLength}}\" ng-model=\"cur.value\" class=\"stklt-input\" autofocus />" +
+                "</div>"
+            ),
             "link": function($scope, $element, $attrs) {
                 $scope.hideLinks = true;
                 $scope.cur = {
@@ -142,7 +152,7 @@ Sticklet
                         });
                     }
                     $scope.onBlur = function(ev, editor) {
-                        close();
+                        //close();
                     };
                 } else {
                     $element.on("keydown.sticklet", "input", function(ev) {
@@ -394,7 +404,7 @@ Sticklet
                     }
 
                     //ng-if creates new scope...
-                    $scope.$parent.displayNotes = arr;
+                    if ($scope.$parent) $scope.$parent.displayNotes = arr;
                 }
 
                 $element.on("scroll.sticklet", _.throttle(function(ev) {
@@ -465,7 +475,6 @@ Sticklet
 
                     $element.on("mousedown" + namespace, function(ev) {
                         if ($scope.current.editing === $scope.note || $scope.current.title === $scope.note) {
-                            console.log("editing...");
                             return;
                         }
                         ev.preventDefault();
